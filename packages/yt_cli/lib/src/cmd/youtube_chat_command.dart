@@ -27,7 +27,6 @@ The live chat feature is enabled by default for live broadcasts and is available
     addSubcommand(YoutubeListChatCommand());
     addSubcommand(YoutubeInsertChatCommand());
     addSubcommand(YoutubeDeleteChatCommand());
-    addSubcommand(YoutubeAnswerChatCommand());
   }
 }
 
@@ -177,51 +176,4 @@ class YoutubeDeleteChatCommand extends YtHelperCommand {
   }
 }
 
-class YoutubeAnswerChatCommand extends YtHelperCommand {
-  String? userHome =
-      Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
 
-  @override
-  String get description =>
-      'Process chat messages and provided canned answers to set questions (not part of the documented API).';
-
-  @override
-  String get name => 'answer';
-
-  YoutubeAnswerChatCommand() {
-    argParser.addOption(
-      'chatbot-config',
-      valueHelp: 'path',
-      help: 'The path to a "yaml" file with the Chatbot configuration.',
-      defaultsTo: '$userHome/.yt/chatbot.yaml',
-    );
-  }
-
-  @override
-  void run() async {
-    var configFile = File(argResults?['chatbot-config']);
-
-    if (!configFile.existsSync()) {
-      throw Exception(
-        'File: ${configFile.path} could not be found.  This is a required file.',
-      );
-    }
-
-    await initializeYt();
-
-    var chatbot = Chatbot.fromYaml(configFile);
-
-    var liveBroadcastItem = await broadcast.getActiveBroadcast();
-
-    try {
-      await chat.answerBot(
-        liveBroadcastItem: liveBroadcastItem,
-        chatbot: chatbot,
-      );
-
-      close();
-    } on DioException catch (err) {
-      throw UsageException('API usage error:', err.usage);
-    }
-  }
-}

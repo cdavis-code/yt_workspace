@@ -7,6 +7,8 @@
 * workspace structure with multiple packages
 * added yt_cli, yt_js, yt_mcp, yt_mcp_js packages
 * enhanced documentation across all packages
+* **BREAKING**: removed chatbot functionality (Chatbot, Dialog, Keyword classes)
+* removed experimental chatbot features from live chat
 * dependency updates
 
 ## 2.2.6

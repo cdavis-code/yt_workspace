@@ -24,7 +24,6 @@ dependencies:
   json_annotation: ^4.9.0
   loggy: ^2.0.3
   retrofit: ^4.7.2
-  stemmer: ^3.2.0
   universal_io: ^2.2.2
   yaml: ^3.1.3
 

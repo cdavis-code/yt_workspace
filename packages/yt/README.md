@@ -29,7 +29,6 @@ Native [Dart](https://dart.dev/) interface to multiple Google REST APIs, includi
 - [Upload a Video](#upload-a-video)
 - [Using the Live Streaming API](#using-the-live-streaming-api)
 - [Download a LiveChat](#download-a-livechat)
-- [Experimental Chatbot](#experimental-chatbot)
 - [Usage within Flutter](#usage-within-flutter)
 - [Available Examples](#available-examples)
 - [Youtube REST API cli (Youtube at the command prompt)](#youtube-rest-api-cli-youtube-at-the-command-prompt)
@@ -52,7 +51,7 @@ Native [Dart](https://dart.dev/) interface to multiple Google REST APIs, includi
 ## How does this package differ from the [googleapis](https://pub.dev/packages/googleapis) package?
 
 - It's not generated, it's manually coded and limited to a targeted set of just YouTube APIs
-- Since it's not generated the package includes additional useful features like a cli (Command Line Interface) and the experimental Chatbot
+- Since it's not generated the package includes additional useful features like a cli (Command Line Interface)
 - A tighter focus to the package means focused documentation and focused examples
 
 ## Release News
@@ -263,35 +262,7 @@ if (broadcastResponse.items.isNotEmpty) {
 }
 ```
 
-## Experimental Chatbot
 
-```dart
-final yt = await Yt.withOAuth();
-
-// the live streaming broadcast API client
-final br = yt.broadcast;
-
-// look for an active broadcast
-var broadcastResponse = await br.list(broadcastStatus: 'active');
-
-// get an upcoming broadcast, if there's no active
-if (broadcastResponse.items.isEmpty) {
-  broadcastResponse =
-      await br.list(broadcastStatus: 'upcoming', maxResults: 1);
-}
-
-if (broadcastResponse.items.isNotEmpty) {
-  final liveBroadcastItem = broadcastResponse.items.first;
-
-  // setup the chatbot with a custom dialog
-  final chatbot = Chatbot.fromYaml(File('chatbot.yaml'));
-
-  // if being run periodically you will want to provide a TimeStore to persist
-  // a timestamp that will ensure the chatbot doesn't repeat answers
-  await yt.chat
-      .answerBot(liveBroadcastItem: liveBroadcastItem, chatbot: chatbot);
-}
-```
 
 ## Usage within Flutter
 
@@ -370,7 +341,6 @@ With the generator in place, it becomes quite easy to include _google sign-in_ f
 ## Available Examples
 
 - [example.dart](https://github.com/faithoflifedev/yt/blob/main/example/example.dart) - (command line) display various YouTube data
-- [livechat_example.dart](https://github.com/faithoflifedev/yt/blob/main/example/livechat_example.dart) - (command line) chatbot will answer a set of questions in a liveChat session
 - [flutter_youtube](https://github.com/faithoflifedev/yt/tree/main/example/flutter_youtube) - a simple flutter app that can function on web and mobile platforms that allows the user to type a keyword to get matching youtube videos with image and title
   
 ## Youtube REST API cli (Youtube at the command prompt)
@@ -451,7 +421,6 @@ Available commands:
 ### Custom Features (experimental)
 
 - download chat history from a LiveChat
-- simple chatbot functionality for LiveChat
 
 ## What's Next?
 
