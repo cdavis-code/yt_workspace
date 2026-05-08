@@ -1,0 +1,9 @@
+example/flutter_playlist/
+
+build/
+ios/
+android/
+scratch/
+tool/
+
+notes.txt

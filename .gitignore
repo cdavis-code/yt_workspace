@@ -2,6 +2,8 @@
 
 .gitconfig
 .vscode
+.idea
+.DS_Store
 
 # Files and directories created by pub
 .dart_tool/
@@ -23,14 +25,19 @@ doc/api/
 *.js.deps
 *.js.map
 
-bin/config.yaml
-build/
-sh/
 scratch/
+.pubspec.yaml.bak
+
 tool/publish_tools.yaml
 
-package.json
-notes.txt
-
-.pubignore
 .pt-build/
+
+# Local MCP server credentials.
+.env
+bin/.env
+!.env.example
+
+# Melos generates this during bootstrap
+pubspec_overrides.yaml
+
+**/doc

@@ -1,0 +1,30 @@
+name: yt_cli
+version: 2.2.6
+description: A CLI tool for the YouTube Data and Live Streaming APIs.
+homepage: https://github.com/faithoflifedev/yt
+repository: https://github.com/faithoflifedev/yt/tree/main/packages/yt_cli
+issue_tracker: https://github.com/faithoflifedev/yt/issues
+
+topics:
+  - youtube
+  - cli
+  - api
+
+resolution: workspace
+
+environment:
+  sdk: ^3.8.0
+
+executables:
+  yt: yt
+
+dependencies:
+  yt: ^2.2.6
+  args: ^2.7.0
+  dio: ^5.9.0
+  googleapis_auth: ^2.0.0
+  loggy: ^2.0.3
+  universal_io: ^2.2.2
+
+dev_dependencies:
+  lints: ^6.0.0

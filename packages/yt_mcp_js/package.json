@@ -1,0 +1,44 @@
+{
+  "name": "@unngh/yt-mcp",
+  "version": "2.2.6",
+  "description": "MCP server for YouTube Data and Live Streaming APIs. Compiled from Dart to JavaScript.",
+  "type": "module",
+  "bin": {
+    "yt-mcp": "bin/yt-mcp-server.js"
+  },
+  "scripts": {
+    "build:dart": "bash scripts/build.sh",
+    "build": "npm run build:dart",
+    "clean": "rm -rf build dist",
+    "typecheck": "echo 'No TypeScript sources — skipping typecheck'",
+    "test": "echo 'No tests defined yet'",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "youtube",
+    "youtube-api",
+    "mcp",
+    "model-context-protocol",
+    "ai"
+  ],
+  "author": "Chris Davis",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faithoflifedev/yt.git",
+    "directory": "packages/yt_mcp_js"
+  },
+  "homepage": "https://github.com/faithoflifedev/yt/tree/main/packages/yt_mcp_js#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "files": [
+    "bin/",
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
+}

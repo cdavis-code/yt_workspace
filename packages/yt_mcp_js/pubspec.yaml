@@ -1,0 +1,16 @@
+name: yt_mcp_js
+description: YouTube MCP server compiled to JavaScript for Node.js execution via npx.
+version: 2.2.6
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.8.0
+
+dependencies:
+  yt: ^2.2.6
+  dart_mcp: ^0.5.1
+  stream_channel: ^2.1.4
+  web_socket_channel: ^3.0.2
+  web: ^1.1.0
+  loggy: ^2.0.3
