@@ -18,7 +18,6 @@ class Yt with UiLoggy {
 
   Broadcast? _broadcast;
   Channels? _channels;
-  Chat? _chat;
   Comments? _comments;
   CommentThreads? _commentThreads;
   LiveStream? _liveStream;
@@ -30,15 +29,15 @@ class Yt with UiLoggy {
   Videos? _videos;
   VideoCategories? _videoCategories;
   Watermarks? _watermarks;
+  Chat? _chat;
+  Members? _members;
+  MembershipsLevels? _membershipsLevels;
 
   Broadcast get broadcast => _broadcast == null
       ? throw Exception(_moduleUnavailableMessage)
       : _broadcast!;
 
   Channels get channels => _channels!;
-
-  Chat get chat =>
-      _chat == null ? throw Exception(_moduleUnavailableMessage) : _chat!;
 
   Comments get comments => _comments!;
 
@@ -72,6 +71,18 @@ class Yt with UiLoggy {
   Watermarks get watermarks => _watermarks == null
       ? throw Exception(_moduleUnavailableMessage)
       : _watermarks!;
+
+  Chat get chat => _chat == null
+      ? throw Exception(_moduleUnavailableMessage)
+      : _chat!;
+
+  Members get members => _members == null
+      ? throw Exception(_moduleUnavailableMessage)
+      : _members!;
+
+  MembershipsLevels get membershipsLevels => _membershipsLevels == null
+      ? throw Exception(_moduleUnavailableMessage)
+      : _membershipsLevels!;
 
   Yt({
     LogOptions logOptions = const LogOptions(
@@ -189,11 +200,6 @@ class Yt with UiLoggy {
       /// A liveBroadcast resource represents an event that will be streamed, via live video, on YouTube.
       _broadcast = Broadcast(dio: dio);
 
-      /// A liveChatMessage resource represents a chat message in a YouTube live chat. The resource can contain details about several types of messages, including a newly posted text message or fan funding event.
-      ///
-      /// The live chat feature is enabled by default for live broadcasts and is available while the live event is active. (After the event ends, live chat is no longer available for that event.)
-      _chat = Chat(dio: dio);
-
       ///A liveStream resource contains information about the video stream that you are transmitting to YouTube. The stream provides the content that will be broadcast to YouTube users. Once created, a [LiveStreamItem] resource can be bound to one or more [LiveBroadcastItem] resources.
       _liveStream = LiveStream(dio: dio);
 
@@ -223,6 +229,16 @@ class Yt with UiLoggy {
       /// watermark appears during video playbacks and the length of time it is
       /// visible.
       _watermarks = Watermarks(dio: dio);
+
+      /// A liveChatMessage resource represents a chat message in a YouTube live chat.
+      _chat = Chat(dio: dio);
+
+      /// A member resource represents a YouTube channel member who provides recurring
+      /// monetary support to a creator and receives special benefits.
+      _members = Members(dio: dio);
+
+      /// A membershipsLevel resource identifies a pricing level managed by the creator.
+      _membershipsLevels = MembershipsLevels(dio: dio);
     }
 
     /// A channel resource contains information about a YouTube channel.
