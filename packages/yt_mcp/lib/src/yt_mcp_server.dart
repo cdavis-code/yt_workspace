@@ -221,4 +221,31 @@ class YtMcpServer {
     );
     return response.toJson();
   }
+
+  // -----------------------------------------------------------------------
+  // Members
+  // -----------------------------------------------------------------------
+
+  @Tool(
+    name: 'members_list',
+    description: 'Lists channel members (requires OAuth).',
+  )
+  Future<Map<String, dynamic>> membersList({
+    @Parameter(description: 'Comma-separated member property names')
+    String part = 'snippet',
+    @Parameter(description: 'Mode: allCurrentMembers or updatesSince')
+    String? mode,
+    @Parameter(description: 'Maximum items to return')
+    int? maxResults,
+    @Parameter(description: 'Page token for pagination')
+    String? pageToken,
+  }) async {
+    final response = await _yt.members.list(
+      part: part,
+      mode: mode,
+      maxResults: maxResults,
+      pageToken: pageToken,
+    );
+    return response.toJson();
+  }
 }
