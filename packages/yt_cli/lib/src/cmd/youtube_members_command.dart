@@ -6,7 +6,7 @@ import 'youtube_helper_command.dart';
 
 class YoutubeMembersCommand extends Command<void> {
   @override
-  String get description =
+  String get description =>
       'A member resource represents a YouTube channel member who provides recurring monetary support to a creator and receives special benefits.';
 
   @override

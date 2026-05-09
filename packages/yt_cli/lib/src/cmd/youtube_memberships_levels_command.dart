@@ -6,7 +6,7 @@ import 'youtube_helper_command.dart';
 
 class YoutubeMembershipsLevelsCommand extends Command<void> {
   @override
-  String get description =
+  String get description =>
       'A membershipsLevel resource identifies a pricing level managed by the creator that authorized the API request.';
 
   @override
@@ -19,7 +19,7 @@ class YoutubeMembershipsLevelsCommand extends Command<void> {
 
 class YoutubeListMembershipsLevelsCommand extends YtHelperCommand {
   @override
-  String get description = 'Lists membership levels for the channel.';
+  String get description => 'Lists membership levels for the channel.';
 
   @override
   String get name => 'list';
