@@ -201,7 +201,50 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
       );
     }
   }
-  static const _codeModeToolSpecs = <Map<String, dynamic>>[<String, dynamic>{'name': 'yt_channels_list', 'description': 'List YouTube channels by ID or username.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'id', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'forUsername', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_search_list', 'description': 'Search YouTube for videos, channels, and playlists.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'q', 'type': 'string', 'required': true}, <String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'type', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_videos_list', 'description': 'List YouTube videos by ID or chart.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'id', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'chart', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_playlists_list', 'description': 'List YouTube playlists.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'channelId', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'id', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_comments_list', 'description': 'List YouTube comments.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'parentId', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_comment_threads_list', 'description': 'List YouTube comment threads for a video.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'videoId', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}];
+  FutureOr<CallToolResult> _yt_members_list(CallToolRequest request) async {
+    try {
+    final part = request.arguments?['part'] as String?;
+    final mode = request.arguments?['mode'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().membersList(part: part, mode: mode, maxResults: maxResults, pageToken: pageToken);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_members_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_memberships_levels_list(CallToolRequest request) async {
+    try {
+    final part = request.arguments?['part'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().membershipsLevelsList(part: part);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_memberships_levels_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  static const _codeModeToolSpecs = <Map<String, dynamic>>[<String, dynamic>{'name': 'yt_channels_list', 'description': 'List YouTube channels by ID or username.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'id', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'forUsername', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_search_list', 'description': 'Search YouTube for videos, channels, and playlists.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'q', 'type': 'string', 'required': true}, <String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'type', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_videos_list', 'description': 'List YouTube videos by ID or chart.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'id', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'chart', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_playlists_list', 'description': 'List YouTube playlists.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'channelId', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'id', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_comments_list', 'description': 'List YouTube comments.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'parentId', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_comment_threads_list', 'description': 'List YouTube comment threads for a video.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'videoId', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_members_list', 'description': 'Lists channel members (requires OAuth).', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'mode', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}, <String, dynamic>{'name': 'pageToken', 'type': 'string', 'required': false}]}, <String, dynamic>{'name': 'yt_memberships_levels_list', 'description': 'Lists membership levels for the channel (requires OAuth).', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}]}];
   FutureOr<CallToolResult> _search(CallToolRequest request) async {
     try {
       final query = (request.arguments?['query'] as String?) ?? '';
@@ -452,6 +495,8 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     sb.writeln("async function external_yt_playlists_list(args) { return call_tool('yt_playlists_list', args); }");
     sb.writeln("async function external_yt_comments_list(args) { return call_tool('yt_comments_list', args); }");
     sb.writeln("async function external_yt_comment_threads_list(args) { return call_tool('yt_comment_threads_list', args); }");
+    sb.writeln("async function external_yt_members_list(args) { return call_tool('yt_members_list', args); }");
+    sb.writeln("async function external_yt_memberships_levels_list(args) { return call_tool('yt_memberships_levels_list', args); }");
     sb.writeln();
     sb.writeln('// Execute user code');
     sb.writeln('(async () => {');
@@ -483,6 +528,8 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
       case 'yt_playlists_list': result = await _yt_playlists_list(request); break;
       case 'yt_comments_list': result = await _yt_comments_list(request); break;
       case 'yt_comment_threads_list': result = await _yt_comment_threads_list(request); break;
+      case 'yt_members_list': result = await _yt_members_list(request); break;
+      case 'yt_memberships_levels_list': result = await _yt_memberships_levels_list(request); break;
       default:
         throw StateError('Unknown tool: $toolName');
     }
