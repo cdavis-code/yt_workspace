@@ -248,4 +248,20 @@ class YtMcpServer {
     );
     return response.toJson();
   }
+
+  // -----------------------------------------------------------------------
+  // MembershipsLevels
+  // -----------------------------------------------------------------------
+
+  @Tool(
+    name: 'memberships_levels_list',
+    description: 'Lists membership levels for the channel (requires OAuth).',
+  )
+  Future<Map<String, dynamic>> membershipsLevelsList({
+    @Parameter(description: 'Comma-separated level property names')
+    String part = 'id,snippet',
+  }) async {
+    final response = await _yt.membershipsLevels.list(part: part);
+    return response.toJson();
+  }
 }
