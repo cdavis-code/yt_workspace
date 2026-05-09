@@ -1,0 +1,10 @@
+targets:
+  $default:
+    sources:
+      exclude:
+        - "**/*.g.dart"
+    builders:
+      json_serializable:
+        options:
+          create_to_json: true
+          create_factory: true
