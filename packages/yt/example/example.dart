@@ -2,11 +2,14 @@ import 'package:yt/yt.dart';
 
 void main() async {
   final yt = Yt.withOAuth(
-      oAuthClientId:
-          OAuthCredentials.fromYaml('credentials.yaml').oAuthClientId);
+    oAuthClientId: OAuthCredentials.fromYaml('credentials.yaml').oAuthClientId,
+  );
 
-  final searchListResponse = await yt.search
-      .list(q: 'reddit', part: 'snippet', type: 'video'); //the Flutter channel
+  final searchListResponse = await yt.search.list(
+    q: 'reddit',
+    part: 'snippet',
+    type: 'video',
+  ); //the Flutter channel
 
   print('\nSearch:');
   for (SearchResult searchResult in searchListResponse.items) {
@@ -24,8 +27,9 @@ thumbnail: ${playlist.snippet?.thumbnails.thumbnailsDefault.url}''');
   }
 
   final channelsResponse = await yt.channels.list(
-      id: '[a channel id]',
-      part: 'snippet,contentDetails'); //the Flutter channel
+    id: '[a channel id]',
+    part: 'snippet,contentDetails',
+  ); //the Flutter channel
 
   print('\nChannel: [a channel id]');
   for (ChannelItem channelItem in channelsResponse.items) {
@@ -35,7 +39,9 @@ relatedPlaylists: ${channelItem.contentDetails?.relatedPlaylists.uploads}''');
   }
 
   final liveBroadcastResponse = await yt.broadcast.list(
-      mine: true, part: 'snippet,contentDetails,status'); //the Flutter channel
+    mine: true,
+    part: 'snippet,contentDetails,status',
+  ); //the Flutter channel
 
   print('\nBroadcasts:');
   for (LiveBroadcastItem broadcastItem in liveBroadcastResponse.items) {

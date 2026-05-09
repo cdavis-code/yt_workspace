@@ -29,7 +29,8 @@ abstract class CaptionClient {
     @Query('part') String parts,
     @Query('onBehalfOfContentOwner') String? onBehalfOfContentOwner,
     @Deprecated('The sync parameter was deprecated on March 13, 2024')
-    @Query('sync') bool? sync,
+    @Query('sync')
+    bool? sync,
     @Body() FormData formData,
   );
 
@@ -40,7 +41,8 @@ abstract class CaptionClient {
     @Query('part') String parts,
     @Query('onBehalfOfContentOwner') String? onBehalfOfContentOwner,
     @Deprecated('The sync parameter was deprecated on March 13, 2024')
-    @Query('sync') bool? sync,
+    @Query('sync')
+    bool? sync,
     @Body() FormData formData,
   );
 

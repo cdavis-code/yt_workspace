@@ -8,7 +8,6 @@ import 'dart:io' as io;
 import 'package:dart_mcp/server.dart';
 import 'package:dart_mcp/stdio.dart';
 
-
 import 'package:yt_mcp/src/yt_mcp_server.dart' as yt_mcp_server;
 
 Future<void> main() async {
@@ -23,23 +22,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
 
   MCPServerWithTools(super.channel)
     : super.fromStreamChannel(
-        implementation: Implementation(
-          name: 'mcp-server',
-          version: '1.0.0',
-        ),
+        implementation: Implementation(name: 'mcp-server', version: '1.0.0'),
         instructions: 'Auto-generated MCP server',
       ) {
     registerTool(
       Tool(
         name: 'search',
-        description: 'Search for available tools by name or description. Returns matching tools with their parameter information. Use this to discover available tools before calling execute.',
+        description:
+            'Search for available tools by name or description. Returns matching tools with their parameter information. Use this to discover available tools before calling execute.',
         inputSchema: Schema.object(
           properties: {
             'query': Schema.string(
-              description: 'Search terms. Space-separated terms are AND-matched against tool names and descriptions (case-insensitive).',
+              description:
+                  'Search terms. Space-separated terms are AND-matched against tool names and descriptions (case-insensitive).',
             ),
             'detail_level': UntitledSingleSelectEnumSchema(
-              description: 'Level of detail: "brief" (name + description), "detailed" (+ parameter names/types/required), "full" (+ complete parameter schemas).',
+              description:
+                  'Level of detail: "brief" (name + description), "detailed" (+ parameter names/types/required), "full" (+ complete parameter schemas).',
               values: ['brief', 'detailed', 'full'],
             ),
           },
@@ -51,12 +50,11 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     registerTool(
       Tool(
         name: 'execute',
-        description: 'Execute JavaScript code with access to MCP tool functions. Use call_tool(name, params) to call any tool by name, or use external_<toolName>(args) convenience wrappers. Use the search tool first to discover available tools and their signatures. All calls are async - use await for sequential calls and Promise.all() for parallel calls. Return a value to include it in the result.',
+        description:
+            'Execute JavaScript code with access to MCP tool functions. Use call_tool(name, params) to call any tool by name, or use external_<toolName>(args) convenience wrappers. Use the search tool first to discover available tools and their signatures. All calls are async - use await for sequential calls and Promise.all() for parallel calls. Return a value to include it in the result.',
         inputSchema: Schema.object(
           properties: {
-            'code': Schema.string(
-              description: 'JavaScript code to execute.',
-            ),
+            'code': Schema.string(description: 'JavaScript code to execute.'),
           },
           required: ['code'],
         ),
@@ -67,12 +65,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
 
   FutureOr<CallToolResult> _yt_channels_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
-    final id = request.arguments?['id'] as String?;
-    final forUsername = request.arguments?['forUsername'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
+      final part = request.arguments?['part'] as String?;
+      final id = request.arguments?['id'] as String?;
+      final forUsername = request.arguments?['forUsername'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().channelsList(part: part, id: id, forUsername: forUsername, maxResults: maxResults);
+      final result = await yt_mcp_server.YtMcpServer().channelsList(
+        part: part,
+        id: id,
+        forUsername: forUsername,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -83,19 +86,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_search_list(CallToolRequest request) async {
     try {
-    final q = request.arguments!['q'] as String;
-    final part = request.arguments?['part'] as String?;
-    final type = request.arguments?['type'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
+      final q = request.arguments!['q'] as String;
+      final part = request.arguments?['part'] as String?;
+      final type = request.arguments?['type'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().searchList(q: q, part: part, type: type, maxResults: maxResults);
+      final result = await yt_mcp_server.YtMcpServer().searchList(
+        q: q,
+        part: part,
+        type: type,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -106,19 +117,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_videos_list(CallToolRequest request) async {
     try {
-    final id = request.arguments?['id'] as String?;
-    final chart = request.arguments?['chart'] as String?;
-    final part = request.arguments?['part'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
+      final id = request.arguments?['id'] as String?;
+      final chart = request.arguments?['chart'] as String?;
+      final part = request.arguments?['part'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().videosList(id: id, chart: chart, part: part, maxResults: maxResults);
+      final result = await yt_mcp_server.YtMcpServer().videosList(
+        id: id,
+        chart: chart,
+        part: part,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -129,19 +148,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_playlists_list(CallToolRequest request) async {
     try {
-    final channelId = request.arguments?['channelId'] as String?;
-    final id = request.arguments?['id'] as String?;
-    final part = request.arguments?['part'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
+      final channelId = request.arguments?['channelId'] as String?;
+      final id = request.arguments?['id'] as String?;
+      final part = request.arguments?['part'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistsList(channelId: channelId, id: id, part: part, maxResults: maxResults);
+      final result = await yt_mcp_server.YtMcpServer().playlistsList(
+        channelId: channelId,
+        id: id,
+        part: part,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -152,18 +179,25 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_comments_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
-    final parentId = request.arguments?['parentId'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
+      final part = request.arguments?['part'] as String?;
+      final parentId = request.arguments?['parentId'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentsList(part: part, parentId: parentId, maxResults: maxResults);
+      final result = await yt_mcp_server.YtMcpServer().commentsList(
+        part: part,
+        parentId: parentId,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -174,18 +208,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comment_threads_list(CallToolRequest request) async {
-    try {
-    final part = request.arguments?['part'] as String?;
-    final videoId = request.arguments?['videoId'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentThreadsList(part: part, videoId: videoId, maxResults: maxResults);
+  FutureOr<CallToolResult> _yt_comment_threads_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final part = request.arguments?['part'] as String?;
+      final videoId = request.arguments?['videoId'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsList(
+        part: part,
+        videoId: videoId,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -196,19 +239,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_members_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
-    final mode = request.arguments?['mode'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final pageToken = request.arguments?['pageToken'] as String?;
+      final part = request.arguments?['part'] as String?;
+      final mode = request.arguments?['mode'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final pageToken = request.arguments?['pageToken'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().membersList(part: part, mode: mode, maxResults: maxResults, pageToken: pageToken);
+      final result = await yt_mcp_server.YtMcpServer().membersList(
+        part: part,
+        mode: mode,
+        maxResults: maxResults,
+        pageToken: pageToken,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -219,16 +270,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_memberships_levels_list(CallToolRequest request) async {
-    try {
-    final part = request.arguments?['part'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().membershipsLevelsList(part: part);
+  FutureOr<CallToolResult> _yt_memberships_levels_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final part = request.arguments?['part'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().membershipsLevelsList(
+        part: part,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -239,22 +297,156 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  static const _codeModeToolSpecs = <Map<String, dynamic>>[<String, dynamic>{'name': 'yt_channels_list', 'description': 'List YouTube channels by ID or username.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'id', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'forUsername', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_search_list', 'description': 'Search YouTube for videos, channels, and playlists.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'q', 'type': 'string', 'required': true}, <String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'type', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_videos_list', 'description': 'List YouTube videos by ID or chart.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'id', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'chart', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_playlists_list', 'description': 'List YouTube playlists.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'channelId', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'id', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_comments_list', 'description': 'List YouTube comments.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'parentId', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_comment_threads_list', 'description': 'List YouTube comment threads for a video.', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'videoId', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}]}, <String, dynamic>{'name': 'yt_members_list', 'description': 'Lists channel members (requires OAuth).', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'mode', 'type': 'string', 'required': false}, <String, dynamic>{'name': 'maxResults', 'type': 'number', 'required': false}, <String, dynamic>{'name': 'pageToken', 'type': 'string', 'required': false}]}, <String, dynamic>{'name': 'yt_memberships_levels_list', 'description': 'Lists membership levels for the channel (requires OAuth).', 'parameters': <Map<String, dynamic>>[<String, dynamic>{'name': 'part', 'type': 'string', 'required': false}]}];
+
+  static const _codeModeToolSpecs = <Map<String, dynamic>>[
+    <String, dynamic>{
+      'name': 'yt_channels_list',
+      'description': 'List YouTube channels by ID or username.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'forUsername',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_search_list',
+      'description': 'Search YouTube for videos, channels, and playlists.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'q', 'type': 'string', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'type', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_videos_list',
+      'description': 'List YouTube videos by ID or chart.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'chart', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlists_list',
+      'description': 'List YouTube playlists.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'channelId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comments_list',
+      'description': 'List YouTube comments.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'parentId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comment_threads_list',
+      'description': 'List YouTube comment threads for a video.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'videoId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_members_list',
+      'description': 'Lists channel members (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'mode', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_memberships_levels_list',
+      'description':
+          'Lists membership levels for the channel (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+      ],
+    },
+  ];
   FutureOr<CallToolResult> _search(CallToolRequest request) async {
     try {
       final query = (request.arguments?['query'] as String?) ?? '';
-      final detailLevel = (request.arguments?['detail_level'] as String?) ?? 'brief';
+      final detailLevel =
+          (request.arguments?['detail_level'] as String?) ?? 'brief';
 
-      final terms = query.toLowerCase().split(' ').where((t) => t.isNotEmpty).toList();
+      final terms = query
+          .toLowerCase()
+          .split(' ')
+          .where((t) => t.isNotEmpty)
+          .toList();
 
       if (terms.isEmpty) {
-        final results = _codeModeToolSpecs.map((tool) =>
-            _formatSearchResult(tool, detailLevel)).toList();
+        final results = _codeModeToolSpecs
+            .map((tool) => _formatSearchResult(tool, detailLevel))
+            .toList();
         return CallToolResult(
           content: [TextContent(text: jsonEncode(results))],
         );
@@ -264,7 +456,9 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
       final andMatches = _codeModeToolSpecs.where((tool) {
         final name = (tool['name'] as String).toLowerCase();
         final desc = (tool['description'] as String).toLowerCase();
-        return terms.every((term) => name.contains(term) || desc.contains(term));
+        return terms.every(
+          (term) => name.contains(term) || desc.contains(term),
+        );
       }).toList();
 
       List<Map<String, dynamic>> matches;
@@ -272,26 +466,28 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         matches = andMatches;
       } else {
         // Phase 2: ranked OR match — score each tool by how many terms it matches
-        final scored = _codeModeToolSpecs.map((tool) {
-          final name = (tool['name'] as String).toLowerCase();
-          final desc = (tool['description'] as String).toLowerCase();
-          int score = 0;
-          for (final term in terms) {
-            if (name.contains(term) || desc.contains(term)) score++;
-          }
-          return MapEntry(tool, score);
-        }).where((e) => e.value > 0).toList();
+        final scored = _codeModeToolSpecs
+            .map((tool) {
+              final name = (tool['name'] as String).toLowerCase();
+              final desc = (tool['description'] as String).toLowerCase();
+              int score = 0;
+              for (final term in terms) {
+                if (name.contains(term) || desc.contains(term)) score++;
+              }
+              return MapEntry(tool, score);
+            })
+            .where((e) => e.value > 0)
+            .toList();
 
         scored.sort((a, b) => b.value.compareTo(a.value));
         matches = scored.map((e) => e.key).toList();
       }
 
-      final results = matches.map((tool) =>
-          _formatSearchResult(tool, detailLevel)).toList();
+      final results = matches
+          .map((tool) => _formatSearchResult(tool, detailLevel))
+          .toList();
 
-      return CallToolResult(
-        content: [TextContent(text: jsonEncode(results))],
-      );
+      return CallToolResult(content: [TextContent(text: jsonEncode(results))]);
     } catch (e, st) {
       if (_logErrors) {
         io.stderr.writeln('[easy_api] _search: $e');
@@ -299,7 +495,9 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
@@ -316,11 +514,15 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     if (detailLevel == 'brief') {
       return {'name': name, 'description': desc};
     } else if (detailLevel == 'detailed') {
-      final paramInfo = params.map((p) => {
-        'name': p['name'],
-        'type': p['type'],
-        'required': p['required'],
-      }).toList();
+      final paramInfo = params
+          .map(
+            (p) => {
+              'name': p['name'],
+              'type': p['type'],
+              'required': p['required'],
+            },
+          )
+          .toList();
       return {'name': name, 'description': desc, 'parameters': paramInfo};
     } else {
       final paramInfo = params.map((p) {
@@ -335,14 +537,12 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
   // ignore: prefer_adjacent_string_concatenation
-  
+
   FutureOr<CallToolResult> _execute(CallToolRequest request) async {
     try {
       final code = request.arguments!['code'] as String;
       final result = await _runCodeSandbox(code, 30);
-      return CallToolResult(
-        content: [TextContent(text: result ?? 'null')],
-      );
+      return CallToolResult(content: [TextContent(text: result ?? 'null')]);
     } catch (e, st) {
       if (_logErrors) {
         io.stderr.writeln('[easy_api] _execute: $e');
@@ -350,11 +550,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   Future<String?> _runCodeSandbox(String userCode, int timeoutSeconds) async {
     io.Process? process;
     io.Directory? tempDir;
@@ -364,10 +567,10 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
       final scriptFile = io.File('${tempDir.path}/sandbox.js');
       await scriptFile.writeAsString(wrapper);
 
-      process = await io.Process.start(
-        'node',
-        ['--max-old-space-size=64', scriptFile.path],
-      );
+      process = await io.Process.start('node', [
+        '--max-old-space-size=64',
+        scriptFile.path,
+      ]);
     } catch (e) {
       await tempDir?.delete(recursive: true);
       throw StateError('Code mode requires Node.js to be installed');
@@ -381,62 +584,80 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
           .transform(utf8.decoder)
           .transform(const LineSplitter())
           .listen((line) {
-        if (line.trim().isEmpty) return;
+            if (line.trim().isEmpty) return;
 
-        try {
-          final msg = jsonDecode(line) as Map<String, dynamic>;
-          final type = msg['type'] as String?;
+            try {
+              final msg = jsonDecode(line) as Map<String, dynamic>;
+              final type = msg['type'] as String?;
 
-          if (type == 'call') {
-            final callId = msg['callId'] as String;
-            final toolName = msg['tool'] as String;
-            final args = (msg['args'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+              if (type == 'call') {
+                final callId = msg['callId'] as String;
+                final toolName = msg['tool'] as String;
+                final args =
+                    (msg['args'] as Map<String, dynamic>?) ??
+                    <String, dynamic>{};
 
-            _dispatchCodeModeToolCall(toolName, args).then((resultJson) {
-              process?.stdin.writeln(jsonEncode({
-                'type': 'result',
-                'callId': callId,
-                'data': resultJson,
-              }));
-            }).catchError((e, st) {
-              if (_logErrors) {
-                io.stderr.writeln('[easy_api] _dispatchCodeModeToolCall($toolName): $e');
-                io.stderr.writeln(st);
-                io.stderr.flush();  // fire-and-forget; callback is not async
+                _dispatchCodeModeToolCall(toolName, args)
+                    .then((resultJson) {
+                      process?.stdin.writeln(
+                        jsonEncode({
+                          'type': 'result',
+                          'callId': callId,
+                          'data': resultJson,
+                        }),
+                      );
+                    })
+                    .catchError((e, st) {
+                      if (_logErrors) {
+                        io.stderr.writeln(
+                          '[easy_api] _dispatchCodeModeToolCall($toolName): $e',
+                        );
+                        io.stderr.writeln(st);
+                        io.stderr
+                            .flush(); // fire-and-forget; callback is not async
+                      }
+                      process?.stdin.writeln(
+                        jsonEncode({
+                          'type': 'result',
+                          'callId': callId,
+                          'data': null,
+                          'error':
+                              'An error occurred while processing the request.',
+                        }),
+                      );
+                    });
+              } else if (type == 'done') {
+                final result = msg['result'];
+                if (result == null) {
+                  resultCompleter.complete(null);
+                } else if (result is String) {
+                  resultCompleter.complete(result);
+                } else {
+                  resultCompleter.complete(jsonEncode(result));
+                }
+              } else if (type == 'error') {
+                errorCompleter.complete(
+                  msg['message'] as String? ?? 'Unknown error',
+                );
               }
-              process?.stdin.writeln(jsonEncode({
-                'type': 'result',
-                'callId': callId,
-                'data': null,
-                'error': 'An error occurred while processing the request.',
-              }));
-            });
-          } else if (type == 'done') {
-            final result = msg['result'];
-            if (result == null) {
-              resultCompleter.complete(null);
-            } else if (result is String) {
-              resultCompleter.complete(result);
-            } else {
-              resultCompleter.complete(jsonEncode(result));
+            } catch (_) {
+              // Ignore non-JSON lines
             }
-          } else if (type == 'error') {
-            errorCompleter.complete(msg['message'] as String? ?? 'Unknown error');
-          }
-        } catch (_) {
-          // Ignore non-JSON lines
-        }
-      });
+          });
 
       // Wait for result, error, or timeout
       final timeoutFuture = Future.delayed(
         Duration(seconds: timeoutSeconds),
-        () => throw StateError('Code execution timed out after $timeoutSeconds seconds'),
+        () => throw StateError(
+          'Code execution timed out after $timeoutSeconds seconds',
+        ),
       );
 
       final result = await Future.any<String?>([
         resultCompleter.future,
-        errorCompleter.future.then((e) => throw StateError('Code execution error: $e')),
+        errorCompleter.future.then(
+          (e) => throw StateError('Code execution error: $e'),
+        ),
         timeoutFuture,
       ]);
 
@@ -446,6 +667,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
       await tempDir.delete(recursive: true);
     }
   }
+
   String _buildJsWrapper(String userCode) {
     final sb = StringBuffer();
     sb.writeln('// Code Mode Sandbox - IPC Layer');
@@ -489,14 +711,30 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     sb.writeln('}');
     sb.writeln();
     sb.writeln('// External Tool Functions (convenience wrappers)');
-    sb.writeln("async function external_yt_channels_list(args) { return call_tool('yt_channels_list', args); }");
-    sb.writeln("async function external_yt_search_list(args) { return call_tool('yt_search_list', args); }");
-    sb.writeln("async function external_yt_videos_list(args) { return call_tool('yt_videos_list', args); }");
-    sb.writeln("async function external_yt_playlists_list(args) { return call_tool('yt_playlists_list', args); }");
-    sb.writeln("async function external_yt_comments_list(args) { return call_tool('yt_comments_list', args); }");
-    sb.writeln("async function external_yt_comment_threads_list(args) { return call_tool('yt_comment_threads_list', args); }");
-    sb.writeln("async function external_yt_members_list(args) { return call_tool('yt_members_list', args); }");
-    sb.writeln("async function external_yt_memberships_levels_list(args) { return call_tool('yt_memberships_levels_list', args); }");
+    sb.writeln(
+      "async function external_yt_channels_list(args) { return call_tool('yt_channels_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_search_list(args) { return call_tool('yt_search_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_videos_list(args) { return call_tool('yt_videos_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlists_list(args) { return call_tool('yt_playlists_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comments_list(args) { return call_tool('yt_comments_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comment_threads_list(args) { return call_tool('yt_comment_threads_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_members_list(args) { return call_tool('yt_members_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_memberships_levels_list(args) { return call_tool('yt_memberships_levels_list', args); }",
+    );
     sb.writeln();
     sb.writeln('// Execute user code');
     sb.writeln('(async () => {');
@@ -505,31 +743,58 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     // Auto-return expression-like code (IIFE or bare await) so the LLM
     // doesn't need to remember an explicit return for single-expression snippets.
     final trimmedCode = userCode.trim();
-    final isExpressionLike = trimmedCode.startsWith('(') || trimmedCode.startsWith('await ');
+    final isExpressionLike =
+        trimmedCode.startsWith('(') || trimmedCode.startsWith('await ');
     final alreadyHasReturn = trimmedCode.startsWith('return ');
-    final codeToRun = (isExpressionLike && !alreadyHasReturn) ? 'return ' + userCode : userCode;
+    final codeToRun = (isExpressionLike && !alreadyHasReturn)
+        ? 'return ' + userCode
+        : userCode;
     sb.writeln(codeToRun);
     sb.writeln('    })();');
     sb.writeln("    __send({ type: 'done', result: __result });");
     sb.writeln('  } catch (e) {');
-    sb.writeln("    __send({ type: 'error', message: e.message || String(e) });");
+    sb.writeln(
+      "    __send({ type: 'error', message: e.message || String(e) });",
+    );
     sb.writeln('  }');
     sb.writeln('})();');
     return sb.toString();
   }
-  dynamic _dispatchCodeModeToolCall(String toolName, Map<String, dynamic> args) async {
+
+  dynamic _dispatchCodeModeToolCall(
+    String toolName,
+    Map<String, dynamic> args,
+  ) async {
     final request = CallToolRequest(name: toolName, arguments: args);
     CallToolResult result;
     switch (toolName) {
-      case 'search': result = await _search(request); break;
-      case 'yt_channels_list': result = await _yt_channels_list(request); break;
-      case 'yt_search_list': result = await _yt_search_list(request); break;
-      case 'yt_videos_list': result = await _yt_videos_list(request); break;
-      case 'yt_playlists_list': result = await _yt_playlists_list(request); break;
-      case 'yt_comments_list': result = await _yt_comments_list(request); break;
-      case 'yt_comment_threads_list': result = await _yt_comment_threads_list(request); break;
-      case 'yt_members_list': result = await _yt_members_list(request); break;
-      case 'yt_memberships_levels_list': result = await _yt_memberships_levels_list(request); break;
+      case 'search':
+        result = await _search(request);
+        break;
+      case 'yt_channels_list':
+        result = await _yt_channels_list(request);
+        break;
+      case 'yt_search_list':
+        result = await _yt_search_list(request);
+        break;
+      case 'yt_videos_list':
+        result = await _yt_videos_list(request);
+        break;
+      case 'yt_playlists_list':
+        result = await _yt_playlists_list(request);
+        break;
+      case 'yt_comments_list':
+        result = await _yt_comments_list(request);
+        break;
+      case 'yt_comment_threads_list':
+        result = await _yt_comment_threads_list(request);
+        break;
+      case 'yt_members_list':
+        result = await _yt_members_list(request);
+        break;
+      case 'yt_memberships_levels_list':
+        result = await _yt_memberships_levels_list(request);
+        break;
       default:
         throw StateError('Unknown tool: $toolName');
     }
@@ -550,12 +815,15 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     if (result == null) return 'null';
     try {
       if (result is List) {
-        final items = result.map((e) {
-          if (e == null) return null;
-          final toJson = e.toJson;
-          if (toJson != null && toJson is Function) return toJson();
-          return e.toString();
-        }).where((e) => e != null).toList();
+        final items = result
+            .map((e) {
+              if (e == null) return null;
+              final toJson = e.toJson;
+              if (toJson != null && toJson is Function) return toJson();
+              return e.toString();
+            })
+            .where((e) => e != null)
+            .toList();
         return jsonEncode(items);
       }
       final toJson = result.toJson;

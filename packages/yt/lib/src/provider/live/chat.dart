@@ -34,7 +34,7 @@ abstract class ChatClient {
     @Body() Map<String, dynamic> data,
   );
 
-  ///Deletes a chat message. The API request must be authorized by the channel owner or a moderator of the live chat.
+  ///Deletes a chat message.
   @DELETE('/liveChat/messages')
   Future<void> delete(
     // @Header('Authorization') String authorization,

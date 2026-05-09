@@ -8,7 +8,7 @@ part of 'watermarks.dart';
 // RetrofitGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter,avoid_unused_constructor_parameters,unreachable_from_main,avoid_redundant_argument_values
 
 class _WatermarksClient implements WatermarksClient {
   _WatermarksClient(this._dio, {this.baseUrl, this.errorLogger}) {
@@ -69,11 +69,11 @@ class _WatermarksClient implements WatermarksClient {
     _data.addAll(watermarksResource.toJson());
     final _options = _setStreamType<HttpResponse<dynamic>>(
       Options(
-        method: 'POST',
-        headers: _headers,
-        extra: _extra,
-        contentType: contentType,
-      )
+            method: 'POST',
+            headers: _headers,
+            extra: _extra,
+            contentType: contentType,
+          )
           .compose(
             _dio.options,
             '/set',

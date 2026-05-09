@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:universal_io/io.dart';
-import 'package:yt/yt.dart';
 
+import 'model/captions/caption_item.dart';
+import 'model/captions/caption_list_response.dart';
 import 'provider/data/captions.dart';
+import 'youtube_api_helper.dart';
 
 /// A caption resource contains information about a YouTube video caption track.
 ///
@@ -12,8 +14,7 @@ import 'provider/data/captions.dart';
 class Captions extends YouTubeApiHelper {
   final CaptionClient _rest;
 
-  Captions({required super.dio, super.apiKey})
-    : _rest = CaptionClient(dio);
+  Captions({required super.dio, super.apiKey}) : _rest = CaptionClient(dio);
 
   /// Returns a list of caption resources that match the API request criteria.
   Future<CaptionListResponse> list({

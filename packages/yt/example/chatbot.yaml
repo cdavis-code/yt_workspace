@@ -1,0 +1,25 @@
+botName: ":robot: FLN Bot Automated Message"
+dialogs:
+  - name: location
+    answers:
+      - "We are exactly where we want to be"
+    questions:
+      - where is this place
+      - witch place is this
+      - where in usa this place
+    keyword:
+      patterns:
+        - [where, witch, which, were]
+        - [location, place]
+      score: 2
+
+  - name: donation
+    answers:
+      - Sure, we'll accept that.
+    questions:
+      - is there any email address to send the donation to this place
+    keyword:
+      patterns:
+        - [email, address, send, transfer]
+        - [donation, donate]
+      score: 2

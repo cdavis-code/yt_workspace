@@ -8,7 +8,7 @@ part of 'videos.dart';
 // RetrofitGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter,avoid_unused_constructor_parameters,unreachable_from_main,avoid_redundant_argument_values
 
 class _VideoClient implements VideoClient {
   _VideoClient(this._dio, {this.baseUrl, this.errorLogger}) {
@@ -71,7 +71,7 @@ class _VideoClient implements VideoClient {
     try {
       _value = VideoListResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
+      errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
     }
     return _value;
@@ -112,7 +112,7 @@ class _VideoClient implements VideoClient {
     try {
       _value = VideoItem.fromJson(_result.data!);
     } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
+      errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
     }
     return _value;
@@ -149,11 +149,11 @@ class _VideoClient implements VideoClient {
     _data.addAll(body);
     final _options = _setStreamType<HttpResponse<dynamic>>(
       Options(
-        method: 'POST',
-        headers: _headers,
-        extra: _extra,
-        contentType: contentType,
-      )
+            method: 'POST',
+            headers: _headers,
+            extra: _extra,
+            contentType: contentType,
+          )
           .compose(
             _dio.options,
             '/upload/youtube/v3/videos',
@@ -202,7 +202,7 @@ class _VideoClient implements VideoClient {
     try {
       _value = VideoItem.fromJson(_result.data!);
     } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
+      errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
     }
     return _value;
@@ -258,7 +258,7 @@ class _VideoClient implements VideoClient {
     try {
       _value = VideoGetRatingResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
+      errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
     }
     return _value;

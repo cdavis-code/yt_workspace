@@ -8,7 +8,7 @@ part of 'chat.dart';
 // RetrofitGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter,avoid_unused_constructor_parameters,unreachable_from_main,avoid_redundant_argument_values
 
 class _ChatClient implements ChatClient {
   _ChatClient(this._dio, {this.baseUrl, this.errorLogger}) {
@@ -59,7 +59,7 @@ class _ChatClient implements ChatClient {
     try {
       _value = LiveChatMessageListResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
+      errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
     }
     return _value;
@@ -83,11 +83,11 @@ class _ChatClient implements ChatClient {
     _data.addAll(data);
     final _options = _setStreamType<LiveChatMessage>(
       Options(
-        method: 'POST',
-        headers: _headers,
-        extra: _extra,
-        contentType: contentType,
-      )
+            method: 'POST',
+            headers: _headers,
+            extra: _extra,
+            contentType: contentType,
+          )
           .compose(
             _dio.options,
             '/liveChat/messages',
@@ -101,7 +101,7 @@ class _ChatClient implements ChatClient {
     try {
       _value = LiveChatMessage.fromJson(_result.data!);
     } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
+      errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
     }
     return _value;

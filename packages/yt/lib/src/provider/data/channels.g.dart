@@ -8,7 +8,7 @@ part of 'channels.dart';
 // RetrofitGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter,avoid_unused_constructor_parameters,unreachable_from_main,avoid_redundant_argument_values
 
 class _ChannelClient implements ChannelClient {
   _ChannelClient(this._dio, {this.baseUrl, this.errorLogger}) {
@@ -69,7 +69,7 @@ class _ChannelClient implements ChannelClient {
     try {
       _value = ChannelResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
+      errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
     }
     return _value;
@@ -98,11 +98,11 @@ class _ChannelClient implements ChannelClient {
     _data.addAll(body);
     final _options = _setStreamType<ChannelItem>(
       Options(
-        method: 'PUT',
-        headers: _headers,
-        extra: _extra,
-        contentType: contentType,
-      )
+            method: 'PUT',
+            headers: _headers,
+            extra: _extra,
+            contentType: contentType,
+          )
           .compose(
             _dio.options,
             '/channels',
@@ -116,7 +116,7 @@ class _ChannelClient implements ChannelClient {
     try {
       _value = ChannelItem.fromJson(_result.data!);
     } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
+      errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
     }
     return _value;
