@@ -31,6 +31,10 @@ abstract class YtHelperCommand extends Command<void> {
 
   Watermarks get watermarks => _yt.watermarks;
 
+  Members get members => _yt.members;
+
+  MembershipsLevels get membershipsLevels => _yt.membershipsLevels;
+
   Future<void> initializeYt() async {
     _yt = Yt.withOAuth(
       logOptions: Util.convertToLogOptions(globalResults!['log-level']),
