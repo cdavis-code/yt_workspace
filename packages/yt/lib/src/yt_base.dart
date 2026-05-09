@@ -72,13 +72,11 @@ class Yt with UiLoggy {
       ? throw Exception(_moduleUnavailableMessage)
       : _watermarks!;
 
-  Chat get chat => _chat == null
-      ? throw Exception(_moduleUnavailableMessage)
-      : _chat!;
+  Chat get chat =>
+      _chat == null ? throw Exception(_moduleUnavailableMessage) : _chat!;
 
-  Members get members => _members == null
-      ? throw Exception(_moduleUnavailableMessage)
-      : _members!;
+  Members get members =>
+      _members == null ? throw Exception(_moduleUnavailableMessage) : _members!;
 
   MembershipsLevels get membershipsLevels => _membershipsLevels == null
       ? throw Exception(_moduleUnavailableMessage)

@@ -7,9 +7,7 @@ class LevelDetails {
   @JsonKey(name: 'displayName')
   final String displayName;
 
-  LevelDetails({
-    required this.displayName,
-  });
+  LevelDetails({required this.displayName});
 
   factory LevelDetails.fromJson(Map<String, dynamic> json) =>
       _$LevelDetailsFromJson(json);

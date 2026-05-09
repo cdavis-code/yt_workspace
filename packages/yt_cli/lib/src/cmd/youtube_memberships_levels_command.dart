@@ -38,9 +38,7 @@ class YoutubeListMembershipsLevelsCommand extends YtHelperCommand {
     await initializeYt();
 
     try {
-      final response = await membershipsLevels.list(
-        part: argResults!['part'],
-      );
+      final response = await membershipsLevels.list(part: argResults!['part']);
 
       print(response);
 

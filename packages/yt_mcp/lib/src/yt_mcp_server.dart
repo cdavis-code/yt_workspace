@@ -235,10 +235,8 @@ class YtMcpServer {
     String part = 'snippet',
     @Parameter(description: 'Mode: allCurrentMembers or updatesSince')
     String? mode,
-    @Parameter(description: 'Maximum items to return')
-    int? maxResults,
-    @Parameter(description: 'Page token for pagination')
-    String? pageToken,
+    @Parameter(description: 'Maximum items to return') int? maxResults,
+    @Parameter(description: 'Page token for pagination') String? pageToken,
   }) async {
     final response = await _yt.members.list(
       part: part,

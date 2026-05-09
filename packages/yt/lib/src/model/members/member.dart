@@ -16,8 +16,7 @@ class Member {
     required this.snippet,
   });
 
-  factory Member.fromJson(Map<String, dynamic> json) =>
-      _$MemberFromJson(json);
+  factory Member.fromJson(Map<String, dynamic> json) => _$MemberFromJson(json);
 
   Map<String, dynamic> toJson() => _$MemberToJson(this);
 }
