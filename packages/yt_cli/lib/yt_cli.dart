@@ -9,6 +9,7 @@ export 'src/cmd/youtube_comments_command.dart';
 export 'src/cmd/youtube_helper_command.dart';
 export 'src/cmd/youtube_members_command.dart';
 export 'src/cmd/youtube_memberships_levels_command.dart';
+export 'src/cmd/youtube_video_abuse_report_reasons_command.dart';
 export 'src/cmd/youtube_playlists_command.dart';
 export 'src/cmd/youtube_search_command.dart';
 export 'src/cmd/youtube_stream_command.dart';
