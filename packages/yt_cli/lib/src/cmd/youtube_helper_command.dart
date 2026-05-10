@@ -35,6 +35,9 @@ abstract class YtHelperCommand extends Command<void> {
 
   MembershipsLevels get membershipsLevels => _yt.membershipsLevels;
 
+  VideoAbuseReportReasons get videoAbuseReportReasons =>
+      _yt.videoAbuseReportReasons;
+
   Future<void> initializeYt() async {
     _yt = Yt.withOAuth(
       logOptions: Util.convertToLogOptions(globalResults!['log-level']),
