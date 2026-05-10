@@ -32,6 +32,7 @@ class Yt with UiLoggy {
   Chat? _chat;
   Members? _members;
   MembershipsLevels? _membershipsLevels;
+  VideoAbuseReportReasons? _videoAbuseReportReasons;
 
   Broadcast get broadcast => _broadcast == null
       ? throw Exception(_moduleUnavailableMessage)
@@ -81,6 +82,11 @@ class Yt with UiLoggy {
   MembershipsLevels get membershipsLevels => _membershipsLevels == null
       ? throw Exception(_moduleUnavailableMessage)
       : _membershipsLevels!;
+
+  VideoAbuseReportReasons get videoAbuseReportReasons =>
+      _videoAbuseReportReasons == null
+          ? throw Exception(_moduleUnavailableMessage)
+          : _videoAbuseReportReasons!;
 
   Yt({
     LogOptions logOptions = const LogOptions(
@@ -237,6 +243,10 @@ class Yt with UiLoggy {
 
       /// A membershipsLevel resource identifies a pricing level managed by the creator.
       _membershipsLevels = MembershipsLevels(dio: dio);
+
+      /// A videoAbuseReportReason resource contains information about a reason
+      /// that a video would be flagged for containing abusive content.
+      _videoAbuseReportReasons = VideoAbuseReportReasons(dio: dio);
     }
 
     /// A channel resource contains information about a YouTube channel.
