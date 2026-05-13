@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.6+5
+
+* publication readiness: LICENSE, .pubignore, topics, funding, version sync
+* YouTube Analytics, members/memberships, video abuse report reasons support
+
 ## [2.2.6] - 2025-05-08
 
 ### Added

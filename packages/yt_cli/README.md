@@ -114,4 +114,4 @@ Any help from the open-source community is always welcome:
 
 ## License
 
-MIT License - see [LICENSE](../yt/LICENSE) for details.
+MIT License - see [LICENSE] for details.
