@@ -243,7 +243,7 @@ class YoutubeAddCommentsCommand extends YtHelperCommand {
   String get description =>
       'Returns a list of comments that match the API request parameters.';
   @override
-  String get name => 'listByParentId';
+  String get name => 'add';
 
   YoutubeAddCommentsCommand() {
     //noop
@@ -258,7 +258,7 @@ class YoutubeUpdateCommentsCommand extends YtHelperCommand {
   String get description =>
       'Returns a list of comments that match the API request parameters.';
   @override
-  String get name => 'listByParentId';
+  String get name => 'update';
 
   YoutubeUpdateCommentsCommand() {
     //noop
@@ -273,7 +273,7 @@ class YoutubeChangeCommentsCommand extends YtHelperCommand {
   String get description =>
       'Returns a list of comments that match the API request parameters.';
   @override
-  String get name => 'listByParentId';
+  String get name => 'change';
 
   YoutubeChangeCommentsCommand() {
     //noop
@@ -288,7 +288,7 @@ class YoutubeSetModerationStatusCommentsCommand extends YtHelperCommand {
   String get description =>
       'Returns a list of comments that match the API request parameters.';
   @override
-  String get name => 'listByParentId';
+  String get name => 'setModerationStatus';
 
   YoutubeSetModerationStatusCommentsCommand() {
     //noop
@@ -303,7 +303,7 @@ class YoutubeDeleteCommentsCommand extends YtHelperCommand {
   String get description =>
       'Returns a list of comments that match the API request parameters.';
   @override
-  String get name => 'listByParentId';
+  String get name => 'delete';
 
   YoutubeDeleteCommentsCommand() {
     //noop

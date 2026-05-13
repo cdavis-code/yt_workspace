@@ -7,3 +7,6 @@ scratch/
 tool/
 
 notes.txt
+
+.dart_tool/
+doc/

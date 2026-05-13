@@ -12,6 +12,7 @@ void main(List<String> arguments) async {
       allowed: ['all', 'debug', 'info', 'warning', 'error', 'off'],
       defaultsTo: 'off',
     )
+    ..addCommand(YoutubeAnalyticsCommand())
     ..addCommand(YoutubeAuthorizeCommand())
     ..addCommand(YoutubeBroadcastCommand())
     ..addCommand(YoutubeChannelsCommand())

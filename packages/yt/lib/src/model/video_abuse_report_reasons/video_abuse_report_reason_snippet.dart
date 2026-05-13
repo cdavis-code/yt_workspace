@@ -11,10 +11,7 @@ class VideoAbuseReportReasonSnippet {
   @JsonKey(name: 'secondaryReasons')
   final List<SecondaryReason>? secondaryReasons;
 
-  VideoAbuseReportReasonSnippet({
-    required this.label,
-    this.secondaryReasons,
-  });
+  VideoAbuseReportReasonSnippet({required this.label, this.secondaryReasons});
 
   factory VideoAbuseReportReasonSnippet.fromJson(Map<String, dynamic> json) =>
       _$VideoAbuseReportReasonSnippetFromJson(json);

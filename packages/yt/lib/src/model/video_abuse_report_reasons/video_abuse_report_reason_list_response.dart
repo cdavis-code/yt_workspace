@@ -18,8 +18,8 @@ class VideoAbuseReportReasonListResponse extends ResponseMetadata {
   });
 
   factory VideoAbuseReportReasonListResponse.fromJson(
-          Map<String, dynamic> json) =>
-      _$VideoAbuseReportReasonListResponseFromJson(json);
+    Map<String, dynamic> json,
+  ) => _$VideoAbuseReportReasonListResponseFromJson(json);
 
   Map<String, dynamic> toJson() =>
       _$VideoAbuseReportReasonListResponseToJson(this);

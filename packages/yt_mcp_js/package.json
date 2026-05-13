@@ -3,6 +3,14 @@
   "version": "2.2.6",
   "description": "MCP server for YouTube Data and Live Streaming APIs. Compiled from Dart to JavaScript.",
   "type": "module",
+  "main": "./dist/yt_mcp_server.runtime.js",
+  "module": "./dist/yt_mcp_server.runtime.js",
+  "exports": {
+    ".": {
+      "import": "./dist/yt_mcp_server.runtime.js",
+      "default": "./dist/yt_mcp_server.runtime.js"
+    }
+  },
   "bin": {
     "yt-mcp": "bin/yt-mcp-server.js"
   },

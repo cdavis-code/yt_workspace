@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:json_annotation/json_annotation.dart';
 
 part 'json_settings.g.dart';
@@ -53,6 +51,8 @@ class JsonSettings {
 
   Map<String, dynamic> toJson() => _$JsonSettingsToJson(this);
 
+  /// Safe toString — masks the private key and client secrets.
   @override
-  String toString() => jsonEncode(toJson());
+  String toString() =>
+      'JsonSettings(type: $type, projectId: $projectId, clientEmail: [redacted], privateKey: [redacted])';
 }

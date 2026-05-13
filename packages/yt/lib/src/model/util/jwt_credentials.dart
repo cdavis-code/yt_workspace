@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:json_annotation/json_annotation.dart';
 
 import 'json_settings.dart';
@@ -18,6 +16,7 @@ class JwtCredentials {
 
   Map<String, dynamic> toJson() => _$JwtCredentialsToJson(this);
 
+  /// Safe toString — masks the private key embedded in settings.
   @override
-  String toString() => jsonEncode(toJson());
+  String toString() => 'JwtCredentials(scope: $scope, settings: [redacted])';
 }

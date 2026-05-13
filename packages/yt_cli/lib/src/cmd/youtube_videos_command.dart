@@ -84,7 +84,7 @@ class YoutubeListVideosCommand extends YtHelperCommand {
       ..addOption(
         'part',
         valueHelp: 'list of parts',
-        mandatory: true,
+        defaultsTo: 'snippet',
         help:
             '''The part parameter specifies a comma-separated list of one or more video resource properties that the API response will include.
 

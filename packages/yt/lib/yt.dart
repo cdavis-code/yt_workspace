@@ -65,6 +65,7 @@ export 'src/chatbot.dart';
 export 'src/members.dart';
 export 'src/memberships_levels.dart';
 export 'src/video_abuse_report_reasons.dart';
+export 'src/analytics.dart';
 export 'src/util/authorization_exception.dart';
 export 'src/util/emoji_formatter.dart';
 export 'src/util/enum.dart';
@@ -95,3 +96,9 @@ export 'src/model/video_abuse_report_reasons/video_abuse_report_reason.dart';
 export 'src/model/video_abuse_report_reasons/video_abuse_report_reason_list_response.dart';
 export 'src/model/video_abuse_report_reasons/video_abuse_report_reason_snippet.dart';
 export 'src/model/video_abuse_report_reasons/secondary_reason.dart';
+
+export 'src/model/analytics/analytics_report.dart';
+export 'src/model/analytics/analytics_group.dart';
+export 'src/model/analytics/analytics_group_list_response.dart';
+export 'src/model/analytics/analytics_group_item.dart';
+export 'src/model/analytics/analytics_group_item_list_response.dart';

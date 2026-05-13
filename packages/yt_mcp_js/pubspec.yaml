@@ -8,9 +8,9 @@ environment:
   sdk: ^3.8.0
 
 dependencies:
-  yt: ^2.2.6
+  yt: ^2.2.6+4
   dart_mcp: ^0.5.1
   stream_channel: ^2.1.4
-  web_socket_channel: ^3.0.2
-  web: ^1.1.0
+  web_socket_channel: ^3.0.3
+  web: ^1.1.1
   loggy: ^2.0.3

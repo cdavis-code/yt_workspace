@@ -12,7 +12,7 @@ workspace:
   - packages/yt_mcp_js
 
 dev_dependencies:
-  melos: ^7.6.0
+  melos: ^7.7.0
 
 melos:
   name: yt_workspace
@@ -36,6 +36,13 @@ melos:
       run: dart run build_runner build --delete-conflicting-outputs
       packageFilters:
         fileExists: build.yaml
+    meta:
+      exec: dart \$MELOS_ROOT_PATH/tool/update_meta.dart
+      description: Regenerate lib/meta.dart from pubspec.yaml for yt and yt_cli.
+      packageFilters:
+        scope:
+          - yt
+          - yt_cli
     analyze:
       run: dart analyze --fatal-infos
       exec:

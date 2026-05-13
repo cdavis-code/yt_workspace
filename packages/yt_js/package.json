@@ -27,8 +27,10 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "browser": "./dist/browser.js",
       "import": "./dist/node.js",
-      "require": "./dist/node.cjs"
+      "require": "./dist/node.cjs",
+      "default": "./dist/node.js"
     },
     "./browser": {
       "types": "./dist/browser.d.ts",
@@ -63,6 +65,7 @@
     "build": "npm run build:dart && npm run build:ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "clean": "rm -rf build dist"
+    "clean": "rm -rf build dist",
+    "prepublishOnly": "npm run build"
   }
 }

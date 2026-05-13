@@ -25,4 +25,9 @@ class Token {
   factory Token.fromJson(Map<String, dynamic> json) => _$TokenFromJson(json);
 
   Map<String, dynamic> toJson() => _$TokenToJson(this);
+
+  /// Safe toString — masks access and refresh tokens.
+  @override
+  String toString() =>
+      'Token(scope: $scope, tokenType: $tokenType, expiresIn: $expiresIn, accessToken: [redacted], refreshToken: [redacted])';
 }

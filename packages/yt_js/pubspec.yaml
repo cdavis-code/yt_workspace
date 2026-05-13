@@ -10,9 +10,9 @@ environment:
   sdk: ^3.8.0
 
 dependencies:
-  yt: ^2.2.6
+  yt: ^2.2.6+4
   loggy: ^2.0.3
-  web: ^1.1.0
+  web: ^1.1.1
 
 dev_dependencies:
-  lints: ^6.0.0
+  lints: ^6.1.0

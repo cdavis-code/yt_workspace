@@ -33,6 +33,7 @@ class Yt with UiLoggy {
   Members? _members;
   MembershipsLevels? _membershipsLevels;
   VideoAbuseReportReasons? _videoAbuseReportReasons;
+  Analytics? _analytics;
 
   Broadcast get broadcast => _broadcast == null
       ? throw Exception(_moduleUnavailableMessage)
@@ -85,8 +86,12 @@ class Yt with UiLoggy {
 
   VideoAbuseReportReasons get videoAbuseReportReasons =>
       _videoAbuseReportReasons == null
-          ? throw Exception(_moduleUnavailableMessage)
-          : _videoAbuseReportReasons!;
+      ? throw Exception(_moduleUnavailableMessage)
+      : _videoAbuseReportReasons!;
+
+  Analytics get analytics => _analytics == null
+      ? throw Exception(_moduleUnavailableMessage)
+      : _analytics!;
 
   Yt({
     LogOptions logOptions = const LogOptions(
@@ -247,6 +252,10 @@ class Yt with UiLoggy {
       /// A videoAbuseReportReason resource contains information about a reason
       /// that a video would be flagged for containing abusive content.
       _videoAbuseReportReasons = VideoAbuseReportReasons(dio: dio);
+
+      /// An analytics resource provides access to YouTube Analytics reports,
+      /// groups, and group items.
+      _analytics = Analytics(dio: dio);
     }
 
     /// A channel resource contains information about a YouTube channel.

@@ -21,18 +21,20 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
   final httpClient = IOClient();
 
   OAuthAccessControlIo(super.identifier) {
+    final credentialsFile = File(
+      '$_userHome/${Util.defaultCredentialsFilePath}',
+    );
+    _checkFilePermissions(credentialsFile);
     clientId ??= ClientId.fromJson(
-      json.decode(
-        File(
-          '$_userHome/${Util.defaultCredentialsFilePath}',
-        ).readAsStringSync(),
-      ),
+      json.decode(credentialsFile.readAsStringSync()),
     );
   }
 
   @override
   Future<void> init() async {
     if (_credentialsFile.existsSync()) {
+      _checkFilePermissions(_credentialsFile);
+
       nullableAccessCredentials = AccessCredentials.fromJson(
         json.decode(_credentialsFile.readAsStringSync()),
       );
@@ -74,6 +76,27 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
         accessCredentials,
         httpClient,
       );
+    }
+  }
+
+  /// Warns if a credential file is readable by group or other users.
+  static void _checkFilePermissions(File file) {
+    try {
+      final stat = file.statSync();
+      // Check group (0x20) and other (0x04) read bits on Unix.
+      if (Platform.isLinux || Platform.isMacOS) {
+        const groupRead = 0x20;
+        const otherRead = 0x04;
+        if (stat.mode & (groupRead | otherRead) != 0) {
+          stderr.writeln(
+            'WARNING: ${file.path} has overly permissive permissions '
+            '(${stat.modeString}).\n'
+            'Run: chmod 600 ${file.path}',
+          );
+        }
+      }
+    } catch (_) {
+      // Non-fatal — permission check is advisory only.
     }
   }
 }

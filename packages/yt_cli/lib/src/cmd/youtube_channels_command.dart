@@ -34,7 +34,7 @@ class YoutubeListChannelsCommand extends YtHelperCommand {
     argParser
       ..addOption(
         'part',
-        mandatory: true,
+        defaultsTo: 'snippet',
         help:
             '''The part parameter specifies a comma-separated list of one or more channel resource properties that the API response will include.
 

@@ -1,3 +1,11 @@
+## 2.2.6+4
+
+* README modernization (Quick Start, Features, Configuration table, Documentation, License sections)
+* pana score improved to 160/160
+* dependency version constraints tightened
+* security hardening (credential sanitization in logs, safe toString() redaction)
+* banner SVG and yt-js npm packaging improvements
+
 ## 2.2.6+1
 
 * improved pub.dev listing

@@ -1,6 +1,6 @@
 # yt_cli
 
-A CLI tool for the YouTube Data and Live Streaming APIs.
+A CLI tool for the YouTube Data, Live Streaming, and Analytics APIs.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -13,56 +13,97 @@ A CLI tool for the YouTube Data and Live Streaming APIs.
 dart pub global activate yt_cli
 
 # Using homebrew
-brew tap faithoflifedev/yt
+brew tap cdavis-code/yt
 brew install yt
 ```
+
+Or download a pre-built binary from the [releases page](https://github.com/cdavis-code/yt/releases).
 
 ### Usage
 
 ```sh
+# Display all available commands
 yt --help
+
+# Search for videos
+yt search list --q "flutter tutorial" --max-results 5
+
+# List playlists for a channel
+yt playlists list --channel-id UC_x5XG1OV2P6uZZ5FSM9Ttw --max-results 10
+
+# View all subcommands for a command
+yt videos --help
 ```
 
 ## Features
 
-- Authorize and manage YouTube API credentials
-- List, insert, update, and delete YouTube resources
-- Manage live broadcasts and streams
-- Interact with live chat messages
-- Access playlists, videos, channels, and search results
+- OAuth 2.0 web flow authorization with automatic token refresh
+- Query YouTube Analytics reports (views, watch time, demographics, and more)
+- Manage analytics groups and group items for organizing channels, videos, or playlists
+- Full CRUD for channels, playlists, videos, comments, and subscriptions
+- Live broadcast and stream management with live chat interaction
+- Channel members and membership levels
+- Thumbnail and watermark management
+- Video abuse report reasons lookup
+- Cross-platform: runs on macOS, Linux, and Windows
 
 ## Commands
 
-```
-Available commands:
-  authorize          Generate a refresh token used to authenticate the command line API requests
-  broadcast          A liveBroadcast resource represents an event that will be streamed, via live video, on YouTube.
-  channels           A channel resource contains information about a YouTube channel.
-  chat               A liveChatMessage resource represents a chat message in a YouTube live chat.
-  playlists          A playlist resource represents a YouTube playlist.
-  search             A search result contains information about a YouTube video, channel, or playlist.
-  stream             A liveStream resource contains information about the video stream that you are transmitting to YouTube.
-  subscriptions      A subscription resource contains information about a YouTube user subscription.
-  thumbnails         A thumbnail resource identifies different thumbnail image sizes associated with a resource.
-  video-categories   A videoCategory resource identifies a category that has been or could be associated with uploaded videos.
-  videos             A video resource represents a YouTube video.
-```
+Run `yt --help` for the full list. Key commands:
+
+| Command | Description |
+|---------|-------------|
+| `analytics` | YouTube Analytics reports, groups, and group items |
+| `authorize` | OAuth 2.0 web flow to authorize the CLI |
+| `broadcast` | Manage live broadcasts |
+| `channels` | Retrieve channel information |
+| `chat` | Interact with live chat messages |
+| `comments` | Manage YouTube comments |
+| `comment-threads` | Manage comment threads |
+| `members` | List channel members |
+| `memberships-levels` | List membership pricing levels |
+| `playlists` | Manage playlists |
+| `search` | Search for videos, channels, and playlists |
+| `stream` | Manage live streams |
+| `subscriptions` | Manage channel subscriptions |
+| `thumbnails` | Set thumbnail images |
+| `version` | Display package name and version |
+| `videos` | Manage videos (upload, update, delete) |
+| `video-categories` | List video categories |
+| `video-abuse-report-reasons` | List abuse report reasons |
+| `watermarks` | Manage channel watermarks |
 
 ## Configuration
 
-Before using the CLI, you need to authorize it with your YouTube credentials:
+### Authorization
+
+Before using most commands, authorize the CLI with your YouTube account:
 
 ```sh
+# 1. Download client_secret.json from Google Cloud Console
+#    See: https://github.com/cdavis-code/yt/blob/main/packages/yt_cli/authentication.md
+
+# 2. Run the authorization command
 yt authorize
+
+# Or specify a custom path to your credentials file
+yt authorize --credentials-file ~/secrets/client_secret.json
 ```
 
-Follow the prompts to provide your client ID, client secret, and complete the OAuth2 authentication flow.
+The CLI starts a local HTTP server, opens an OAuth 2.0 page in your browser,
+and saves a permanent refresh token to `youtube_server_tokens.json`. Subsequent
+commands automatically refresh the access token in the background.
+
+See [authentication.md](https://github.com/cdavis-code/yt/blob/main/packages/yt_cli/authentication.md)
+for step-by-step setup instructions.
 
 ## Documentation
 
 - [Main Package Documentation](https://pub.dev/packages/yt)
+- [Authentication Guide](https://github.com/cdavis-code/yt/blob/main/packages/yt_cli/authentication.md)
 - [YouTube Data API Reference](https://developers.google.com/youtube/v3/docs)
 - [YouTube Live Streaming API Reference](https://developers.google.com/youtube/v3/live/docs)
+- [YouTube Analytics API Reference](https://developers.google.com/youtube/analytics/reference)
 
 ## Contributing
 

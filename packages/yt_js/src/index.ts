@@ -10,14 +10,13 @@ import type { DartRuntimeLoader } from './runtime.js';
 import { getRuntime } from './runtime.js';
 import type {
   YtJsHandle,
-  YtJsNamespace,
   ConnectOptions,
 } from './types.js';
 
 export * from './types.js';
 
 export class Yt {
-  private constructor(private readonly handle: YtJsHandle) {}
+  protected constructor(private readonly handle: YtJsHandle) {}
 
   /**
    * Create a Yt client using an API key (read-only access to public data).

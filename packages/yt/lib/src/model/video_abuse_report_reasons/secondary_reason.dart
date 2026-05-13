@@ -7,10 +7,7 @@ class SecondaryReason {
   final String id;
   final String label;
 
-  SecondaryReason({
-    required this.id,
-    required this.label,
-  });
+  SecondaryReason({required this.id, required this.label});
 
   factory SecondaryReason.fromJson(Map<String, dynamic> json) =>
       _$SecondaryReasonFromJson(json);

@@ -1,5 +1,5 @@
 import 'package:args/command_runner.dart';
-import 'package:yt/meta.dart';
+import 'package:yt_cli/meta.dart';
 
 class YoutubeVersionCommand extends Command<void> {
   @override

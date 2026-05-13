@@ -49,6 +49,8 @@ class OAuthCredentials {
 
   Map<String, dynamic> toJson() => _$OAuthCredentialsToJson(this);
 
+  /// Safe toString — masks the OAuth client secret.
   @override
-  String toString() => jsonEncode(toJson());
+  String toString() =>
+      'OAuthCredentials(identifier: $identifier, secret: [redacted])';
 }

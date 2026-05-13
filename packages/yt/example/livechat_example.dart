@@ -11,8 +11,10 @@ void main() async {
   var broadcastResponse = await br.list(broadcastStatus: 'active');
 
   if (broadcastResponse.items.isEmpty) {
-    broadcastResponse =
-        await br.list(broadcastStatus: 'upcoming', maxResults: 1);
+    broadcastResponse = await br.list(
+      broadcastStatus: 'upcoming',
+      maxResults: 1,
+    );
   }
 
   if (broadcastResponse.items.isNotEmpty) {
@@ -22,7 +24,9 @@ void main() async {
 
     //if being run periodically you will want to provide a TimeStore to persist
     //a timestamp that will ensure the chatbot doesn't repeat answers
-    await yt.chat
-        .answerBot(liveBroadcastItem: liveBroadcastItem, chatbot: chatbot);
+    await yt.chat.answerBot(
+      liveBroadcastItem: liveBroadcastItem,
+      chatbot: chatbot,
+    );
   }
 }

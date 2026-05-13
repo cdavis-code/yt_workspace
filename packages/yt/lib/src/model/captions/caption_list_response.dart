@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
 
+import '../page_info.dart';
 import '../list_response.dart';
 import 'caption_item.dart';
 

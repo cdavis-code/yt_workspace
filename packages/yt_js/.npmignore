@@ -1,0 +1,25 @@
+# Dart source
+lib/
+# Build scripts
+scripts/
+# Dart tooling
+.dart_tool/
+# Build intermediates (dist/ is published via the "files" field in package.json)
+build/
+# Dart package config
+pubspec.yaml
+pubspec.lock
+analysis_options.yaml
+# TypeScript build config (not needed at runtime)
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+# Test files
+test/
+src/
+# Git
+.gitignore
+# Generated Dart files (if any)
+*.g.dart
+# dart2js dependency files
+*.js.deps
