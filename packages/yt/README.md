@@ -44,6 +44,7 @@ For write operations (uploading videos, managing broadcasts), use OAuth — see 
 - **YouTube Live Streaming API** — LiveBroadcasts, LiveStreams, and LiveChat
 - **YouTube Analytics API** — Reports, Groups, and Group Items for channel analytics
 - **Members & Memberships** — Channel members, membership levels, and video abuse report reasons
+- **Activities** — Channel activity feeds including uploads, likes, favorites, subscriptions, and playlist additions
 - **Multiple auth methods** — API key, OAuth 2.0 with automatic token refresh, or custom token generators
 - **Cross-platform** — works on all Dart/Flutter platforms including web, mobile, and desktop
 - **Dart-first** — manually crafted (not auto-generated) for a focused, well-documented API surface
@@ -215,6 +216,36 @@ for (final header in report.columnHeaders) {
 final groups = await yt.analytics.groupsList(mine: true);
 for (final group in groups.items) {
   print('${group.id}: ${group.snippet.title}');
+}
+```
+
+### Activities
+
+```dart
+final yt = Yt.withKey('[your api key]');
+
+// List recent channel activities
+final activities = await yt.activities.list(
+  channelId: 'UC_x5XG1OV2P6uZZ5FSM9Ttw',
+  maxResults: 10,
+);
+
+for (final activity in activities.items) {
+  print('${activity.snippet?.type}: ${activity.snippet?.title}');
+}
+```
+
+```dart
+final yt = await Yt.withOAuth();
+
+// List my recent activities
+final myActivities = await yt.activities.list(
+  mine: true,
+  maxResults: 20,
+);
+
+for (final activity in myActivities.items) {
+  print('${activity.snippet?.publishedAt}: ${activity.snippet?.title}');
 }
 ```
 

@@ -102,3 +102,9 @@ export 'src/model/analytics/analytics_group.dart';
 export 'src/model/analytics/analytics_group_list_response.dart';
 export 'src/model/analytics/analytics_group_item.dart';
 export 'src/model/analytics/analytics_group_item_list_response.dart';
+
+export 'src/activities.dart';
+export 'src/model/activities/activity.dart';
+export 'src/model/activities/activity_list_response.dart';
+export 'src/model/activities/activity_snippet.dart';
+export 'src/model/activities/activity_content_details.dart';

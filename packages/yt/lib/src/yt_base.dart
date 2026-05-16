@@ -34,6 +34,7 @@ class Yt with UiLoggy {
   MembershipsLevels? _membershipsLevels;
   VideoAbuseReportReasons? _videoAbuseReportReasons;
   Analytics? _analytics;
+  Activities? _activities;
 
   Broadcast get broadcast => _broadcast == null
       ? throw Exception(_moduleUnavailableMessage)
@@ -92,6 +93,8 @@ class Yt with UiLoggy {
   Analytics get analytics => _analytics == null
       ? throw Exception(_moduleUnavailableMessage)
       : _analytics!;
+
+  Activities get activities => _activities!;
 
   Yt({
     LogOptions logOptions = const LogOptions(
@@ -285,6 +288,10 @@ class Yt with UiLoggy {
 
     /// A search result contains information about a YouTube video, channel, or playlist that matches the search parameters specified in an API request. While a search result points to a uniquely identifiable resource, like a video, it does not have its own persistent data.
     _search = Search(apiKey: apiKey, dio: dio);
+
+    /// An activity resource contains information about an action that a particular
+    /// channel, or user, has taken on YouTube.
+    _activities = Activities(apiKey: apiKey, dio: dio);
   }
 
   void close() => dio.close();
