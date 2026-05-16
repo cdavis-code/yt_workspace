@@ -55,7 +55,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  yt: ^2.2.6+4
+  yt: ^2.3.0
 ```
 
 ## Configuration

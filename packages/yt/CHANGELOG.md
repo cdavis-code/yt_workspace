@@ -1,3 +1,21 @@
+## 2.3.0 (2026-05-16)
+
+### Added
+
+- **Activities API** — Channel activity feeds including uploads, likes, favorites, subscriptions, and playlist additions via `yt.activities.list()`
+- Workspace structure with multiple packages
+- Added yt_cli, yt_js, yt_mcp, yt_mcp_js packages
+- Enhanced documentation across all packages
+
+### Changed
+
+- Dependency updates
+
+### Removed
+
+- **BREAKING**: removed chatbot functionality (Chatbot, Dialog, Keyword classes)
+- Removed experimental chatbot features from live chat
+
 ## 2.2.6+5
 
 * publication readiness: funding link, topics, .pubignore updates
@@ -12,15 +30,6 @@
 ## 2.2.6+1
 
 * improved pub.dev listing
-
-## 2.2.7 (Unreleased)
-
-* workspace structure with multiple packages
-* added yt_cli, yt_js, yt_mcp, yt_mcp_js packages
-* enhanced documentation across all packages
-* **BREAKING**: removed chatbot functionality (Chatbot, Dialog, Keyword classes)
-* removed experimental chatbot features from live chat
-* dependency updates
 
 ## 2.2.6
 

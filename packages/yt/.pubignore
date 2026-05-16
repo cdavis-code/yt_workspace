@@ -10,3 +10,5 @@ notes.txt
 
 .dart_tool/
 doc/
+
+*.iml
