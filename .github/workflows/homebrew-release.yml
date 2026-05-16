@@ -1,0 +1,163 @@
+name: Build and Release Homebrew Binaries
+
+on:
+  push:
+    tags:
+      - 'yt_cli-v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build from'
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: macos-arm64
+            dart-arch: arm64
+          - os: macos-13
+            target: macos-x64
+            dart-arch: x64
+          - os: ubuntu-latest
+            target: linux-x64
+            dart-arch: x64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          architecture: ${{ matrix.dart-arch }}
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Compile binary
+        run: |
+          dart compile exe packages/yt_cli/bin/yt.dart \
+            -o yt-${{ matrix.target }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yt-${{ matrix.target }}
+          path: yt-${{ matrix.target }}
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare binaries for release
+        run: |
+          mkdir -p release
+          cp artifacts/yt-macos-arm64/yt-macos-arm64 release/yt-darwin-arm64
+          cp artifacts/yt-macos-x64/yt-macos-x64 release/yt-darwin-amd64
+          cp artifacts/yt-linux-x64/yt-linux-x64 release/yt-linux-amd64
+          chmod +x release/*
+
+      - name: Generate SHA256 checksums
+        run: |
+          cd release
+          shasum -a 256 * > checksums.txt
+          cat checksums.txt
+
+      - name: Create/Update Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          files: |
+            release/yt-darwin-arm64
+            release/yt-darwin-amd64
+            release/yt-linux-amd64
+            release/checksums.txt
+          generate_release_notes: true
+          draft: false
+
+  update-homebrew:
+    name: Update Homebrew Formula
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version
+        id: version
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          VERSION="${TAG#yt_cli-v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag: $TAG, version: $VERSION"
+
+      - name: Compute source tarball SHA256
+        id: sha
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          URL="https://github.com/cdavis-code/yt_workspace/archive/refs/tags/${TAG}.tar.gz"
+          echo "Downloading tarball from $URL"
+          curl -sL "$URL" -o tarball.tar.gz
+          SHA256=$(shasum -a 256 tarball.tar.gz | awk '{print $1}')
+          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
+          echo "SHA256: $SHA256"
+
+      - name: Update homebrew/yt.rb
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          SHA256="${{ steps.sha.outputs.sha256 }}"
+          URL="https://github.com/cdavis-code/yt_workspace/archive/refs/tags/${TAG}.tar.gz"
+
+          sed -i "s|  version \".*\"|  version \"${VERSION}\"|" homebrew/yt.rb
+          sed -i "s|  url \".*\"|  url \"${URL}\"|" homebrew/yt.rb
+          sed -i "s|  sha256 \".*\"|  sha256 \"${SHA256}\"|" homebrew/yt.rb
+
+          echo "Updated homebrew/yt.rb:"
+          cat homebrew/yt.rb
+
+      - name: Commit and push formula update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add homebrew/yt.rb
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Update Homebrew formula for yt_cli v${{ steps.version.outputs.version }}"
+          git push
+
+      - name: Sync formula to homebrew tap
+        if: "${{ secrets.HOMEBREW_TAP_TOKEN }}"
+        run: |
+          git clone https://x-access-token:${{ secrets.HOMEBREW_TAP_TOKEN }}@github.com/cdavis-code/homebrew-yt.git tap-repo
+          cp homebrew/yt.rb tap-repo/Formula/yt.rb
+          cd tap-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/yt.rb
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "yt_cli v${{ steps.version.outputs.version }}"
+          git push

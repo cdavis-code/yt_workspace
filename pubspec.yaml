@@ -43,6 +43,12 @@ melos:
         scope:
           - yt
           - yt_cli
+    homebrew:
+      run: bash \$MELOS_ROOT_PATH/tool/homebrew_release.sh
+      description: |
+        Compute SHA256 of the GitHub Release tarball, update homebrew/yt.rb,
+        and sync to homebrew-yt tap repo. Run AFTER pushing a yt_cli-v* tag
+        and the homebrew-release workflow has finished.
     analyze:
       run: dart analyze --fatal-infos
       exec:

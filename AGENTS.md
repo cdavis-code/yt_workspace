@@ -50,4 +50,69 @@ melos run test               # Runs dart test in packages with test/ dirs
 
 ## CI
 
-GitHub Actions (`.github/workflows/dart.yml`): runs on push/PR to `main`. Uses pana workflow and basic `dart pub get`. Analyze and tests are commented out in CI.
+### dart.yml
+
+GitHub Actions (`.github/workflows/dart.yml`): runs on push/PR to `main`. Uses local reusable pana workflow (`pana-dart.yaml`). Runs `dart format --set-exit-if-changed` and `dart analyze --fatal-infos` on every push. Builds `yt_js` (dart2js + tsup) and publishes to npm on `yt_js-v*` tags.
+
+### homebrew-release.yml
+
+GitHub Actions (`.github/workflows/homebrew-release.yml`): triggers on `yt_cli-v*` tags or manual `workflow_dispatch`. Compiles native binaries for macOS (ARM64 + x64) and Linux (x64), creates a GitHub Release with all binaries and a `checksums.txt` file, computes the source tarball SHA256, updates `homebrew/yt.rb` with the new version/URL/SHA256, and pushes the updated formula to the `cdavis-code/homebrew-yt` tap repository.
+
+## Releasing yt_cli
+
+The release process has three steps:
+
+### 1. Publish to pub.dev (manual)
+
+```sh
+cd packages/yt_cli
+dart pub publish
+```
+
+### 2. Trigger binary build + GitHub Release + Homebrew formula update (automatic)
+
+Push a version tag matching `yt_cli-v*`:
+
+```sh
+git tag yt_cli-v2.2.7
+git push origin yt_cli-v2.2.7
+```
+
+Or trigger manually via GitHub Actions > `Build and Release Homebrew Binaries` > `Run workflow`.
+
+This triggers `.github/workflows/homebrew-release.yml` which:
+- Compiles native binaries for macOS (ARM64 + x64) and Linux (x64) via `dart compile exe`
+- Creates a GitHub Release on `cdavis-code/yt_workspace` with all binaries and a `checksums.txt`
+- Computes the source tarball SHA256 and updates `homebrew/yt.rb` (version, URL, SHA256)
+- Pushes the updated formula to the `cdavis-code/homebrew-yt` tap repository
+
+No manual formula update is required — the workflow handles it automatically.
+
+### 3. Update Homebrew formula (optional — manual fallback)
+
+If the automated workflow fails or you need to update the formula manually:
+
+```sh
+# Via melos script
+melos run homebrew
+
+# Or directly
+./tool/homebrew_release.sh
+
+# Or by hand:
+curl -sL https://github.com/cdavis-code/yt_workspace/archive/refs/tags/yt_cli-v2.2.7.tar.gz | shasum -a 256
+# Update homebrew/yt.rb with new version, url, and sha256
+cp homebrew/yt.rb ../homebrew-yt/Formula/yt.rb
+cd ../homebrew-yt && git commit -am "yt_cli v2.2.7" && git push
+```
+
+Users install via `brew tap cdavis-code/yt && brew install yt`.
+
+### Required secrets
+
+Set in the GitHub repo under **Settings > Secrets and variables > Actions**:
+
+| Secret | Purpose |
+|--------|---------|
+| `NPM_TOKEN` | npm access token with publish permissions for `@unngh/yt-js` |
+| `HOMEBREW_TAP_TOKEN` | GitHub PAT with write access to `cdavis-code/homebrew-yt` (used by `homebrew-release.yml` to push formula updates) |

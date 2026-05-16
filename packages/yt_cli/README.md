@@ -14,10 +14,33 @@ dart pub global activate yt_cli
 
 # Using homebrew
 brew tap cdavis-code/yt
+brew install --head yt       # latest development version (builds from source)
+# or once a stable release is tagged:
 brew install yt
 ```
 
-Or download a pre-built binary from the [releases page](https://github.com/cdavis-code/yt/releases).
+Or download a pre-built binary from the [releases page](https://github.com/cdavis-code/yt_workspace/releases).
+
+## Publishing for Homebrew
+
+The `homebrew/` directory at the workspace root contains the canonical formula. To publish a new release:
+
+1. Bump the version in `pubspec.yaml` and regenerate `lib/meta.dart`
+2. Publish to pub.dev: `dart pub publish`
+3. Push a version tag to trigger the binary build:
+   ```sh
+   git tag yt_cli-v2.2.7
+   git push origin yt_cli-v2.2.7
+   ```
+4. Wait for the [homebrew-release workflow](../../.github/workflows/homebrew-release.yml) to finish creating the GitHub Release
+5. Run the Homebrew release script:
+   ```sh
+   dart run melos run homebrew
+   ```
+
+This downloads the source tarball, computes its SHA256, updates `homebrew/yt.rb`, and syncs the formula to the tap repo.
+
+See `homebrew/README.md` for full tap setup and release documentation.
 
 ### Usage
 
@@ -81,7 +104,7 @@ Before using most commands, authorize the CLI with your YouTube account:
 
 ```sh
 # 1. Download client_secret.json from Google Cloud Console
-#    See: https://github.com/cdavis-code/yt/blob/main/packages/yt_cli/authentication.md
+#    See: https://github.com/cdavis-code/yt_workspace/blob/main/packages/yt_cli/authentication.md
 
 # 2. Run the authorization command
 yt authorize
@@ -94,13 +117,13 @@ The CLI starts a local HTTP server, opens an OAuth 2.0 page in your browser,
 and saves a permanent refresh token to `youtube_server_tokens.json`. Subsequent
 commands automatically refresh the access token in the background.
 
-See [authentication.md](https://github.com/cdavis-code/yt/blob/main/packages/yt_cli/authentication.md)
+See [authentication.md](https://github.com/cdavis-code/yt_workspace/blob/main/packages/yt_cli/authentication.md)
 for step-by-step setup instructions.
 
 ## Documentation
 
 - [Main Package Documentation](https://pub.dev/packages/yt)
-- [Authentication Guide](https://github.com/cdavis-code/yt/blob/main/packages/yt_cli/authentication.md)
+- [Authentication Guide](https://github.com/cdavis-code/yt_workspace/blob/main/packages/yt_cli/authentication.md)
 - [YouTube Data API Reference](https://developers.google.com/youtube/v3/docs)
 - [YouTube Live Streaming API Reference](https://developers.google.com/youtube/v3/live/docs)
 - [YouTube Analytics API Reference](https://developers.google.com/youtube/analytics/reference)
