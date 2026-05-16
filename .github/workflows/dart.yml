@@ -73,3 +73,70 @@ jobs:
         run: npm publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  auto-publish-yt-js:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for yt library changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            yt_lib:
+              - 'packages/yt/lib/**'
+
+      - uses: dart-lang/setup-dart@v1
+        if: steps.changes.outputs.yt_lib == 'true'
+        with:
+          sdk: stable
+
+      - uses: actions/setup-node@v4
+        if: steps.changes.outputs.yt_lib == 'true'
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install npm dependencies
+        if: steps.changes.outputs.yt_lib == 'true'
+        working-directory: packages/yt_js
+        run: npm install
+
+      - name: Auto-bump patch version
+        if: steps.changes.outputs.yt_lib == 'true'
+        working-directory: packages/yt_js
+        run: npm version patch --no-git-tag-version
+
+      - name: Build (dart2js + tsup)
+        if: steps.changes.outputs.yt_lib == 'true'
+        working-directory: packages/yt_js
+        run: bash scripts/build.sh
+
+      - name: Verify build
+        if: steps.changes.outputs.yt_lib == 'true'
+        working-directory: packages/yt_js
+        run: test -f dist/yt_js.runtime.js
+
+      - name: Publish to npm
+        if: steps.changes.outputs.yt_lib == 'true'
+        working-directory: packages/yt_js
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Configure git
+        if: steps.changes.outputs.yt_lib == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit version bump
+        if: steps.changes.outputs.yt_lib == 'true'
+        run: |
+          git add packages/yt_js/package.json
+          git commit -m "chore(yt_js): auto-bump npm patch version"
+          git push
