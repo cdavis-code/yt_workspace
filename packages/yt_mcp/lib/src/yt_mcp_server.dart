@@ -269,18 +269,15 @@ class YtMcpServer {
 
   @Tool(
     name: 'video_abuse_report_reasons_list',
-    description: 'Retrieves reasons for reporting abusive videos (requires OAuth).',
+    description:
+        'Retrieves reasons for reporting abusive videos (requires OAuth).',
   )
   Future<Map<String, dynamic>> videoAbuseReportReasonsList({
     @Parameter(description: 'Comma-separated resource property names')
     String part = 'id,snippet',
-    @Parameter(description: 'Language code for localized labels')
-    String? hl,
+    @Parameter(description: 'Language code for localized labels') String? hl,
   }) async {
-    final response = await _yt.videoAbuseReportReasons.list(
-      part: part,
-      hl: hl,
-    );
+    final response = await _yt.videoAbuseReportReasons.list(part: part, hl: hl);
     return response.toJson();
   }
 }
