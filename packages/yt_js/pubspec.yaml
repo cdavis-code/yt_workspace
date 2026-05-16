@@ -2,7 +2,7 @@ name: yt_js
 description: JavaScript/TypeScript bindings for the yt Dart package, compiled via dart2js. Distributed as an npm package for browser and Node.js consumption.
 version: 2.2.6
 publish_to: none
-repository: https://github.com/faithoflifedev/yt/tree/main/packages/yt_js
+repository: https://github.com/cdavis-code/yt_workspace/tree/main/packages/yt_js
 
 resolution: workspace
 

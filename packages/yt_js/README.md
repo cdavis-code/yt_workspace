@@ -88,7 +88,7 @@ Authentication is required via one of:
 - [yt Dart package](https://pub.dev/packages/yt) — core library documentation
 - [YouTube Data API](https://developers.google.com/youtube/v3/docs)
 - [YouTube Live Streaming API](https://developers.google.com/youtube/v3/live/docs)
-- [Repository](https://github.com/cdavis-code/yt_workspace)
+- [Repository](https://github.com/cdavis-code/yt_workspace/tree/main/packages/yt_js)
 
 ## Contributing
 
