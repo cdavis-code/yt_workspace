@@ -24,7 +24,7 @@ executables:
   yt: yt
 
 dependencies:
-  yt: ^2.3.0+1
+  yt: ^3.0.0
   args: ^2.7.0
   dio: ^5.9.2
   loggy: ^2.0.3

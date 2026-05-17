@@ -55,7 +55,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  yt: ^2.3.0
+  yt: ^2.3.1
 ```
 
 ## Configuration
@@ -78,24 +78,56 @@ final yt = Yt.withKey('[your api key]');
 
 ### OAuth 2.0
 
-Create OAuth credentials in the [Google API Console](https://developers.google.com/youtube/v3/live/registering_an_application), then generate a credentials file:
+OAuth 2.0 uses two files:
+
+| File | Purpose | Source |
+|------|---------|--------|
+| `client_secrets.json` | OAuth client secret (input) | Downloaded from Google Cloud Console |
+| `access_tokens.json` | Persisted access & refresh tokens (output) | Created by the authorization flow |
+
+**1. Create OAuth credentials in the [Google Cloud Console](https://developers.google.com/youtube/v3/live/registering_an_application)**, download the client-secret JSON, and save it to `$HOME/.yt/client_secrets.json`.
+
+**2. Run the authorization flow** using the [yt_cli](https://pub.dev/packages/yt_cli) tool. Pass `--credentials-file` to point at the client-secret JSON you saved in step 1, and `--tokens-file` to write the resulting tokens to the location the `yt` library expects:
+
+**Via Homebrew (macOS/Linux — fewer dependencies):**
 
 ```sh
-yt authorize
+brew tap cdavis-code/yt
+brew install yt
+yt authorize \
+  --credentials-file $HOME/.yt/client_secrets.json \
+  --tokens-file $HOME/.yt/access_tokens.json
 ```
 
-This creates `$HOME/.yt/credentials.json`. Then:
+**Via Dart pub (requires Dart SDK):**
+
+```sh
+dart pub global activate yt_cli
+yt authorize \
+  --credentials-file $HOME/.yt/client_secrets.json \
+  --tokens-file $HOME/.yt/access_tokens.json
+```
+
+This opens a browser, prompts for consent, and writes the tokens to `$HOME/.yt/access_tokens.json`.
+
+> **Why both flags?** `yt_cli`'s default filenames (`client_secret.json` in the current directory for input, `youtube_server_tokens.json` for output) differ from the `yt` library's defaults (`client_secrets.json` and `access_tokens.json` in `$HOME/.yt/`). Passing both flags writes everything directly to the locations `Yt.withOAuth()` reads — no manual rename or copy needed. Alternatively, set the `YT_CLIENT_SECRETS_FILE` and `YT_ACCESS_TOKENS_FILE` environment variables (see below).
+
+**3. Use the credentials in your code:**
 
 ```dart
-final yt = Yt.withOAuth();  // Uses default credentials file
+final yt = await Yt.withOAuth();  // Uses default file locations
 ```
 
-For manual credential files, the format is:
+#### Customizing file locations
 
-```yaml
-identifier: [client id from the API console]
-secret: [client secret from the API console]
-```
+Both files can be redirected to arbitrary paths via environment variables (resolved from the runtime environment first, then a `.env` file in the current working directory):
+
+| Variable | Default |
+|----------|---------|
+| `YT_CLIENT_SECRETS_FILE` | `$HOME/.yt/client_secrets.json` |
+| `YT_ACCESS_TOKENS_FILE`  | `$HOME/.yt/access_tokens.json` |
+
+Either variable may be set independently — unset variables keep the default location. Leading `~` in the resolved path is expanded against the user's home directory.
 
 ## Usage
 

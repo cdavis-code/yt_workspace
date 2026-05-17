@@ -10,8 +10,9 @@ environment:
   sdk: ^3.8.0
 
 dependencies:
-  yt: ^2.3.0+1
+  yt: ^3.0.0
   loggy: ^2.0.3
+  universal_io: ^2.3.1
   web: ^1.1.1
 
 dev_dependencies:
