@@ -150,7 +150,7 @@ jobs:
           git push
 
       - name: Sync formula to homebrew tap
-        if: "${{ secrets.HOMEBREW_TAP_TOKEN }}"
+        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
         run: |
           git clone https://x-access-token:${{ secrets.HOMEBREW_TAP_TOKEN }}@github.com/cdavis-code/homebrew-yt.git tap-repo
           cp homebrew/yt.rb tap-repo/Formula/yt.rb
