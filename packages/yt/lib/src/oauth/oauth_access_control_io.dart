@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/io_client.dart';
 import 'package:universal_io/io.dart';
+import 'package:yt/src/util/credentials_path.dart';
 import 'package:yt/src/util/util.dart';
 
 import 'oauth_access_control_interface.dart';
@@ -11,18 +12,25 @@ OAuthAccessControl getOAuthAccessControl(ClientId? clientId) =>
     OAuthAccessControlIo(clientId);
 
 class OAuthAccessControlIo extends BaseOAuthAccessControl {
-  static final _userHome =
-      Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
+  static final String _userHome =
+      Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'] ?? '';
+
+  static final String _defaultDir =
+      '$_userHome/${Util.defaultCredentialsDirname}';
 
   static final _credentialsFile = File(
-    '$_userHome/${Util.accessCredentialsFilePath}',
+    CredentialsPath.accessTokensFile(
+      defaultPath: '$_defaultDir/${Util.accessCredentialsFilename}',
+    ),
   );
 
   final httpClient = IOClient();
 
   OAuthAccessControlIo(super.identifier) {
     final credentialsFile = File(
-      '$_userHome/${Util.defaultCredentialsFilePath}',
+      CredentialsPath.clientSecretsFile(
+        defaultPath: '$_defaultDir/${Util.credentialsFilename}',
+      ),
     );
     _checkFilePermissions(credentialsFile);
     clientId ??= ClientId.fromJson(

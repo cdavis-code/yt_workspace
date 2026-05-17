@@ -67,6 +67,7 @@ export 'src/memberships_levels.dart';
 export 'src/video_abuse_report_reasons.dart';
 export 'src/analytics.dart';
 export 'src/util/authorization_exception.dart';
+export 'src/util/credentials_path.dart';
 export 'src/util/emoji_formatter.dart';
 export 'src/util/enum.dart';
 export 'src/util/extras.dart';

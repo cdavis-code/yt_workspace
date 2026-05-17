@@ -64,6 +64,32 @@ class Util {
 
   static final String accessCredentialsFilePath = '.yt/access_credentials.json';
 
+  /// Environment variable name pointing at the OAuth client-secret JSON file.
+  ///
+  /// May contain an absolute path, a `~`-prefixed path, or a path relative
+  /// to the current working directory.
+  ///
+  /// Resolution order (see `OAuthAccessControlIo` and `CredentialsPath`):
+  ///   1. Runtime environment (`Platform.environment`)
+  ///   2. `.env` file in the current working directory
+  ///   3. Caller-supplied default (e.g. `$HOME/.yt/credentials.json`)
+  static const String envYtClientSecretsFile = 'YT_CLIENT_SECRETS_FILE';
+
+  /// Environment variable name pointing at the persisted OAuth access /
+  /// refresh token JSON file.
+  ///
+  /// Same resolution order as [envYtClientSecretsFile].
+  static const String envYtAccessTokensFile = 'YT_ACCESS_TOKENS_FILE';
+
+  /// Default credentials directory name (relative to the user's home directory).
+  static const String defaultCredentialsDirname = '.yt';
+
+  /// Filename for the client credentials (client_secret) file.
+  static const String credentialsFilename = 'credentials.json';
+
+  /// Filename for the persisted OAuth access credentials.
+  static const String accessCredentialsFilename = 'access_credentials.json';
+
   static int maxResults(
     int? maxResults, {
     int defaultValue = responseMaxResults,

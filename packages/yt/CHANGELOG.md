@@ -1,3 +1,26 @@
+## 2.3.1 (2026-05-17)
+
+### Added
+
+- **Configurable OAuth credential file paths** — The two OAuth credential
+  files used by `OAuthAccessControlIo` can now each be redirected to an
+  arbitrary path via environment variables (resolved from the runtime
+  environment first, then a `.env` file in the current working directory):
+
+  | Variable | Default |
+  |----------|---------|
+  | `YT_CLIENT_SECRETS_FILE` | `$HOME/.yt/credentials.json` |
+  | `YT_ACCESS_TOKENS_FILE`  | `$HOME/.yt/access_credentials.json` |
+
+  Either variable may be set independently — unset variables keep the
+  existing default location, so behavior is fully backward compatible.
+  Leading `~` in the resolved path is expanded against the user's home
+  directory. New constants exposed on `Util`: `envYtClientSecretsFile`,
+  `envYtAccessTokensFile`, `defaultCredentialsDirname`,
+  `credentialsFilename`, `accessCredentialsFilename`.
+
+## Unreleased
+
 ## 2.3.0 (2026-05-16)
 
 ### Added
