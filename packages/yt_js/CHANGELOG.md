@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Documentation
+- README updated to document the new `YT_CLIENT_SECRETS_FILE` and
+  `YT_ACCESS_TOKENS_FILE` environment variables for overriding individual
+  OAuth credential file paths. Behavior is inherited from the underlying
+  `yt` Dart package — no JS-side code changes.
+
 ## [2.3.0] - 2025-05-16
 
 ### Added

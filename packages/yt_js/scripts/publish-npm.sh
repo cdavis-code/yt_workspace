@@ -19,9 +19,9 @@ echo "==> Bumping version: $BUMP"
 npm version "$BUMP" --no-git-tag-version
 
 NEW_VERSION=$(node -p 'require("./package.json").version')
-TAG="yt_js-v${NEW_VERSION}"
+TAG="youtube-api-v${NEW_VERSION}"
 
-echo "==> Publishing @unngh/yt-js@${NEW_VERSION} to npm"
+echo "==> Publishing @unngh/youtube-api@${NEW_VERSION} to npm"
 
 npm run build
 npm publish --access public
