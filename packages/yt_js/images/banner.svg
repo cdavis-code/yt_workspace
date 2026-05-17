@@ -96,7 +96,7 @@
 
   <!-- Package name -->
   <text x="640" y="290" font-family="'SF Mono', 'Fira Code', 'Courier New', monospace" font-size="72" font-weight="bold" fill="white" text-anchor="middle" filter="url(#glow-strong)">
-    @unngh/yt-js
+    @unngh/youtube-api
   </text>
 
   <!-- Subtitle -->
