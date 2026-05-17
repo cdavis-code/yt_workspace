@@ -98,6 +98,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -150,9 +152,9 @@ jobs:
           git push
 
       - name: Sync formula to homebrew tap
-        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' }}
+        if: env.HOMEBREW_TAP_TOKEN != ''
         run: |
-          git clone https://x-access-token:${{ secrets.HOMEBREW_TAP_TOKEN }}@github.com/cdavis-code/homebrew-yt.git tap-repo
+          git clone https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/cdavis-code/homebrew-yt.git tap-repo
           cp homebrew/yt.rb tap-repo/Formula/yt.rb
           cd tap-repo
           git config user.name "github-actions[bot]"
