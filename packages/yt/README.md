@@ -12,7 +12,6 @@ Native [Dart](https://dart.dev/) interface to multiple Google REST APIs, includi
 
 **Related Packages:**
 - [yt_cli](https://github.com/cdavis-code/yt/tree/main/packages/yt_cli) — CLI tool for YouTube APIs
-- [yt_mcp](https://github.com/cdavis-code/yt/tree/main/packages/yt_mcp) — MCP server for AI integration
 
 [![pub package](https://img.shields.io/pub/v/yt.svg)](https://pub.dartlang.org/packages/yt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -55,10 +54,29 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  yt: ^2.3.1
+  yt: ^3.0.1
 ```
 
 ## Configuration
+
+### ⚠️ Breaking Changes in v3.0.1
+
+**OAuth credential filenames have changed.** If you upgrade from v2.x to v3.x, you must update your credential files:
+
+| File | Old Name | New Name |
+|------|----------|----------|
+| Client secrets | `credentials.json` | `client_secrets.json` |
+| Access tokens | `access_credentials.json` | `access_tokens.json` |
+
+**Migration options:**
+1. **Rename your files** on disk to match the new names in `$HOME/.yt/`
+2. **Set environment variables** to point at the old locations:
+   ```sh
+   export YT_CLIENT_SECRETS_FILE="$HOME/.yt/credentials.json"
+   export YT_ACCESS_TOKENS_FILE="$HOME/.yt/access_credentials.json"
+   ```
+
+For full details, see the [CHANGELOG](https://github.com/cdavis-code/yt/blob/main/packages/yt/CHANGELOG.md).
 
 YouTube API access requires either an API key (read-only) or OAuth 2.0 credentials.
 

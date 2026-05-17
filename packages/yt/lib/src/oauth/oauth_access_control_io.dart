@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/io_client.dart';
 import 'package:universal_io/io.dart';
+import 'package:yt/src/model/util/google_oauth_credentials.dart';
 import 'package:yt/src/util/credentials_path.dart';
 import 'package:yt/src/util/util.dart';
 
@@ -27,15 +28,43 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
   final httpClient = IOClient();
 
   OAuthAccessControlIo(super.identifier) {
-    final credentialsFile = File(
-      CredentialsPath.clientSecretsFile(
-        defaultPath: '$_defaultDir/${Util.credentialsFilename}',
-      ),
+    final resolvedPath = CredentialsPath.clientSecretsFile(
+      defaultPath: '$_defaultDir/${Util.credentialsFilename}',
     );
+    final credentialsFile = File(resolvedPath);
+
+    if (!credentialsFile.existsSync()) {
+      throw ArgumentError(
+        'OAuth client secrets file not found at "$resolvedPath". '
+        'Download it from Google Cloud Console and save it, or set the '
+        'YT_CLIENT_SECRETS_FILE environment variable.',
+      );
+    }
+
     _checkFilePermissions(credentialsFile);
-    clientId ??= ClientId.fromJson(
-      json.decode(credentialsFile.readAsStringSync()),
-    );
+
+    if (clientId != null) return;
+
+    try {
+      final decoded =
+          json.decode(credentialsFile.readAsStringSync())
+              as Map<String, dynamic>;
+
+      final googleCredentials = GoogleOAuthCredentials.fromJson(decoded);
+      clientId = googleCredentials.toClientId();
+    } on ArgumentError {
+      rethrow;
+    } on FormatException catch (_) {
+      throw ArgumentError(
+        'OAuth client secrets file at "$resolvedPath" contains '
+        'invalid JSON. Ensure it is a valid Google OAuth client secret file.',
+      );
+    } catch (e) {
+      throw ArgumentError(
+        'Failed to parse OAuth client secrets file at '
+        '"$resolvedPath": $e',
+      );
+    }
   }
 
   @override
@@ -43,9 +72,31 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
     if (_credentialsFile.existsSync()) {
       _checkFilePermissions(_credentialsFile);
 
-      nullableAccessCredentials = AccessCredentials.fromJson(
-        json.decode(_credentialsFile.readAsStringSync()),
-      );
+      try {
+        final decoded = json.decode(_credentialsFile.readAsStringSync());
+
+        if (decoded is! Map<String, dynamic>) {
+          throw ArgumentError(
+            'Access tokens file at "${_credentialsFile.path}" contains '
+            'invalid data. Expected JSON object, got ${decoded.runtimeType}. '
+            'Delete the file and re-authorize with yt_cli.',
+          );
+        }
+
+        nullableAccessCredentials = AccessCredentials.fromJson(decoded);
+      } on ArgumentError {
+        rethrow;
+      } on FormatException catch (_) {
+        throw ArgumentError(
+          'Access tokens file at "${_credentialsFile.path}" contains '
+          'invalid JSON. Delete the file and re-authorize with yt_cli.',
+        );
+      } catch (e) {
+        throw ArgumentError(
+          'Failed to parse access tokens file at '
+          '"${_credentialsFile.path}": $e',
+        );
+      }
 
       nullableAccessCredentials = await refreshCredentials(
         clientId!,
@@ -64,7 +115,7 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
       );
 
       _credentialsFile.writeAsStringSync(
-        json.encode(nullableAccessCredentials),
+        json.encode(nullableAccessCredentials!.toJson()),
         flush: true,
       );
     }

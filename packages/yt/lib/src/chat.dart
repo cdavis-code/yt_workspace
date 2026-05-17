@@ -181,38 +181,6 @@ class Chat extends YouTubeApiHelper {
     } while (liveChatMessageListResponse.nextPageToken != null);
   }
 
-  ///Use a [Chatbot] to answer questions in the liveChat.
-  Future<void> answerBot({
-    required LiveBroadcastItem liveBroadcastItem,
-    required Chatbot chatbot,
-    TimeStore? timeStore,
-  }) async {
-    await _download(
-      liveBroadcastItem: liveBroadcastItem,
-      onDownload:
-          (
-            List<LiveChatMessage> liveChatMessageList,
-            LiveBroadcastItem liveBroadcastItem,
-          ) {
-            liveChatMessageList
-                .where(
-                  (liveChatMessage) =>
-                      liveChatMessage.authorDetails!.channelId !=
-                      liveBroadcastItem.snippet?.channelId,
-                )
-                .forEach((liveChatMessage) {
-                  chatbot.checkDialog(
-                    liveChatMessage: liveChatMessage,
-                    onFound: (Dialog dialog, String recipient) async => await send(
-                      message:
-                          '${chatbot.nameFormatted}: @$recipient - ${dialog.answer}',
-                      chatId: liveChatMessage.snippet.liveChatId,
-                    ),
-                  );
-                });
-          },
-    );
-  }
 }
 
 class TimeStore implements Pickleable {

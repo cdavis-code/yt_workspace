@@ -39,6 +39,7 @@ export 'src/model/thumbnail.dart';
 export 'src/model/thumbnails/thumbnails_set_response.dart';
 export 'src/model/util/jwt_credentials.dart';
 export 'src/model/util/oauth_credentials.dart';
+export 'src/model/util/google_oauth_credentials.dart';
 export 'src/model/util/token.dart';
 export 'src/model/videos/rating.dart';
 export 'src/model/videos/report_abuse.dart';
@@ -61,7 +62,6 @@ export 'src/video_categories.dart';
 export 'src/yt_base.dart';
 
 export 'src/chat.dart';
-export 'src/chatbot.dart';
 export 'src/members.dart';
 export 'src/memberships_levels.dart';
 export 'src/video_abuse_report_reasons.dart';
@@ -72,11 +72,8 @@ export 'src/util/emoji_formatter.dart';
 export 'src/util/enum.dart';
 export 'src/util/extras.dart';
 export 'src/util/logging_interceptors.dart';
-export 'src/util/phrase_match.dart';
 export 'src/util/util.dart';
 
-export 'src/model/chat/dialog.dart';
-export 'src/model/chat/keyword.dart';
 export 'src/model/chat/live_chat_message.dart';
 export 'src/model/chat/live_chat_message_list_response.dart';
 export 'src/model/chat/snippet.dart';

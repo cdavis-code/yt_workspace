@@ -50,6 +50,24 @@ class CredentialsPath {
   static String accessTokensFile({required String defaultPath}) =>
       resolveFile(Util.envYtAccessTokensFile, defaultPath: defaultPath);
 
+  /// Resolves a configuration value from environment or `.env` file.
+  ///
+  /// Returns the value from the runtime environment if set, otherwise
+  /// from the `.env` file, otherwise `null`.
+  static String? resolveValue(String envVarName) {
+    final fromEnv = Platform.environment[envVarName];
+    if (fromEnv != null && fromEnv.isNotEmpty) {
+      return fromEnv;
+    }
+
+    final fromDotEnv = readFromDotEnv(envVarName);
+    if (fromDotEnv != null && fromDotEnv.isNotEmpty) {
+      return fromDotEnv;
+    }
+
+    return null;
+  }
+
   /// Expands a leading `~` in [path] to the current user's home directory.
   static String expandHome(String path) {
     if (path == '~') return _userHome ?? path;

@@ -81,6 +81,14 @@ class Util {
   /// Same resolution order as [envYtClientSecretsFile].
   static const String envYtAccessTokensFile = 'YT_ACCESS_TOKENS_FILE';
 
+  /// Environment variable name for the YouTube Data API key.
+  ///
+  /// Resolution order (see `CredentialsPath`):
+  ///   1. Runtime environment (`Platform.environment`)
+  ///   2. `.env` file in the current working directory
+  ///   3. Explicit `apiKey` parameter passed to `Yt.withApiKey()`
+  static const String envYtApiKey = 'YT_API_KEY';
+
   /// Default credentials directory name (relative to the user's home directory).
   static const String defaultCredentialsDirname = '.yt';
 

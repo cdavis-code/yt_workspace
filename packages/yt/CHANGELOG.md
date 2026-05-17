@@ -1,4 +1,27 @@
-## 3.0.0 (2026-05-17)
+## 3.0.1 (2026-05-17)
+
+### Added
+
+- **`GoogleOAuthCredentials` JsonSerializable model** — New typed model for
+  parsing OAuth client secrets files downloaded from Google Cloud Console.
+  Supports both `web` and `installed` formats with proper field mapping
+  (`client_id`, `client_secret`, `auth_uri`, `token_uri`, `redirect_uris`,
+  `project_id`). Includes secure `toString()` that masks the client secret.
+  Exposed via `package:yt/yt.dart`.
+
+- **Robust access tokens validation** — `OAuthAccessControlIo.init()` now
+  validates that the access tokens file contains a valid JSON object before
+  attempting to parse. Throws an `ArgumentError` with actionable guidance
+  ("Delete the file and re-authorize with yt_cli") when the file is corrupted
+  or contains invalid JSON, replacing cryptic type cast errors.
+
+### Fixed
+
+- **Access tokens serialization** — `OAuthAccessControlIo` now properly
+  serializes `AccessCredentials` via `.toJson()` instead of direct
+  `json.encode()`, ensuring `accessToken` is written as a structured object
+  (with `type`, `data`, `expiry`) rather than a plain string. This matches
+  the format expected by `googleapis_auth.AccessCredentials.fromJson()`.
 
 ### Changed
 

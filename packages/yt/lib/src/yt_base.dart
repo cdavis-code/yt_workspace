@@ -108,13 +108,22 @@ class Yt with UiLoggy {
     addInterceptor(LoggingInterceptors(), position: ListPosition.end);
   }
 
-  static Yt withApiKey(
-    String apiKey, {
+  static Yt withApiKey({
+    String? apiKey,
     Map<String, String>? additionalHeaders,
   }) {
+    final resolvedKey = apiKey ?? CredentialsPath.resolveValue(Util.envYtApiKey);
+
+    if (resolvedKey == null || resolvedKey.isEmpty) {
+      throw ArgumentError(
+        'No API key provided. Pass it directly or set the '
+        '${Util.envYtApiKey} environment variable (or add it to a .env file).',
+      );
+    }
+
     final yt = Yt();
 
-    yt.setModules(apiKey: apiKey);
+    yt.setModules(apiKey: resolvedKey);
 
     if (additionalHeaders != null) {
       dio.options.headers.addAll(additionalHeaders);
@@ -127,7 +136,7 @@ class Yt with UiLoggy {
 
   @Deprecated('Use withApiKey instead')
   static Yt withKey(String apiKey, {Map<String, String>? additionalHeaders}) =>
-      withApiKey(apiKey, additionalHeaders: additionalHeaders);
+      withApiKey(apiKey: apiKey, additionalHeaders: additionalHeaders);
 
   static Yt withOAuth({
     ClientId? oAuthClientId,
