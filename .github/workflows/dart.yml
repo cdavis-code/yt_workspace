@@ -9,7 +9,7 @@ on:
   push:
     branches: [main]
     tags:
-      - 'yt_js-v*'
+      - 'youtube-api-v*'
   pull_request:
     branches: [main]
 
@@ -54,7 +54,7 @@ jobs:
   publish-yt-js:
     needs: [yt_js]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/yt_js-v')
+    if: startsWith(github.ref, 'refs/tags/youtube-api-v')
     steps:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@v1
