@@ -1,4 +1,4 @@
-![yt_js banner](images/banner.svg)
+![yt_js banner](https://raw.githubusercontent.com/cdavis-code/yt_workspace/refs/heads/main/packages/yt_js/images/banner.svg)
 
 # @unngh/youtube-api
 
