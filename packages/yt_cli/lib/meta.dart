@@ -6,5 +6,5 @@ library;
 import 'dart:convert' show json;
 
 final pubSpec = json.decode(
-  '{"name":"yt_cli","version":"2.2.6+6","description":"A CLI tool for the YouTube Data, Live Streaming, and Analytics APIs.","homepage":"https://github.com/cdavis-code/yt_workspace","repository":"https://github.com/cdavis-code/yt_workspace/tree/main/packages/yt_cli","issue_tracker":"https://github.com/cdavis-code/yt_workspace/issues"}',
+  '{"name":"yt_cli","version":"2.3.0+1","description":"A CLI tool for the YouTube Data, Live Streaming, and Analytics APIs.","homepage":"https://github.com/cdavis-code/yt_workspace","repository":"https://github.com/cdavis-code/yt_workspace/tree/main/packages/yt_cli","issue_tracker":"https://github.com/cdavis-code/yt_workspace/issues"}',
 );

@@ -4,6 +4,10 @@ import 'package:yt/yt.dart';
 
 import 'youtube_helper_command.dart';
 
+/// Command group for video abuse report reasons.
+///
+/// A videoAbuseReportReason resource contains information about reasons
+/// that a video would be flagged for containing abusive content.
 class YoutubeVideoAbuseReportReasonsCommand extends Command<void> {
   @override
   String get description =>
@@ -17,6 +21,10 @@ class YoutubeVideoAbuseReportReasonsCommand extends Command<void> {
   }
 }
 
+/// Retrieve a list of reasons for reporting abusive videos.
+///
+/// Returns reasons that can be used when reporting videos for abuse,
+/// with localized text support via the hl parameter.
 class YoutubeListVideoAbuseReportReasonsCommand extends YtHelperCommand {
   @override
   String get description =>

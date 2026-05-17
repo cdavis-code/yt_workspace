@@ -1,6 +1,7 @@
 /// CLI commands for the yt package.
 library;
 
+export 'src/cmd/youtube_activities_command.dart';
 export 'src/cmd/youtube_analytics_command.dart';
 export 'src/cmd/youtube_authorize_command.dart';
 export 'src/cmd/youtube_broadcast_command.dart';

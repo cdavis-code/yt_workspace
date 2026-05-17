@@ -1,11 +1,11 @@
-import 'dart:convert';
-
 import 'package:args/command_runner.dart';
 import 'package:dio/dio.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
 import 'package:universal_io/io.dart';
 import 'package:yt/oauth.dart';
 import 'package:yt/yt.dart';
+
+import '../util/security_util.dart';
 
 abstract class YtHelperCommand extends Command<void> {
   late final Yt _yt;
@@ -43,6 +43,8 @@ abstract class YtHelperCommand extends Command<void> {
   VideoAbuseReportReasons get videoAbuseReportReasons =>
       _yt.videoAbuseReportReasons;
 
+  Activities get activities => _yt.activities;
+
   Analytics get analytics => _yt.analytics;
 
   Future<void> initializeYt() async {
@@ -59,11 +61,17 @@ abstract class YtHelperCommand extends Command<void> {
       exit(1);
     }
 
-    // Parse client_secret.json.
-    final secretJson =
-        jsonDecode(await secretFile.readAsString()) as Map<String, dynamic>;
-    final rootKey = secretJson.containsKey('web') ? 'web' : 'installed';
-    final config = secretJson[rootKey] as Map<String, dynamic>;
+    // Parse and validate client_secret.json.
+    final Map<String, dynamic> config;
+    try {
+      config = SecurityUtil.parseAndValidateClientSecret(
+        await secretFile.readAsString(),
+      );
+    } on FormatException catch (e) {
+      print('Error: ${e.message}');
+      print('Re-run "yt authorize" with a valid client_secret.json.');
+      exit(1);
+    }
     final clientId = config['client_id'] as String;
     final clientSecret = config['client_secret'] as String;
 

@@ -6,6 +6,10 @@ import 'package:yt/yt.dart';
 
 import 'youtube_helper_command.dart';
 
+/// Root command for YouTube Analytics operations.
+///
+/// Provides access to analytics reports, groups, and group items
+/// for measuring channel performance and audience engagement.
 class YoutubeAnalyticsCommand extends Command<void> {
   @override
   String get description =>
@@ -23,6 +27,10 @@ class YoutubeAnalyticsCommand extends Command<void> {
 
 // -- Reports --
 
+/// Command group for querying YouTube Analytics reports.
+///
+/// Subcommands allow retrieving metrics like views, watch time,
+/// and audience demographics for channels or content owners.
 class YoutubeAnalyticsReportsCommand extends Command<void> {
   @override
   String get description => 'Query YouTube Analytics reports for a channel.';
@@ -35,6 +43,11 @@ class YoutubeAnalyticsReportsCommand extends Command<void> {
   }
 }
 
+/// Query YouTube Analytics reports with custom metrics and dimensions.
+///
+/// Retrieves analytics data such as views, estimated minutes watched,
+/// subscribers gained, and other performance metrics for a specified
+/// time period and channel.
 class AnalyticsReportsQueryCommand extends YtHelperCommand {
   @override
   String get description =>
@@ -142,6 +155,10 @@ class AnalyticsReportsQueryCommand extends YtHelperCommand {
 
 // -- Groups --
 
+/// Command group for managing YouTube Analytics groups.
+///
+/// Analytics groups allow organizing channels, videos, playlists,
+/// or assets for consolidated reporting and analysis.
 class YoutubeAnalyticsGroupsCommand extends Command<void> {
   @override
   String get description =>
@@ -158,6 +175,10 @@ class YoutubeAnalyticsGroupsCommand extends Command<void> {
   }
 }
 
+/// Retrieve a list of analytics groups for the authenticated user.
+///
+/// Lists all groups created by the authorized channel or content owner,
+/// with optional filtering by group type and pagination support.
 class GroupsListCommand extends YtHelperCommand {
   @override
   String get description =>

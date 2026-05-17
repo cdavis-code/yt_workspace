@@ -1,15 +1,15 @@
-import 'dart:convert';
-
 import 'package:args/command_runner.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
 import 'package:universal_io/io.dart';
+
+import '../util/security_util.dart';
 
 /// Generate a refresh token used to authenticate the command line API
 /// requests.
 ///
 /// Uses an OAuth 2.0 web flow that captures a permanent Refresh Token for
 /// unattended server-side operation. See the setup guide for details on
-/// obtaining a [client_secret.json] file from the Google Cloud Console.
+/// obtaining a `client_secret.json` file from the Google Cloud Console.
 class YoutubeAuthorizeCommand extends Command<void> {
   static const _guideUrl =
       'https://github.com/faithoflifedev/yt/blob/main/packages/yt_cli/authentication.md';
@@ -49,11 +49,16 @@ class YoutubeAuthorizeCommand extends Command<void> {
     final overwrite = argResults!['overwrite-credentials'] as bool;
     final credentialsFilePath = argResults!['credentials-file'] as String;
 
-    final secretFile = File(credentialsFilePath);
-    if (!await secretFile.exists()) {
+    final File secretFile;
+    try {
+      secretFile = await SecurityUtil.validateInputFile(
+        credentialsFilePath,
+        argName: 'credentials-file',
+      );
+    } on FormatException catch (e) {
       print(
-        'Error: Could not find "$credentialsFilePath".\n'
-        'Download it from the Google Cloud Console Credentials page.\n'
+        'Error: ${e.message}\n'
+        'Download client_secret.json from the Google Cloud Console Credentials page.\n'
         'See the setup guide above for step-by-step instructions.',
       );
       exit(1);
@@ -67,13 +72,16 @@ class YoutubeAuthorizeCommand extends Command<void> {
       return;
     }
 
-    // Parse the Google Cloud Console credentials JSON.
-    final jsonString = await secretFile.readAsString();
-    final Map<String, dynamic> parsedJson = jsonDecode(jsonString);
-
-    // The JSON wraps credentials under "web" or "installed".
-    final String rootKey = parsedJson.containsKey('web') ? 'web' : 'installed';
-    final Map<String, dynamic> config = parsedJson[rootKey];
+    // Parse and validate the Google Cloud Console credentials JSON.
+    final Map<String, dynamic> config;
+    try {
+      config = SecurityUtil.parseAndValidateClientSecret(
+        await secretFile.readAsString(),
+      );
+    } on FormatException catch (e) {
+      print('Error: ${e.message}');
+      exit(1);
+    }
 
     final clientId = config['client_id'] as String;
     final clientSecret = config['client_secret'] as String;
@@ -124,6 +132,24 @@ class YoutubeAuthorizeCommand extends Command<void> {
     final request = await server.first;
     final callbackUri = request.uri;
 
+    // Validate the callback path matches the registered redirect URI and
+    // that an authorization code was returned without an error.
+    try {
+      SecurityUtil.validateOAuthCallback(
+        callback: callbackUri,
+        expectedRedirect: redirectUrl,
+      );
+    } on FormatException catch (e) {
+      request.response
+        ..statusCode = HttpStatus.badRequest
+        ..headers.contentType = ContentType.html
+        ..write('<h1>Authorization failed</h1><p>${e.message}</p>');
+      await request.response.close();
+      await server.close();
+      print('Error: ${e.message}');
+      exit(1);
+    }
+
     // Send a friendly success page back to the browser.
     request.response
       ..statusCode = HttpStatus.ok
@@ -140,8 +166,10 @@ class YoutubeAuthorizeCommand extends Command<void> {
       callbackUri.queryParameters,
     );
 
-    // Persist credentials so subsequent runs are fully automatic.
+    // Persist credentials so subsequent runs are fully automatic, then
+    // restrict the token file to owner read/write only on POSIX.
     await tokenStorageFile.writeAsString(client.credentials.toJson());
+    await SecurityUtil.restrictFilePermissions(tokenStorageFile);
 
     print('');
     print('Authorization completed.');

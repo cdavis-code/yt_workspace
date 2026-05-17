@@ -1,7 +1,7 @@
 import 'package:args/command_runner.dart';
 import 'package:dio/dio.dart';
-import 'package:universal_io/io.dart';
 import 'package:yt/yt.dart';
+import '../util/security_util.dart';
 import 'youtube_helper_command.dart';
 
 /// A thumbnail resource identifies different thumbnail image sizes associated
@@ -74,14 +74,20 @@ class YoutubeSetThumbnailsCommand extends YtHelperCommand {
     await initializeYt();
 
     try {
+      final thumbnailFile = await SecurityUtil.validateInputFile(
+        argResults!['file'] as String,
+        argName: 'file',
+      );
       final thumbnailSetResponse = await thumbnails.set(
         videoId: argResults!['video-id'],
-        thumbnail: File(argResults!['file']),
+        thumbnail: thumbnailFile,
       );
 
       print(thumbnailSetResponse);
 
       close();
+    } on FormatException catch (e) {
+      throw UsageException(e.message, usage);
     } on DioException catch (err) {
       throw UsageException('API usage error:', err.usage);
     }

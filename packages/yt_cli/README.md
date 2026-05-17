@@ -61,6 +61,7 @@ yt videos --help
 ## Features
 
 - OAuth 2.0 web flow authorization with automatic token refresh
+- Query channel activity events (uploads, likes, subscriptions, etc.)
 - Query YouTube Analytics reports (views, watch time, demographics, and more)
 - Manage analytics groups and group items for organizing channels, videos, or playlists
 - Full CRUD for channels, playlists, videos, comments, and subscriptions
@@ -76,6 +77,7 @@ Run `yt --help` for the full list. Key commands:
 
 | Command | Description |
 |---------|-------------|
+| `activities` | List channel activity events |
 | `analytics` | YouTube Analytics reports, groups, and group items |
 | `authorize` | OAuth 2.0 web flow to authorize the CLI |
 | `broadcast` | Manage live broadcasts |
@@ -137,4 +139,4 @@ Any help from the open-source community is always welcome:
 
 ## License
 
-MIT License - see [LICENSE] for details.
+MIT License - see [LICENSE](LICENSE) for details.

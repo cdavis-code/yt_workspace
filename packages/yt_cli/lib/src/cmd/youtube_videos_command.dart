@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:args/command_runner.dart';
 import 'package:dio/dio.dart';
-import 'package:universal_io/io.dart';
 import 'package:yt/yt.dart';
+import '../util/security_util.dart';
 import 'youtube_helper_command.dart';
 
 /// A video resource represents a YouTube video.
@@ -258,8 +258,12 @@ Accepted Media MIME types: video/*, application/octet-stream''',
     await initializeYt();
 
     try {
+      final videoFile = await SecurityUtil.validateInputFile(
+        argResults!['video-file'] as String,
+        argName: 'video-file',
+      );
       final liveBroadcastItem = await videos.insert(
-        videoFile: File(argResults!['video-file']),
+        videoFile: videoFile,
         body: json.decode(argResults!['body']),
         part: argResults!['part'],
       );
@@ -267,6 +271,8 @@ Accepted Media MIME types: video/*, application/octet-stream''',
       print(liveBroadcastItem);
 
       close();
+    } on FormatException catch (e) {
+      throw UsageException(e.message, usage);
     } on DioException catch (err) {
       throw UsageException('API usage error:', err.usage);
     }

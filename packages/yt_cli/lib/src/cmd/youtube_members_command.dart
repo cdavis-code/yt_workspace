@@ -4,6 +4,10 @@ import 'package:yt/yt.dart';
 
 import 'youtube_helper_command.dart';
 
+/// Command group for managing YouTube channel members.
+///
+/// A member resource represents a channel member who provides recurring
+/// monetary support to a creator and receives special benefits.
 class YoutubeMembersCommand extends Command<void> {
   @override
   String get description =>
@@ -17,6 +21,10 @@ class YoutubeMembersCommand extends Command<void> {
   }
 }
 
+/// List members for a YouTube channel.
+///
+/// Returns members who have joined the channel's membership program,
+/// with support for filtering by membership mode and pagination.
 class YoutubeListMembersCommand extends YtHelperCommand {
   @override
   String get description => 'Lists members for a channel.';
