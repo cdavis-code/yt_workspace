@@ -68,6 +68,9 @@ jobs:
       - name: Build (dart2js + tsup)
         working-directory: packages/yt_js
         run: npm run build
+      - name: Setup npm auth
+        working-directory: packages/yt_js
+        run: echo "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > .npmrc
       - name: Publish to npm
         working-directory: packages/yt_js
         run: npm publish --access=public
@@ -121,6 +124,10 @@ jobs:
         working-directory: packages/yt_js
         run: test -f dist/yt_js.runtime.js
 
+      - name: Setup npm auth
+        if: steps.changes.outputs.yt_lib == 'true'
+        working-directory: packages/yt_js
+        run: echo "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > .npmrc
       - name: Publish to npm
         if: steps.changes.outputs.yt_lib == 'true'
         working-directory: packages/yt_js
