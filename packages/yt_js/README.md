@@ -36,6 +36,7 @@ const response = await yt.search.list(q: 'Dart programming');
 ## Features
 
 - YouTube Data API v3 (search, channels, playlists, videos, etc.)
+- YouTube Activities API (channel activity feeds)
 - YouTube Live Streaming API (broadcasts, streams, chat)
 - YouTube Analytics API
 - Works in both browser and Node.js (ESM and CJS)
