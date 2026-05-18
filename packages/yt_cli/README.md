@@ -100,6 +100,40 @@ Run `yt --help` for the full list. Key commands:
 
 ## Configuration
 
+### ⚠️ Breaking Changes (v3.0.1)
+
+**OAuth token file format has changed.** `yt_cli` v3.0.1 migrated from
+`googleapis_auth` to the cross-platform `oauth2` package. `yt authorize` now
+writes access tokens via `oauth2.Credentials.toJson()`.
+
+If you have an existing tokens file (created by `yt_cli < 3.0.0`), you must
+**re-authorize**. Since the tokens file already exists, pass
+`--overwrite-credentials` (`-o`) to force a new flow:
+
+```sh
+yt authorize \
+  --credentials-file ~/.yt/client_secrets.json \
+  --tokens-file ~/.yt/access_tokens.json \
+  --overwrite-credentials
+```
+
+**Why?** Previously, tokens were serialized in the `googleapis_auth`
+format (`accessToken` as an object with `type`, `data`, and `expiry`
+fields). The `yt` library now uses the `oauth2` package format
+(`accessToken` as a plain string with separate `expiration`).
+
+For full details, see the [CHANGELOG](CHANGELOG.md).
+
+---
+
+YouTube API access requires either an API key (read-only) or OAuth 2.0 credentials.
+
+| Action Type | Authentication Requirement | Why |
+|---|---|---|
+| Reading Public Data | API Key or OAuth 2.0 | Accesses data anyone can see (e.g., public video titles, search results). |
+| Reading Private Data | OAuth 2.0 Required | Accesses data specific to a user (e.g., a user's private videos or watch history). |
+| Writing/Modifying Data | OAuth 2.0 Required | Performs actions on behalf of a user (e.g., uploading, deleting, or commenting). |
+
 ### Authorization
 
 Before using most commands, authorize the CLI with your YouTube account:

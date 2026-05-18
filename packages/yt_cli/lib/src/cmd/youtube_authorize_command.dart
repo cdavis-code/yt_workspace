@@ -1,6 +1,7 @@
 import 'package:args/command_runner.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
 import 'package:universal_io/io.dart';
+import 'package:yt/yt.dart';
 
 import '../util/security_util.dart';
 
@@ -14,7 +15,8 @@ class YoutubeAuthorizeCommand extends Command<void> {
   static const _guideUrl =
       'https://github.com/faithoflifedev/yt/blob/main/packages/yt_cli/authentication.md';
 
-  static const _tokenStorageFilename = 'youtube_server_tokens.json';
+  static const _secretFilename = 'client_secrets.json';
+  static const _tokenStorageFilename = 'access_tokens.json';
 
   @override
   String get description =>
@@ -33,9 +35,21 @@ class YoutubeAuthorizeCommand extends Command<void> {
       ..addOption(
         'credentials-file',
         abbr: 'c',
-        defaultsTo: 'client_secret.json',
+        defaultsTo: _secretFilename,
         help:
-            'Path to the client_secret.json file downloaded from the Google Cloud Console.',
+            'Path to the client_secret.json file downloaded from the Google '
+            'Cloud Console. When omitted, the file is looked up via the '
+            'YT_CLIENT_SECRETS_FILE environment variable (or .env), falling '
+            'back to "$_secretFilename" in the current working directory.',
+        valueHelp: 'path',
+      )
+      ..addOption(
+        'tokens-file',
+        abbr: 't',
+        help:
+            'Path where the OAuth tokens will be stored. When omitted, '
+            'defaults to the value of YT_ACCESS_TOKENS_FILE (env var or .env), '
+            'falling back to "$_tokenStorageFilename" in the current working directory.',
         valueHelp: 'path',
       );
   }
@@ -47,7 +61,19 @@ class YoutubeAuthorizeCommand extends Command<void> {
     print('');
 
     final overwrite = argResults!['overwrite-credentials'] as bool;
-    final credentialsFilePath = argResults!['credentials-file'] as String;
+    // If the user explicitly passed --credentials-file, honor that path
+    // exactly. Otherwise resolve the client_secret.json location via
+    // YT_CLIENT_SECRETS_FILE (env var or .env), falling back to the
+    // current working directory.
+    final credentialsFilePath = argResults!.wasParsed('credentials-file')
+        ? argResults!['credentials-file'] as String
+        : CredentialsPath.clientSecretsFile(defaultPath: _secretFilename);
+    // If the user explicitly passed --tokens-file, honor that path exactly.
+    // Otherwise resolve via YT_ACCESS_TOKENS_FILE (env var or .env), falling
+    // back to the current working directory.
+    final tokenStoragePath = argResults!.wasParsed('tokens-file')
+        ? argResults!['tokens-file'] as String
+        : CredentialsPath.accessTokensFile(defaultPath: _tokenStorageFilename);
 
     final File secretFile;
     try {
@@ -64,10 +90,10 @@ class YoutubeAuthorizeCommand extends Command<void> {
       exit(1);
     }
 
-    final tokenStorageFile = File(_tokenStorageFilename);
+    final tokenStorageFile = File(tokenStoragePath);
 
     if (await tokenStorageFile.exists() && !overwrite) {
-      print('Already authorized ("$_tokenStorageFilename" exists).');
+      print('Already authorized ("$tokenStoragePath" exists).');
       print('Use --overwrite-credentials / -o to re-authorize.');
       return;
     }
@@ -173,8 +199,6 @@ class YoutubeAuthorizeCommand extends Command<void> {
 
     print('');
     print('Authorization completed.');
-    print(
-      'Tokens saved to "$_tokenStorageFilename". The CLI is now ready for use.',
-    );
+    print('Tokens saved to "$tokenStoragePath". The CLI is now ready for use.');
   }
 }

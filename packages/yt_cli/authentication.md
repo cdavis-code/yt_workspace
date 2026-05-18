@@ -77,6 +77,7 @@ yt authorize
 | Flag | Short | Description |
 |------|-------|-------------|
 | `--credentials-file <path>` | `-c` | Path to `client_secret.json` if it is not in the working directory. |
+| `--tokens-file <path>` | `-t` | Path where OAuth tokens will be stored. |
 | `--overwrite-credentials` | `-o` | Delete stored tokens and go through the authorization flow again. |
 
 Examples:
@@ -84,6 +85,9 @@ Examples:
 ```sh
 # Use a secret file stored elsewhere
 yt authorize --credentials-file ~/secrets/my_youtube_client_secret.json
+
+# Store tokens in a custom location
+yt authorize --tokens-file ~/.yt/tokens_production.json
 
 # Re-authorize with a fresh token
 yt authorize --overwrite-credentials
@@ -100,3 +104,43 @@ command prints a confirmation and exits without re-authorizing.  Pass
 All other `yt` sub-commands (`list`, `insert`, `update`, etc.) automatically
 read the stored credentials and refresh the access token in the background
 whenever it expires. No additional configuration is needed.
+
+### Customizing where credentials are stored
+
+By default, `yt authorize` reads `client_secret.json` and writes
+`youtube_server_tokens.json` in the **current working directory**. To keep
+each file in a different (or shared) location, set one or both of these
+environment variables to the **exact file path** you want to use:
+
+| Variable | Purpose |
+|----------|---------|
+| `YT_CLIENT_SECRETS_FILE` | Full path to the OAuth `client_secret.json` file. |
+| `YT_ACCESS_TOKENS_FILE`  | Full path where the refresh-token bundle (`youtube_server_tokens.json`) is read from and written to. |
+
+Each variable is resolved in the following order:
+
+1. The runtime environment, then
+2. A `.env` file in the current working directory.
+
+A leading `~` is expanded against your home directory. Either variable may
+be set independently — unset variables simply keep their default location.
+
+Example:
+
+```sh
+# One-off
+YT_CLIENT_SECRETS_FILE=~/.yt/client_secret.json \
+YT_ACCESS_TOKENS_FILE=~/.yt/youtube_server_tokens.json \
+yt authorize
+
+# Or in a .env file alongside your project
+cat >> .env <<'EOF'
+YT_CLIENT_SECRETS_FILE=~/.yt/client_secret.json
+YT_ACCESS_TOKENS_FILE=~/.yt/youtube_server_tokens.json
+EOF
+yt authorize
+```
+
+An explicit `--credentials-file <path>` argument always takes precedence
+over `YT_CLIENT_SECRETS_FILE`. Similarly, `--tokens-file <path>` takes
+precedence over `YT_ACCESS_TOKENS_FILE`.

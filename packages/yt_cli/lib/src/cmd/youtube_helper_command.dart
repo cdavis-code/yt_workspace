@@ -1,8 +1,6 @@
 import 'package:args/command_runner.dart';
-import 'package:dio/dio.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
 import 'package:universal_io/io.dart';
-import 'package:yt/oauth.dart';
 import 'package:yt/yt.dart';
 
 import '../util/security_util.dart';
@@ -51,8 +49,19 @@ abstract class YtHelperCommand extends Command<void> {
     const secretFilename = 'client_secret.json';
     const tokenFilename = 'youtube_server_tokens.json';
 
-    final secretFile = File(secretFilename);
-    final tokenFile = File(tokenFilename);
+    // Resolve each credential file location independently via
+    // YT_CLIENT_SECRETS_FILE and YT_ACCESS_TOKENS_FILE (env var or .env in
+    // the current working directory). When neither is set, fall back to the
+    // default filenames in the current working directory.
+    final secretPath = CredentialsPath.clientSecretsFile(
+      defaultPath: secretFilename,
+    );
+    final tokenPath = CredentialsPath.accessTokensFile(
+      defaultPath: tokenFilename,
+    );
+
+    final secretFile = File(secretPath);
+    final tokenFile = File(tokenPath);
 
     if (!await secretFile.exists() || !await tokenFile.exists()) {
       print(
@@ -75,7 +84,8 @@ abstract class YtHelperCommand extends Command<void> {
     final clientId = config['client_id'] as String;
     final clientSecret = config['client_secret'] as String;
 
-    // Load stored OAuth 2.0 credentials with automatic refresh.
+    // Load stored OAuth 2.0 credentials. oauth2.Client transparently
+    // refreshes them when expired.
     final credentialsJson = await tokenFile.readAsString();
     final credentials = oauth2.Credentials.fromJson(credentialsJson);
     final oauthClient = oauth2.Client(
@@ -84,23 +94,9 @@ abstract class YtHelperCommand extends Command<void> {
       secret: clientSecret,
     );
 
-    // Initialize the yt client with a token generator.
-    _yt = await Yt.withGenerator(
-      _ServerTokenGenerator(oauthClient),
+    _yt = Yt.withOAuth(
+      oauthClient: oauthClient,
       logOptions: Util.convertToLogOptions(globalResults!['log-level']),
-    );
-
-    // Add an interceptor that refreshes the token on every request.
-    // The oauth2.Client.credentials getter triggers automatic refresh
-    // when the access token is expired.
-    Yt.dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          options.headers['Authorization'] =
-              'Bearer ${oauthClient.credentials.accessToken}';
-          return handler.next(options);
-        },
-      ),
     );
   }
 
@@ -108,25 +104,5 @@ abstract class YtHelperCommand extends Command<void> {
     _yt.close();
 
     exit(0);
-  }
-}
-
-/// Bridges an [oauth2.Client] to the yt package's [RefreshTokenGenerator]
-/// interface.
-class _ServerTokenGenerator implements RefreshTokenGenerator {
-  final oauth2.Client _client;
-
-  _ServerTokenGenerator(this._client);
-
-  @override
-  Future<Token> generate() async {
-    final credentials = _client.credentials;
-    return Token(
-      accessToken: credentials.accessToken,
-      expiresIn:
-          credentials.expiration?.difference(DateTime.now()).inSeconds ?? 3599,
-      scope: credentials.scopes?.join(' '),
-      tokenType: 'Bearer',
-    );
   }
 }
