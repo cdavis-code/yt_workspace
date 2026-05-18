@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:googleapis_auth/googleapis_auth.dart';
+import 'package:oauth2/oauth2.dart' as oauth2;
 
 import 'package:loggy/loggy.dart';
 import 'package:yt/oauth.dart';
@@ -112,7 +112,8 @@ class Yt with UiLoggy {
     String? apiKey,
     Map<String, String>? additionalHeaders,
   }) {
-    final resolvedKey = apiKey ?? CredentialsPath.resolveValue(Util.envYtApiKey);
+    final resolvedKey =
+        apiKey ?? CredentialsPath.resolveValue(Util.envYtApiKey);
 
     if (resolvedKey == null || resolvedKey.isEmpty) {
       throw ArgumentError(
@@ -120,6 +121,8 @@ class Yt with UiLoggy {
         '${Util.envYtApiKey} environment variable (or add it to a .env file).',
       );
     }
+
+    _resetSharedState();
 
     final yt = Yt();
 
@@ -139,22 +142,28 @@ class Yt with UiLoggy {
       withApiKey(apiKey: apiKey, additionalHeaders: additionalHeaders);
 
   static Yt withOAuth({
-    ClientId? oAuthClientId,
+    oauth2.Client? oauthClient,
     LogOptions logOptions = const LogOptions(
       LogLevel.error,
       stackTraceLevel: LogLevel.off,
     ),
   }) {
+    _resetSharedState();
+
     final yt = Yt(
       logOptions: logOptions,
       printer: const PrettyPrinter(showColors: false),
     );
 
+    // Create the access control once and reuse it across all requests.
+    // The IO implementation reads `client_secrets.json` (and may obtain
+    // tokens interactively) in its constructor / init(), so creating a
+    // new instance per request would re-do that work.
+    final oauthAccessControl = OAuthAccessControl(oauthClient);
+
     addInterceptor(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final oauthAccessControl = OAuthAccessControl(oAuthClientId);
-
           await oauthAccessControl.checkAccessToken();
 
           options.headers['Authorization'] =
@@ -179,6 +188,8 @@ class Yt with UiLoggy {
       stackTraceLevel: LogLevel.off,
     ),
   }) async {
+    _resetSharedState();
+
     final yt = Yt(logOptions: logOptions);
 
     Token token = await refreshTokenGenerator.generate();
@@ -198,6 +209,21 @@ class Yt with UiLoggy {
     dio.interceptors.addAll(_interceptors);
 
     return yt;
+  }
+
+  /// Clears interceptors and per-request `Authorization` headers from the
+  /// shared [dio] / [_interceptors] state.
+  ///
+  /// The factory constructors ([withApiKey], [withOAuth], [withGenerator])
+  /// each install their own auth strategy onto the process-wide static
+  /// `dio` / `_interceptors`. Without resetting first, a process that
+  /// switches between, say, an OAuth-bound `Yt` and an API-key `Yt` would
+  /// leak the previous `Bearer ...` interceptor onto the new client and
+  /// duplicate `LoggingInterceptors`.
+  static void _resetSharedState() {
+    _interceptors.clear();
+    dio.interceptors.clear();
+    dio.options.headers.remove('Authorization');
   }
 
   static void addInterceptor(

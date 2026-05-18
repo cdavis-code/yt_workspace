@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:googleapis_auth/auth_io.dart';
-import 'package:http/io_client.dart';
+import 'package:oauth2/oauth2.dart' as oauth2;
 import 'package:universal_io/io.dart';
 import 'package:yt/src/model/util/google_oauth_credentials.dart';
 import 'package:yt/src/util/credentials_path.dart';
@@ -9,25 +8,37 @@ import 'package:yt/src/util/util.dart';
 
 import 'oauth_access_control_interface.dart';
 
-OAuthAccessControl getOAuthAccessControl(ClientId? clientId) =>
-    OAuthAccessControlIo(clientId);
+OAuthAccessControl getOAuthAccessControl(oauth2.Client? oauthClient) =>
+    OAuthAccessControlIo(oauthClient);
 
 class OAuthAccessControlIo extends BaseOAuthAccessControl {
+  static const _scopes = <String>[
+    'https://www.googleapis.com/auth/youtube.force-ssl',
+  ];
+
   static final String _userHome =
       Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'] ?? '';
 
   static final String _defaultDir =
       '$_userHome/${Util.defaultCredentialsDirname}';
 
-  static final _credentialsFile = File(
+  static final _tokensFile = File(
     CredentialsPath.accessTokensFile(
       defaultPath: '$_defaultDir/${Util.accessCredentialsFilename}',
     ),
   );
 
-  final httpClient = IOClient();
+  late final String _clientId;
+  late final String _clientSecret;
+  late final Uri _authEndpoint;
+  late final Uri _tokenEndpoint;
+  late final Uri _redirectUrl;
 
-  OAuthAccessControlIo(super.identifier) {
+  OAuthAccessControlIo(super.oauthClient) {
+    // When the caller already supplied an oauth2.Client we have everything
+    // we need; skip filesystem IO entirely.
+    if (oauthClient != null) return;
+
     final resolvedPath = CredentialsPath.clientSecretsFile(
       defaultPath: '$_defaultDir/${Util.credentialsFilename}',
     );
@@ -43,15 +54,13 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
 
     _checkFilePermissions(credentialsFile);
 
-    if (clientId != null) return;
-
+    final GoogleOAuthCredentials googleCredentials;
     try {
       final decoded =
           json.decode(credentialsFile.readAsStringSync())
               as Map<String, dynamic>;
 
-      final googleCredentials = GoogleOAuthCredentials.fromJson(decoded);
-      clientId = googleCredentials.toClientId();
+      googleCredentials = GoogleOAuthCredentials.fromJson(decoded);
     } on ArgumentError {
       rethrow;
     } on FormatException catch (_) {
@@ -65,59 +74,76 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
         '"$resolvedPath": $e',
       );
     }
+
+    final config = googleCredentials.web ?? googleCredentials.installed;
+    if (config == null) {
+      throw ArgumentError(
+        'Google OAuth credentials must contain either "web" or "installed" '
+        'root key.',
+      );
+    }
+
+    _clientId = config.clientId;
+    _clientSecret = config.clientSecret;
+    _authEndpoint = Uri.parse(
+      config.authUri ?? 'https://accounts.google.com/o/oauth2/auth',
+    );
+    _tokenEndpoint = Uri.parse(
+      config.tokenUri ?? 'https://oauth2.googleapis.com/token',
+    );
+    final firstRedirect = (config.redirectUris ?? const <String>[]).isNotEmpty
+        ? config.redirectUris!.first
+        : 'http://localhost:8080/callback';
+    _redirectUrl = Uri.parse(firstRedirect);
   }
 
   @override
   Future<void> init() async {
-    if (_credentialsFile.existsSync()) {
-      _checkFilePermissions(_credentialsFile);
+    if (initialized) return;
 
+    if (_tokensFile.existsSync()) {
+      _checkFilePermissions(_tokensFile);
+
+      final oauth2.Credentials credentials;
       try {
-        final decoded = json.decode(_credentialsFile.readAsStringSync());
+        final raw = _tokensFile.readAsStringSync();
+        final decoded = json.decode(raw);
 
         if (decoded is! Map<String, dynamic>) {
           throw ArgumentError(
-            'Access tokens file at "${_credentialsFile.path}" contains '
+            'Access tokens file at "${_tokensFile.path}" contains '
             'invalid data. Expected JSON object, got ${decoded.runtimeType}. '
             'Delete the file and re-authorize with yt_cli.',
           );
         }
 
-        nullableAccessCredentials = AccessCredentials.fromJson(decoded);
+        credentials = oauth2.Credentials.fromJson(raw);
       } on ArgumentError {
         rethrow;
       } on FormatException catch (_) {
         throw ArgumentError(
-          'Access tokens file at "${_credentialsFile.path}" contains '
+          'Access tokens file at "${_tokensFile.path}" contains '
           'invalid JSON. Delete the file and re-authorize with yt_cli.',
         );
       } catch (e) {
         throw ArgumentError(
           'Failed to parse access tokens file at '
-          '"${_credentialsFile.path}": $e',
+          '"${_tokensFile.path}": $e',
         );
       }
 
-      nullableAccessCredentials = await refreshCredentials(
-        clientId!,
-        nullableAccessCredentials!,
-        httpClient,
-      );
-    } else {
-      nullableAccessCredentials = await obtainAccessCredentialsViaUserConsent(
-        clientId!,
-        ['https://www.googleapis.com/auth/youtube.force-ssl'],
-        httpClient,
-        (String url) {
-          print('Please go to the following URL and grant access:');
-          print('  => $url');
-        },
+      oauthClient = oauth2.Client(
+        credentials,
+        identifier: _clientId,
+        secret: _clientSecret,
       );
 
-      _credentialsFile.writeAsStringSync(
-        json.encode(nullableAccessCredentials!.toJson()),
-        flush: true,
-      );
+      if (credentials.canRefresh && credentials.isExpired) {
+        await _refreshAndPersist();
+      }
+    } else {
+      oauthClient = await _runInteractiveFlow();
+      _persistCredentials();
     }
 
     initialized = true;
@@ -127,35 +153,162 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
   Future<void> checkAccessToken() async {
     if (!initialized) {
       await init();
+      return;
     }
 
-    if (accessCredentials.accessToken.expiry.isBefore(DateTime.now())) {
-      nullableAccessCredentials = await refreshCredentials(
-        clientId!,
-        accessCredentials,
-        httpClient,
-      );
+    final credentials = oauthClient!.credentials;
+    if (credentials.isExpired && credentials.canRefresh) {
+      await _refreshAndPersist();
     }
   }
 
-  /// Warns if a credential file is readable by group or other users.
-  static void _checkFilePermissions(File file) {
+  Future<void> _refreshAndPersist() async {
+    oauthClient = await oauthClient!.refreshCredentials();
+    _persistCredentials();
+  }
+
+  void _persistCredentials() {
+    _tokensFile.parent.createSync(recursive: true);
+    _tokensFile.writeAsStringSync(
+      oauthClient!.credentials.toJson(),
+      flush: true,
+    );
+    _restrictFilePermissions(_tokensFile);
+  }
+
+  Future<oauth2.Client> _runInteractiveFlow() async {
+    final grant = oauth2.AuthorizationCodeGrant(
+      _clientId,
+      _authEndpoint,
+      _tokenEndpoint,
+      secret: _clientSecret,
+    );
+
+    final baseAuthUrl = grant.getAuthorizationUrl(
+      _redirectUrl,
+      scopes: _scopes,
+    );
+    final authorizationUrl = baseAuthUrl.replace(
+      queryParameters: <String, String>{
+        ...baseAuthUrl.queryParameters,
+        'access_type': 'offline',
+        'prompt': 'consent',
+      },
+    );
+
+    // Write to stderr so the prompt is never captured by callers piping
+    // stdout to a file or to another process.
+    stderr.writeln('Please go to the following URL and grant access:');
+    stderr.writeln('  => $authorizationUrl');
+
+    final port = _redirectUrl.hasPort && _redirectUrl.port != 0
+        ? _redirectUrl.port
+        : 8080;
+    final expectedPath = _redirectUrl.path.isEmpty ? '/' : _redirectUrl.path;
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, port);
+
     try {
-      final stat = file.statSync();
-      // Check group (0x20) and other (0x04) read bits on Unix.
-      if (Platform.isLinux || Platform.isMacOS) {
-        const groupRead = 0x20;
-        const otherRead = 0x04;
-        if (stat.mode & (groupRead | otherRead) != 0) {
-          stderr.writeln(
-            'WARNING: ${file.path} has overly permissive permissions '
-            '(${stat.modeString}).\n'
-            'Run: chmod 600 ${file.path}',
-          );
+      // Drain incoming requests until we receive one matching the redirect
+      // path. This avoids treating a stray /favicon.ico (or any unrelated
+      // probe) as the OAuth callback — the first request is no longer
+      // implicitly trusted.
+      HttpRequest? authRequest;
+      await for (final request in server) {
+        final uri = request.uri;
+        final reqPath = uri.path.isEmpty ? '/' : uri.path;
+        if (reqPath != expectedPath) {
+          request.response
+            ..statusCode = HttpStatus.notFound
+            ..write('Not Found');
+          await request.response.close();
+          continue;
         }
+        if (!uri.queryParameters.containsKey('code') &&
+            !uri.queryParameters.containsKey('error')) {
+          request.response
+            ..statusCode = HttpStatus.badRequest
+            ..write('Missing OAuth response parameters.');
+          await request.response.close();
+          continue;
+        }
+        authRequest = request;
+        break;
+      }
+
+      if (authRequest == null) {
+        throw StateError(
+          'OAuth callback server closed before receiving a '
+          'response.',
+        );
+      }
+
+      // Acknowledge the browser.
+      authRequest.response
+        ..statusCode = HttpStatus.ok
+        ..headers.contentType = ContentType.html
+        ..write(
+          '<h1>Authorization successful!</h1>'
+          '<p>You can close this tab and return to your terminal.</p>',
+        );
+      await authRequest.response.close();
+
+      return await grant.handleAuthorizationResponse(
+        authRequest.uri.queryParameters,
+      );
+    } finally {
+      await server.close();
+    }
+  }
+
+  static void _checkFilePermissions(File file) {
+    // Unix-only — POSIX mode bits have no meaningful equivalent on Windows.
+    if (Platform.isWindows) return;
+    try {
+      final mode = file.statSync().mode;
+      // Mask 0x3F == 0o077 — bits for group (rwx) and other (rwx).
+      // Any non-zero result means someone besides the owner can access the
+      // file, which is unsafe for OAuth client secrets / refresh tokens.
+      if ((mode & 0x3F) != 0) {
+        final octal = (mode & 0x1FF).toRadixString(8).padLeft(3, '0');
+        // Best-effort, non-fatal.
+        stderr.writeln(
+          'Warning: OAuth credential file "${file.path}" has mode 0$octal '
+          '(group/other accessible). Run "chmod 600 ${file.path}" to '
+          'restrict it.',
+        );
       }
     } catch (_) {
-      // Non-fatal — permission check is advisory only.
+      // Best-effort only.
     }
+  }
+
+  static void _restrictFilePermissions(File file) {
+    // Unix-only — Windows NTFS ACLs are managed via the Explorer Security
+    // tab or icacls; chmod is meaningless here.
+    if (Platform.isWindows) return;
+    // Use the absolute path to chmod to avoid honoring a malicious PATH
+    // entry that shadows the system binary. /bin/chmod is the standard
+    // location on macOS and Linux; /usr/bin/chmod is the BSD/Solaris
+    // fallback. We try both before giving up.
+    const candidates = ['/bin/chmod', '/usr/bin/chmod'];
+    for (final chmod in candidates) {
+      if (!File(chmod).existsSync()) continue;
+      try {
+        final result = Process.runSync(chmod, ['600', file.path]);
+        if (result.exitCode == 0) return;
+        stderr.writeln(
+          'Warning: failed to chmod 600 "${file.path}" '
+          '(exit ${result.exitCode}): ${result.stderr}',
+        );
+        return;
+      } catch (e) {
+        stderr.writeln('Warning: failed to chmod 600 "${file.path}": $e');
+        return;
+      }
+    }
+    stderr.writeln(
+      'Warning: chmod binary not found at /bin/chmod or /usr/bin/chmod; '
+      'cannot restrict permissions on "${file.path}".',
+    );
   }
 }

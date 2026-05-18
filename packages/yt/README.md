@@ -61,7 +61,22 @@ dependencies:
 
 ### ⚠️ Breaking Changes in v3.0.1
 
-**OAuth credential filenames have changed.** If you upgrade from v2.x to v3.x, you must update your credential files:
+**1. OAuth library replaced: `googleapis_auth` → `oauth2`**
+
+All public OAuth APIs that previously used `googleapis_auth` types now use `package:oauth2` types directly:
+
+| Before (`googleapis_auth`) | After (`oauth2`) |
+|----------------------------|------------------|
+| `Yt.withOAuth({ClientId? oAuthClientId})` | `Yt.withOAuth({oauth2.Client? oauthClient})` |
+| `GoogleOAuthCredentials.toClientId() → ClientId` | `GoogleOAuthCredentials.toAuthorizationCodeGrant() → oauth2.AuthorizationCodeGrant` |
+| `OAuthCredentials.oAuthClientId` (getter) | `OAuthCredentials.toAuthorizationCodeGrant()` |
+| `OAuthAccessControl(ClientId?, AccessCredentials?)` | `OAuthAccessControl([oauth2.Client?])` |
+
+**2. Token file format changed**
+
+Access tokens are now serialized via `oauth2.Credentials.toJson()` instead of `googleapis_auth.AccessCredentials.toJson()`. Existing token files written by yt `< 3.0.0` (or yt_cli `< 3.0.0`) are no longer readable — delete the existing tokens file and re-run `yt authorize`.
+
+**3. OAuth credential filenames have changed**
 
 | File | Old Name | New Name |
 |------|----------|----------|

@@ -1,4 +1,4 @@
-## 3.0.1 (2026-05-17)
+## 3.0.1 (2026-05-18)
 
 ### Added
 
@@ -15,15 +15,24 @@
   ("Delete the file and re-authorize with yt_cli") when the file is corrupted
   or contains invalid JSON, replacing cryptic type cast errors.
 
-### Fixed
-
-- **Access tokens serialization** — `OAuthAccessControlIo` now properly
-  serializes `AccessCredentials` via `.toJson()` instead of direct
-  `json.encode()`, ensuring `accessToken` is written as a structured object
-  (with `type`, `data`, `expiry`) rather than a plain string. This matches
-  the format expected by `googleapis_auth.AccessCredentials.fromJson()`.
-
 ### Changed
+
+- **BREAKING**: Replaced `googleapis_auth` dependency with the cross-platform
+  `oauth2: ^2.0.5` package. All public OAuth APIs that previously used
+  `googleapis_auth` types now use `package:oauth2` types directly.
+
+  | Before (`googleapis_auth`) | After (`oauth2`) |
+  |----------------------------|------------------|
+  | `Yt.withOAuth({ClientId? oAuthClientId})` | `Yt.withOAuth({oauth2.Client? oauthClient})` |
+  | `GoogleOAuthCredentials.toClientId() → ClientId` | `GoogleOAuthCredentials.toAuthorizationCodeGrant() → oauth2.AuthorizationCodeGrant` |
+  | `OAuthCredentials.oAuthClientId` (getter) | `OAuthCredentials.toAuthorizationCodeGrant()` |
+  | `OAuthAccessControl(ClientId?, AccessCredentials?)` | `OAuthAccessControl([oauth2.Client?])` |
+
+- **BREAKING**: The on-disk access tokens file format has changed. Tokens are
+  now serialized via `oauth2.Credentials.toJson()` instead of
+  `googleapis_auth.AccessCredentials.toJson()`. Existing token files written by
+  yt `< 3.0.0` (or yt_cli `< 3.0.0`) are no longer readable — users must
+  delete the existing tokens file and re-run `yt authorize`.
 
 - **BREAKING**: Renamed default OAuth credential filenames used by
   `OAuthAccessControlIo` and exposed via `Util`:
@@ -38,6 +47,24 @@
   Existing users who relied on the previous default filenames must either
   rename their files on disk or set `YT_CLIENT_SECRETS_FILE` /
   `YT_ACCESS_TOKENS_FILE` to point at the legacy locations.
+
+- **`OAuthAccessControlIo`** now embeds the OAuth interactive flow directly:
+  if no tokens file is present, it parses `client_secrets.json`, opens the
+  browser, starts a local callback server (`HttpServer.bind`), and persists
+  the resulting `oauth2.Credentials`. This removes the need for callers to
+  pre-authorize externally.
+
+- **Web stub** (`oauth_access_control_web.dart`) throws `UnsupportedError` —
+  browser OAuth must be performed by the application and the resulting
+  `oauth2.Client` passed to `Yt.withOAuth(oauthClient: ...)`.
+
+### Fixed
+
+- **Access tokens serialization** — `OAuthAccessControlIo` now properly
+  serializes `AccessCredentials` via `.toJson()` instead of direct
+  `json.encode()`, ensuring `accessToken` is written as a structured object
+  (with `type`, `data`, `expiry`) rather than a plain string. This matches
+  the format expected by `googleapis_auth.AccessCredentials.fromJson()`.
 
 ## Unreleased
 

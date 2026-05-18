@@ -1,5 +1,5 @@
-import 'package:googleapis_auth/googleapis_auth.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:oauth2/oauth2.dart' as oauth2;
 
 part 'google_oauth_credentials.g.dart';
 
@@ -17,22 +17,25 @@ class GoogleOAuthCredentials {
 
   GoogleOAuthCredentials({this.web, this.installed});
 
-  /// Extracts the [ClientId] from whichever format is present.
+  /// Returns whichever of [web] or [installed] is populated.
   ///
-  /// Throws [ArgumentError] if neither `web` nor `installed` is found.
-  ClientId toClientId() {
-    final config = web ?? installed;
-
-    if (config == null) {
+  /// Throws [ArgumentError] if neither is present.
+  GoogleOAuthClientConfig get config {
+    final result = web ?? installed;
+    if (result == null) {
       throw ArgumentError(
         'Google OAuth credentials must contain either "web" or "installed" '
         'root key. Download a valid file from Google Cloud Console > '
         'API & Services > Credentials.',
       );
     }
-
-    return config.toClientId();
+    return result;
   }
+
+  /// Builds an [oauth2.AuthorizationCodeGrant] from whichever format is
+  /// present, using the embedded endpoints and client credentials.
+  oauth2.AuthorizationCodeGrant toAuthorizationCodeGrant() =>
+      config.toAuthorizationCodeGrant();
 
   factory GoogleOAuthCredentials.fromJson(Map<String, dynamic> json) =>
       _$GoogleOAuthCredentialsFromJson(json);
@@ -70,8 +73,18 @@ class GoogleOAuthClientConfig {
     this.projectId,
   });
 
-  /// Converts to [ClientId] for use with googleapis_auth.
-  ClientId toClientId() => ClientId(clientId, clientSecret);
+  /// Builds an [oauth2.AuthorizationCodeGrant] from this config's
+  /// embedded endpoints and client credentials.
+  ///
+  /// Falls back to Google's default OAuth 2.0 endpoints when [authUri]
+  /// or [tokenUri] is missing.
+  oauth2.AuthorizationCodeGrant toAuthorizationCodeGrant() =>
+      oauth2.AuthorizationCodeGrant(
+        clientId,
+        Uri.parse(authUri ?? 'https://accounts.google.com/o/oauth2/auth'),
+        Uri.parse(tokenUri ?? 'https://oauth2.googleapis.com/token'),
+        secret: clientSecret,
+      );
 
   factory GoogleOAuthClientConfig.fromJson(Map<String, dynamic> json) =>
       _$GoogleOAuthClientConfigFromJson(json);

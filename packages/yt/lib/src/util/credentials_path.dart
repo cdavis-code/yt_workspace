@@ -82,7 +82,15 @@ class CredentialsPath {
   /// Supports `KEY=value` lines with optional surrounding single or double
   /// quotes. Lines starting with `#` and blank lines are ignored. Returns
   /// `null` when the file is missing, unreadable, or does not contain [key].
+  ///
+  /// **Trust boundary** — `.env` is read from `Directory.current`, so any
+  /// process that can change the working directory (e.g. a CI job, a script
+  /// invoked from an attacker-controlled checkout) can supply credentials
+  /// pointers. Set the `YT_DISABLE_DOTENV` environment variable to a
+  /// truthy value (`1`, `true`, `yes`) to disable `.env` lookup entirely
+  /// and force resolution to honor only real environment variables.
   static String? readFromDotEnv(String key) {
+    if (_dotEnvDisabled()) return null;
     try {
       final envFile = File('.env');
       if (!envFile.existsSync()) return null;
@@ -109,5 +117,10 @@ class CredentialsPath {
       // Non-fatal — treat any error as "not configured".
     }
     return null;
+  }
+
+  static bool _dotEnvDisabled() {
+    final flag = Platform.environment['YT_DISABLE_DOTENV']?.toLowerCase();
+    return flag == '1' || flag == 'true' || flag == 'yes';
   }
 }

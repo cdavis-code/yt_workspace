@@ -23,12 +23,11 @@ environment:
 dependencies:
   csv: ^8.0.0
   dio: ^5.9.2
-  fling_pickle: ^0.4.3
-  googleapis_auth: ^2.3.1
   http: ^1.6.0
   http_parser: ^4.1.2
   json_annotation: ^4.11.0
   loggy: ^2.0.3
+  oauth2: ^2.0.5
   retrofit: ^4.9.2
   stemmer: ^3.2.0
   universal_io: ^2.3.1

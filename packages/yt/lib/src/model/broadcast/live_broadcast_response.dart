@@ -40,15 +40,12 @@ class LiveBroadcastResponse extends ListResponse {
   }) {
     final check = dateTime ?? DateTime.now().toUtc();
 
-    return items.reduce((a, b) {
-      print(
-        'a: ${a.defaultStartTime().difference(check).abs().inSeconds}, b: ${b.defaultStartTime().difference(check).abs().inSeconds}',
-      );
-
-      return a.defaultStartTime().difference(check).abs() <
+    return items.reduce(
+      (a, b) =>
+          a.defaultStartTime().difference(check).abs() <
               b.defaultStartTime().difference(check).abs()
           ? a
-          : b;
-    });
+          : b,
+    );
   }
 }
