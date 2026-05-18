@@ -1,9 +1,9 @@
 name: yt
-version: 3.0.1
+version: 3.0.2
 description: Native Dart interface to multiple YouTube REST APIs including the Data and Live Streaming API.
-homepage: https://github.com/cdavis-code/yt
-repository: https://github.com/cdavis-code/yt/tree/main/packages/yt
-issue_tracker: https://github.com/cdavis-code/yt/issues
+homepage: https://github.com/cdavis-code/yt_workspace/tree/main/packages/yt
+repository: https://github.com/cdavis-code/yt_workspace
+issue_tracker: https://github.com/cdavis-code/yt_workspace/issues
 
 topics:
   - api
@@ -25,7 +25,7 @@ dependencies:
   dio: ^5.9.2
   http: ^1.6.0
   http_parser: ^4.1.2
-  json_annotation: ^4.11.0
+  json_annotation: ^4.12.0
   loggy: ^2.0.3
   oauth2: ^2.0.5
   retrofit: ^4.9.2
@@ -35,6 +35,6 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.15.0
-  json_serializable: ^6.13.2
+  json_serializable: ^6.14.0
   lints: ^6.1.0
   retrofit_generator: ^10.2.6

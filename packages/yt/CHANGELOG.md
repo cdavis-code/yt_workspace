@@ -1,3 +1,19 @@
+## 3.0.2 (2026-05-19)
+
+### Changed
+
+- **Repository URL migrated** to `github.com/cdavis-code/yt_workspace` —
+  `homepage`, `repository`, and `issue_tracker` fields in `pubspec.yaml`
+  now point at the consolidated workspace monorepo. No code changes.
+
+- **Tightened dev/transitive dependency constraints** following
+  `dart pub upgrade --tighten`:
+
+  | Dependency | Old | New |
+  |------------|-----|-----|
+  | `json_annotation` | `^4.11.0` | `^4.12.0` |
+  | `json_serializable` (dev) | `^6.13.2` | `^6.14.0` |
+
 ## 3.0.1 (2026-05-18)
 
 ### Added
