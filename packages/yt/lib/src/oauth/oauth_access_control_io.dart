@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:oauth2/oauth2.dart' as oauth2;
 import 'package:universal_io/io.dart';
@@ -71,7 +72,7 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
     } catch (e) {
       throw ArgumentError(
         'Failed to parse OAuth client secrets file at '
-        '"$resolvedPath": $e',
+        '"$resolvedPath" (${e.runtimeType}).',
       );
     }
 
@@ -128,7 +129,7 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
       } catch (e) {
         throw ArgumentError(
           'Failed to parse access tokens file at '
-          '"${_tokensFile.path}": $e',
+          '"${_tokensFile.path}" (${e.runtimeType}).',
         );
       }
 
@@ -176,16 +177,39 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
     _restrictFilePermissions(_tokensFile);
   }
 
+  /// Generates a cryptographically random PKCE code verifier per RFC 7636 §4.1.
+  /// 32 random bytes base64url-encoded (no padding) yields a 43-character
+  /// verifier within the [43, 128] range required by the spec.
+  static String _generateCodeVerifier() {
+    final random = Random.secure();
+    final bytes = List<int>.generate(32, (_) => random.nextInt(256));
+    return base64UrlEncode(bytes).replaceAll('=', '');
+  }
+
   Future<oauth2.Client> _runInteractiveFlow() async {
+    // Explicit PKCE per RFC 8252: harden against authorization-code
+    // interception on the loopback redirect.
     final grant = oauth2.AuthorizationCodeGrant(
       _clientId,
       _authEndpoint,
       _tokenEndpoint,
       secret: _clientSecret,
+      codeVerifier: _generateCodeVerifier(),
     );
 
+    // RFC 8252 §7.3: prefer an OS-allocated ephemeral port when the
+    // registered redirect URI does not pin one.
+    final hasFixedPort = _redirectUrl.hasPort && _redirectUrl.port != 0;
+    final server = await HttpServer.bind(
+      InternetAddress.loopbackIPv4,
+      hasFixedPort ? _redirectUrl.port : 0,
+    );
+    final actualRedirectUrl = hasFixedPort
+        ? _redirectUrl
+        : _redirectUrl.replace(port: server.port);
+
     final baseAuthUrl = grant.getAuthorizationUrl(
-      _redirectUrl,
+      actualRedirectUrl,
       scopes: _scopes,
     );
     final authorizationUrl = baseAuthUrl.replace(
@@ -201,11 +225,9 @@ class OAuthAccessControlIo extends BaseOAuthAccessControl {
     stderr.writeln('Please go to the following URL and grant access:');
     stderr.writeln('  => $authorizationUrl');
 
-    final port = _redirectUrl.hasPort && _redirectUrl.port != 0
-        ? _redirectUrl.port
-        : 8080;
-    final expectedPath = _redirectUrl.path.isEmpty ? '/' : _redirectUrl.path;
-    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, port);
+    final expectedPath = actualRedirectUrl.path.isEmpty
+        ? '/'
+        : actualRedirectUrl.path;
 
     try {
       // Drain incoming requests until we receive one matching the redirect

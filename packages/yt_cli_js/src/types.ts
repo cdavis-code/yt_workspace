@@ -21,6 +21,12 @@ export interface YtCliJsHandle {
     maxResults?: number,
   ): Promise<Record<string, any>>;
 
+  channelsUpdate(
+    part?: string,
+    body?: Record<string, any>,
+    onBehalfOfContentOwner?: string,
+  ): Promise<Record<string, any>>;
+
   videosList(
     id?: string,
     chart?: string,
@@ -28,11 +34,49 @@ export interface YtCliJsHandle {
     maxResults?: number,
   ): Promise<Record<string, any>>;
 
+  videosInsert(
+    part: string | undefined,
+    body: Record<string, any>,
+    videoFilePath: string,
+    notifySubscribers?: boolean,
+    onBehalfOfContentOwner?: string,
+    onBehalfOfContentOwnerChannel?: string,
+  ): Promise<Record<string, any>>;
+
+  videosUpdate(
+    part?: string,
+    body?: Record<string, any>,
+  ): Promise<Record<string, any>>;
+
+  videosDelete(
+    id: string,
+    onBehalfOfContentOwner?: string,
+  ): Promise<Record<string, any>>;
+
+  videosRate(id: string, rating: string): Promise<Record<string, any>>;
+
   playlistsList(
     channelId?: string,
     id?: string,
     part?: string,
     maxResults?: number,
+  ): Promise<Record<string, any>>;
+
+  playlistsInsert(
+    part?: string,
+    body?: Record<string, any>,
+    onBehalfOfContentOwner?: string,
+  ): Promise<Record<string, any>>;
+
+  playlistsUpdate(
+    part?: string,
+    body?: Record<string, any>,
+    onBehalfOfContentOwner?: string,
+  ): Promise<Record<string, any>>;
+
+  playlistsDelete(
+    id: string,
+    onBehalfOfContentOwner?: string,
   ): Promise<Record<string, any>>;
 
   activitiesList(
@@ -132,9 +176,26 @@ export interface YtCliJsHandle {
     textFormat?: string,
   ): Promise<Record<string, any>>;
 
+  commentsListByParentId(
+    parentId: string,
+    maxResults?: number,
+    pageToken?: string,
+    textFormat?: string,
+  ): Promise<Record<string, any>>;
+
   commentsInsert(
     part?: string,
     body?: Record<string, any>,
+  ): Promise<Record<string, any>>;
+
+  commentsAdd(
+    parentId: string,
+    textOriginal: string,
+  ): Promise<Record<string, any>>;
+
+  commentsChange(
+    commentId: string,
+    textOriginal: string,
   ): Promise<Record<string, any>>;
 
   commentsUpdate(
@@ -166,9 +227,41 @@ export interface YtCliJsHandle {
     part?: string,
   ): Promise<Record<string, any>>;
 
+  commentThreadsListByVideoId(
+    videoId: string,
+    maxResults?: number,
+    order?: string,
+    pageToken?: string,
+    searchTerms?: string,
+    textFormat?: string,
+  ): Promise<Record<string, any>>;
+
+  commentThreadsListByChannelId(
+    channelId: string,
+    maxResults?: number,
+    order?: string,
+    pageToken?: string,
+    searchTerms?: string,
+    textFormat?: string,
+  ): Promise<Record<string, any>>;
+
+  commentThreadsListByIds(
+    ids: string,
+    maxResults?: number,
+    order?: string,
+    pageToken?: string,
+    searchTerms?: string,
+    textFormat?: string,
+  ): Promise<Record<string, any>>;
+
   commentThreadsInsert(
     part?: string,
     body?: Record<string, any>,
+  ): Promise<Record<string, any>>;
+
+  commentThreadsAdd(
+    videoId: string,
+    textOriginal: string,
   ): Promise<Record<string, any>>;
 
   // Subscriptions

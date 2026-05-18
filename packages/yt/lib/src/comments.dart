@@ -252,4 +252,15 @@ class Comments extends YouTubeApiHelper {
     /// deleted.
     required String id,
   }) async => _rest.delete(accept, contentType, id);
+
+  /// Flags one or more comments as spam.
+  ///
+  /// Note: YouTube has deprecated this method. Prefer [setModerationStatus]
+  /// with [ModerationStatus.rejected] for new code.
+  @Deprecated('Use setModerationStatus with ModerationStatus.rejected instead')
+  Future<void> markAsSpam({
+    /// The [id] parameter specifies a comma-separated list of IDs of comments
+    /// that should be flagged as spam.
+    required String id,
+  }) async => _rest.markAsSpam(accept, id);
 }

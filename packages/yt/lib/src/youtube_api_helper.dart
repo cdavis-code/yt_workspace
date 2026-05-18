@@ -13,9 +13,7 @@ abstract class YouTubeApiHelper {
 
   String buildParts(List<String> partList, String part) {
     if (partList.isEmpty && part == '') {
-      throw Exception(
-        'I need either of the partList or part field to have an entry',
-      );
+      throw ArgumentError('Either partList or part must be provided.');
     }
 
     final List<String> tmpList = [];

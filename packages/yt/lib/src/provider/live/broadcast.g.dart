@@ -283,6 +283,55 @@ class _BroadcastClient implements BroadcastClient {
     await _dio.fetch<void>(_options);
   }
 
+  @override
+  Future<Cuepoint> cuepoint(
+    String accept,
+    String contentType,
+    String id,
+    Map<String, dynamic> body, {
+    String? onBehalfOfContentOwner,
+    String? onBehalfOfContentOwnerChannel,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'id': id,
+      r'onBehalfOfContentOwner': onBehalfOfContentOwner,
+      r'onBehalfOfContentOwnerChannel': onBehalfOfContentOwnerChannel,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{
+      r'Accept': accept,
+      r'Content-Type': contentType,
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(body);
+    final _options = _setStreamType<Cuepoint>(
+      Options(
+            method: 'POST',
+            headers: _headers,
+            extra: _extra,
+            contentType: contentType,
+          )
+          .compose(
+            _dio.options,
+            '/liveBroadcasts/cuepoint',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late Cuepoint _value;
+    try {
+      _value = Cuepoint.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||

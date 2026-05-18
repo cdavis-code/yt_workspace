@@ -15,6 +15,7 @@ export 'src/comments.dart';
 export 'src/comment_threads.dart';
 export 'src/live_stream.dart';
 
+export 'src/model/broadcast/cuepoint.dart';
 export 'src/model/broadcast/live_broadcast_item.dart';
 export 'src/model/broadcast/live_broadcast_response.dart';
 export 'src/model/broadcast/status.dart';
@@ -68,7 +69,6 @@ export 'src/video_abuse_report_reasons.dart';
 export 'src/analytics.dart';
 export 'src/util/authorization_exception.dart';
 export 'src/util/credentials_path.dart';
-export 'src/util/emoji_formatter.dart';
 export 'src/util/enum.dart';
 export 'src/util/extras.dart';
 export 'src/util/logging_interceptors.dart';
@@ -106,3 +106,35 @@ export 'src/model/activities/activity.dart';
 export 'src/model/activities/activity_list_response.dart';
 export 'src/model/activities/activity_snippet.dart';
 export 'src/model/activities/activity_content_details.dart';
+
+export 'src/channel_banners.dart';
+export 'src/model/channel_banners/channel_banner_resource.dart';
+
+export 'src/channel_sections.dart';
+export 'src/model/channel_sections/channel_section.dart';
+export 'src/model/channel_sections/channel_section_content_details.dart';
+export 'src/model/channel_sections/channel_section_list_response.dart';
+export 'src/model/channel_sections/channel_section_localized.dart';
+export 'src/model/channel_sections/channel_section_snippet.dart';
+
+export 'src/i18n_languages.dart';
+export 'src/model/i18n_languages/i18n_language.dart';
+export 'src/model/i18n_languages/i18n_language_list_response.dart';
+export 'src/model/i18n_languages/i18n_language_snippet.dart';
+
+export 'src/i18n_regions.dart';
+export 'src/model/i18n_regions/i18n_region.dart';
+export 'src/model/i18n_regions/i18n_region_list_response.dart';
+export 'src/model/i18n_regions/i18n_region_snippet.dart';
+
+export 'src/playlist_images.dart';
+export 'src/model/playlist_images/playlist_image.dart';
+export 'src/model/playlist_images/playlist_image_list_response.dart';
+export 'src/model/playlist_images/playlist_image_snippet.dart';
+
+export 'src/third_party_links.dart';
+export 'src/model/third_party_links/channel_to_store_link.dart';
+export 'src/model/third_party_links/third_party_link.dart';
+export 'src/model/third_party_links/third_party_link_list_response.dart';
+export 'src/model/third_party_links/third_party_link_snippet.dart';
+export 'src/model/third_party_links/third_party_link_status.dart';

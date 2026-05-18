@@ -6,5 +6,5 @@ library;
 import 'dart:convert' show json;
 
 final pubSpec = json.decode(
-  '{"name":"yt","version":"2.3.0+1","description":"Native Dart interface to multiple YouTube REST APIs including the Data and Live Streaming API.","homepage":"https://github.com/cdavis-code/yt","repository":"https://github.com/cdavis-code/yt/tree/main/packages/yt","issue_tracker":"https://github.com/cdavis-code/yt/issues"}',
+  '{"name":"yt","version":"3.1.0","description":"Native Dart interface to multiple YouTube REST APIs including the Data and Live Streaming API.","homepage":"https://github.com/cdavis-code/yt_workspace/tree/main/packages/yt","repository":"https://github.com/cdavis-code/yt_workspace","issue_tracker":"https://github.com/cdavis-code/yt_workspace/issues"}',
 );

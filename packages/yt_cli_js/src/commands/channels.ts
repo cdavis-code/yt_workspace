@@ -40,4 +40,52 @@ export function registerChannelsCommand(program: Command): void {
         process.exit(1);
       }
     });
+
+  channels
+    .command('update')
+    .description('Update a YouTube channel resource (requires OAuth)')
+    .option(
+      '--part <parts>',
+      'Resource parts to update',
+      'contentDetails,id,localizations,player,snippet,status',
+    )
+    .requiredOption('--body <json>', 'Channel resource as a JSON string')
+    .option(
+      '--on-behalf-of-content-owner <id>',
+      'Authenticate as a YouTube content partner',
+    )
+    .option(
+      '--access-tokens-file <path>',
+      'Path to OAuth access tokens file (or YT_ACCESS_TOKENS_FILE)',
+    )
+    .option(
+      '--client-secrets-file <path>',
+      'Path to OAuth client secrets file (or YT_CLIENT_SECRETS_FILE)',
+    )
+    .action(async (opts) => {
+      try {
+        const ns: YtCliJsNamespace = await getRuntime();
+        const logLevel = program.opts().logLevel;
+        const handle: YtCliJsHandle = await ns.withOAuth(
+          opts.accessTokensFile,
+          opts.clientSecretsFile,
+          logLevel,
+        );
+
+        try {
+          const body = JSON.parse(opts.body);
+          const result = await handle.channelsUpdate(
+            opts.part,
+            body,
+            opts.onBehalfOfContentOwner,
+          );
+          console.log(JSON.stringify(result, null, 2));
+        } finally {
+          handle.close();
+        }
+      } catch (err: any) {
+        console.error(`Error: ${err.message ?? err}`);
+        process.exit(1);
+      }
+    });
 }

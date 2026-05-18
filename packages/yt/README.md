@@ -54,10 +54,24 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  yt: ^3.0.2
+  yt: ^3.1.0
 ```
 
 ## Configuration
+
+### ⚠️ Breaking Changes in v3.1.0
+
+**`Chat.send` and `EmojiFormatter` removed.** These convenience helpers were not part of any official YouTube API surface. Use `Chat.insert` directly with a `liveChatMessages.insert` request body:
+
+```dart
+await yt.chat.insert(body: {
+  'snippet': {
+    'type': 'textMessageEvent',
+    'liveChatId': '<live chat id>',
+    'textMessageDetails': {'messageText': 'Hello!'},
+  },
+});
+```
 
 ### ⚠️ Breaking Changes in v3.0.1
 

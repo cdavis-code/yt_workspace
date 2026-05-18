@@ -40,7 +40,11 @@ class Chat extends YouTubeApiHelper {
     String part = 'snippet';
 
     if (body['snippet']['textMessageDetails']['messageText'] == '') {
-      throw Exception();
+      throw ArgumentError.value(
+        body,
+        'body',
+        'snippet.textMessageDetails.messageText cannot be empty.',
+      );
     }
 
     return await _rest.insert(
@@ -59,30 +63,5 @@ class Chat extends YouTubeApiHelper {
       accept,
       id,
     );
-  }
-
-  ///Send a message to the liveChat session.
-  Future<void> send({
-    required String message,
-    String? chatId,
-    LiveBroadcastItem? liveBroadcastItem,
-  }) async {
-    chatId ?? liveBroadcastItem?.snippet?.liveChatId ?? Exception();
-
-    // if (chatId == null) {
-    //   final liveBroadcastItem = await getActiveBroadcast();
-
-    //   chatId = liveBroadcastItem.snippet?.liveChatId;
-    // }
-
-    final chatMessage = <String, dynamic>{
-      'snippet': {
-        'type': 'textMessageEvent',
-        'liveChatId': chatId,
-        'textMessageDetails': {'messageText': EmojiFormatter.format(message)},
-      },
-    };
-
-    await insert(body: chatMessage);
   }
 }

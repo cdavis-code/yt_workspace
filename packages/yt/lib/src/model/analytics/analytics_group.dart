@@ -8,12 +8,14 @@ class AnalyticsGroup {
   final String etag;
   final String id;
   final AnalyticsGroupSnippet snippet;
+  final AnalyticsGroupContentDetails? contentDetails;
 
   AnalyticsGroup({
     this.kind = 'youtubeAnalytics#group',
     required this.etag,
     required this.id,
     required this.snippet,
+    this.contentDetails,
   });
 
   factory AnalyticsGroup.fromJson(Map<String, dynamic> json) =>
@@ -24,12 +26,29 @@ class AnalyticsGroup {
 
 @JsonSerializable()
 class AnalyticsGroupSnippet {
+  final String? publishedAt;
   final String title;
 
-  AnalyticsGroupSnippet({required this.title});
+  AnalyticsGroupSnippet({this.publishedAt, required this.title});
 
   factory AnalyticsGroupSnippet.fromJson(Map<String, dynamic> json) =>
       _$AnalyticsGroupSnippetFromJson(json);
 
   Map<String, dynamic> toJson() => _$AnalyticsGroupSnippetToJson(this);
+}
+
+@JsonSerializable()
+class AnalyticsGroupContentDetails {
+  final String itemCount;
+  final String itemType;
+
+  AnalyticsGroupContentDetails({
+    required this.itemCount,
+    required this.itemType,
+  });
+
+  factory AnalyticsGroupContentDetails.fromJson(Map<String, dynamic> json) =>
+      _$AnalyticsGroupContentDetailsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AnalyticsGroupContentDetailsToJson(this);
 }

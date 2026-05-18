@@ -89,6 +89,8 @@ class Broadcast extends YouTubeApiHelper {
       id,
       buildParts(partList, part),
       broadcastStatus: broadcastStatus,
+      onBehalfOfContentOwner: onBehalfOfContentOwner,
+      onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
     );
   }
 
@@ -107,6 +109,8 @@ class Broadcast extends YouTubeApiHelper {
       id,
       streamId,
       buildParts(partList, part),
+      onBehalfOfContentOwner: onBehalfOfContentOwner,
+      onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
     );
   }
 
@@ -120,6 +124,23 @@ class Broadcast extends YouTubeApiHelper {
       // _authHeader,
       accept,
       id,
+      onBehalfOfContentOwner: onBehalfOfContentOwner,
+      onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+    );
+  }
+
+  ///Inserts a cuepoint into a live broadcast. The cuepoint can be used to trigger an ad break for any of the viewers who are watching the broadcast.
+  Future<Cuepoint> cuepoint({
+    required String id,
+    required Cuepoint body,
+    String? onBehalfOfContentOwner,
+    String? onBehalfOfContentOwnerChannel,
+  }) {
+    return _rest.cuepoint(
+      accept,
+      contentType,
+      id,
+      body.toJson(),
       onBehalfOfContentOwner: onBehalfOfContentOwner,
       onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
     );

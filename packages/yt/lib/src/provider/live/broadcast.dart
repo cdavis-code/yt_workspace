@@ -92,4 +92,16 @@ abstract class BroadcastClient {
     @Query('onBehalfOfContentOwnerChannel')
     String? onBehalfOfContentOwnerChannel,
   });
+
+  ///Inserts a cuepoint into a live broadcast. The cuepoint can be used to trigger an ad break for any of the viewers who are watching the broadcast.
+  @POST('/liveBroadcasts/cuepoint')
+  Future<Cuepoint> cuepoint(
+    @Header('Accept') String accept,
+    @Header('Content-Type') String contentType,
+    @Query('id') String id,
+    @Body() Map<String, dynamic> body, {
+    @Query('onBehalfOfContentOwner') String? onBehalfOfContentOwner,
+    @Query('onBehalfOfContentOwnerChannel')
+    String? onBehalfOfContentOwnerChannel,
+  });
 }

@@ -1,7 +1,7 @@
 {
   "name": "@unngh/youtube-cli",
-  "version": "1.0.1",
-  "description": "YouTube Data API CLI tool for Node.js — search, channels, videos, playlists, and activities.",
+  "version": "1.1.0",
+  "description": "YouTube Data API CLI tool for Node.js — full parity with the Dart yt_cli: search, channels, videos, playlists, comments, comment-threads, subscriptions, broadcast, stream, analytics, members, thumbnails, watermarks, activities, and more.",
   "license": "MIT",
   "author": "Chris Davis",
   "homepage": "https://github.com/cdavis-code/yt_workspace/tree/main/packages/yt_cli_js",

@@ -50,6 +50,14 @@ abstract class CommentsClient {
     @Query('banAuthor') bool? banAuthor,
   );
 
+  /// Flags one or more comments as spam. (Deprecated by YouTube — use
+  /// [setModerationStatus] with `ModerationStatus.rejected` instead.)
+  @POST('/comments/markAsSpam')
+  Future<void> markAsSpam(
+    @Header('Accept') String accept,
+    @Query('id') String id,
+  );
+
   /// Deletes a comment.
   @PUT('/comments')
   Future<void> delete(

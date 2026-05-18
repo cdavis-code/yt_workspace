@@ -107,6 +107,42 @@ export function registerCommentsCommand(program: Command): void {
     });
 
   comments
+    .command('list-by-parent-id')
+    .description('List replies under a parent comment')
+    .requiredOption('--parent-id <id>', 'Parent comment ID')
+    .option('--max-results <n>', 'Maximum number of results')
+    .option('--page-token <token>', 'Page token for pagination')
+    .option('--text-format <format>', 'Text format (html, plainText)', 'html')
+    .action(async (opts) => {
+      try {
+        const apiKey = program.opts().apiKey || process.env.YT_API_KEY;
+        if (!apiKey) {
+          console.error('Error: API key required. Use --api-key or set YT_API_KEY.');
+          process.exit(1);
+        }
+
+        const ns: YtCliJsNamespace = await getRuntime();
+        const logLevel = program.opts().logLevel;
+        const handle: YtCliJsHandle = await ns.withApiKey(apiKey, logLevel);
+
+        try {
+          const result = await handle.commentsListByParentId(
+            opts.parentId,
+            opts.maxResults ? parseInt(opts.maxResults, 10) : undefined,
+            opts.pageToken,
+            opts.textFormat,
+          );
+          console.log(JSON.stringify(result, null, 2));
+        } finally {
+          handle.close();
+        }
+      } catch (err: any) {
+        console.error(`Error: ${err.message ?? err}`);
+        process.exit(1);
+      }
+    });
+
+  comments
     .command('insert')
     .description('Create a comment')
     .option('--part <parts>', 'Resource parts to include', 'snippet')
@@ -218,6 +254,64 @@ export function registerCommentsCommand(program: Command): void {
             opts.moderationStatus,
             opts.banAuthor ?? false,
           );
+          console.log(JSON.stringify(result, null, 2));
+        } finally {
+          handle.close();
+        }
+      } catch (err: any) {
+        console.error(`Error: ${err.message ?? err}`);
+        process.exit(1);
+      }
+    });
+
+  comments
+    .command('add')
+    .description('Add a reply to a parent comment')
+    .requiredOption('--parent-id <id>', 'Parent comment ID')
+    .requiredOption('--text <text>', 'Reply text (textOriginal)')
+    .action(async (opts) => {
+      try {
+        const apiKey = program.opts().apiKey || process.env.YT_API_KEY;
+        if (!apiKey) {
+          console.error('Error: API key required. Use --api-key or set YT_API_KEY.');
+          process.exit(1);
+        }
+
+        const ns: YtCliJsNamespace = await getRuntime();
+        const logLevel = program.opts().logLevel;
+        const handle: YtCliJsHandle = await ns.withApiKey(apiKey, logLevel);
+
+        try {
+          const result = await handle.commentsAdd(opts.parentId, opts.text);
+          console.log(JSON.stringify(result, null, 2));
+        } finally {
+          handle.close();
+        }
+      } catch (err: any) {
+        console.error(`Error: ${err.message ?? err}`);
+        process.exit(1);
+      }
+    });
+
+  comments
+    .command('change')
+    .description('Modify the text of an existing comment')
+    .requiredOption('--id <id>', 'Comment ID')
+    .requiredOption('--text <text>', 'New comment text (textOriginal)')
+    .action(async (opts) => {
+      try {
+        const apiKey = program.opts().apiKey || process.env.YT_API_KEY;
+        if (!apiKey) {
+          console.error('Error: API key required. Use --api-key or set YT_API_KEY.');
+          process.exit(1);
+        }
+
+        const ns: YtCliJsNamespace = await getRuntime();
+        const logLevel = program.opts().logLevel;
+        const handle: YtCliJsHandle = await ns.withApiKey(apiKey, logLevel);
+
+        try {
+          const result = await handle.commentsChange(opts.id, opts.text);
           console.log(JSON.stringify(result, null, 2));
         } finally {
           handle.close();

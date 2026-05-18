@@ -1,3 +1,41 @@
+## 3.1.0 (2026-05-18)
+
+### Added
+
+- **YouTube Analytics API completeness** — `AnalyticsGroup` model now exposes
+  `snippet.publishedAt` and the full `contentDetails` block
+  (`itemCount`, `itemType`), bringing the Dart model to parity with the
+  YouTube Analytics API v2 Group resource.
+
+### Security
+
+- **OAuth interactive flow now uses explicit PKCE (RFC 7636 §4.1)** — a
+  cryptographically random `code_verifier` is generated via `Random.secure()`
+  and passed to `oauth2.AuthorizationCodeGrant`, hardening the loopback
+  redirect against authorization-code interception.
+- **Loopback callback uses an OS-allocated ephemeral port** when the
+  registered redirect URI does not pin one, in line with RFC 8252 §7.3.
+  Behavior is unchanged for redirect URIs that explicitly include a port.
+- **Sanitized error messages from OAuth file parsing** — `ArgumentError`
+  messages raised when `client_secrets.json` or `access_tokens.json` cannot
+  be parsed now include only the exception runtime type, never the raw
+  exception text, eliminating an information-leak vector.
+- **Response body size cap added to `LoggingInterceptors`** — responses
+  whose `Content-Length` exceeds `maxResponseBytes` (default 50 MiB) are
+  rejected as `DioException(badResponse)` before reaching callers,
+  bounding memory exposure from a misbehaving or hostile upstream.
+- **Replaced bare `throw Exception(...)` with `ArgumentError`** in
+  `Chat.insert` (empty `messageText`) and `YoutubeApiHelper.buildParts`
+  (no part specified) for clearer programmer-error semantics.
+
+### Removed
+
+- **BREAKING**: `Chat.send` convenience helper and the `EmojiFormatter`
+  utility have been removed. They were not part of any official YouTube API
+  surface and added a hardcoded emoji-shortcode map that was never
+  documented as stable. Callers should use `Chat.insert` directly with a
+  `liveChatMessages.insert` request body.
+
 ## 3.0.2 (2026-05-19)
 
 ### Changed

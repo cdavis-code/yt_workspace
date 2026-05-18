@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * youtube-cli — YouTube Data API CLI powered by yt_cli_js (dart2js).
  *
@@ -33,7 +32,7 @@ const program = new Command();
 
 program
   .name('youtube-cli')
-  .version('1.0.0')
+  .version('1.1.0')
   .description('YouTube Data API CLI tool for Node.js')
   .option('--api-key <key>', 'YouTube Data API key (or set YT_API_KEY env var)')
   .option('--log-level <level>', 'Log level (all, debug, info, warning, error)', 'off');

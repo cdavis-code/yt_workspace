@@ -35,6 +35,12 @@ class Yt with UiLoggy {
   VideoAbuseReportReasons? _videoAbuseReportReasons;
   Analytics? _analytics;
   Activities? _activities;
+  ChannelBanners? _channelBanners;
+  ChannelSections? _channelSections;
+  I18nLanguages? _i18nLanguages;
+  I18nRegions? _i18nRegions;
+  PlaylistImages? _playlistImages;
+  ThirdPartyLinks? _thirdPartyLinks;
 
   Broadcast get broadcast => _broadcast == null
       ? throw Exception(_moduleUnavailableMessage)
@@ -95,6 +101,24 @@ class Yt with UiLoggy {
       : _analytics!;
 
   Activities get activities => _activities!;
+
+  ChannelBanners get channelBanners => _channelBanners == null
+      ? throw Exception(_moduleUnavailableMessage)
+      : _channelBanners!;
+
+  ChannelSections get channelSections => _channelSections!;
+
+  I18nLanguages get i18nLanguages => _i18nLanguages!;
+
+  I18nRegions get i18nRegions => _i18nRegions!;
+
+  PlaylistImages get playlistImages => _playlistImages == null
+      ? throw Exception(_moduleUnavailableMessage)
+      : _playlistImages!;
+
+  ThirdPartyLinks get thirdPartyLinks => _thirdPartyLinks == null
+      ? throw Exception(_moduleUnavailableMessage)
+      : _thirdPartyLinks!;
 
   Yt({
     LogOptions logOptions = const LogOptions(
@@ -294,6 +318,18 @@ class Yt with UiLoggy {
       /// An analytics resource provides access to YouTube Analytics reports,
       /// groups, and group items.
       _analytics = Analytics(dio: dio);
+
+      /// A [ChannelBannerResource] resource contains the URL that you would
+      /// use to set a newly uploaded image as the banner image for a channel.
+      _channelBanners = ChannelBanners(dio: dio);
+
+      /// A [PlaylistImage] resource contains information about a custom
+      /// playlist image.
+      _playlistImages = PlaylistImages(dio: dio);
+
+      /// A [ThirdPartyLink] resource represents a link between a YouTube
+      /// channel or video and an external resource.
+      _thirdPartyLinks = ThirdPartyLinks(dio: dio);
     }
 
     /// A channel resource contains information about a YouTube channel.
@@ -327,6 +363,17 @@ class Yt with UiLoggy {
     /// An activity resource contains information about an action that a particular
     /// channel, or user, has taken on YouTube.
     _activities = Activities(apiKey: apiKey, dio: dio);
+
+    /// A [ChannelSection] resource represents a section of a channel's main page.
+    _channelSections = ChannelSections(apiKey: apiKey, dio: dio);
+
+    /// An [I18nLanguage] resource identifies an application language that the
+    /// YouTube website supports.
+    _i18nLanguages = I18nLanguages(apiKey: apiKey, dio: dio);
+
+    /// An [I18nRegion] resource identifies a geographic area that a YouTube
+    /// user can select as the preferred content region.
+    _i18nRegions = I18nRegions(apiKey: apiKey, dio: dio);
   }
 
   void close() => dio.close();

@@ -7,8 +7,21 @@ import 'package:loggy/loggy.dart';
 /// requests/responses/errors before they are handled by `then` or `catchError`.
 ///
 /// Security: Authorization headers and API-key query parameters are redacted
-/// from logs to prevent credential leakage.
+/// from logs to prevent credential leakage. Responses larger than
+/// [maxResponseBytes] are rejected to bound memory exposure from a
+/// misbehaving or hostile upstream.
 class LoggingInterceptors extends Interceptor with UiLoggy {
+  /// Default maximum permitted response body size (50 MiB). YouTube API
+  /// responses are JSON metadata; binary uploads are sent in the request
+  /// direction, so 50 MiB is a generous defensive cap.
+  static const int defaultMaxResponseBytes = 50 * 1024 * 1024;
+
+  /// Hard limit on response body size. Exceeding this raises a [DioException]
+  /// of type [DioExceptionType.badResponse] before the body reaches callers.
+  final int maxResponseBytes;
+
+  LoggingInterceptors({this.maxResponseBytes = defaultMaxResponseBytes});
+
   /// The callback will be executed before the request is initiated.
   @override
   FutureOr<dynamic> onRequest(
@@ -38,6 +51,21 @@ class LoggingInterceptors extends Interceptor with UiLoggy {
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
+    final declared = _declaredContentLength(response);
+    if (declared != null && declared > maxResponseBytes) {
+      handler.reject(
+        DioException(
+          requestOptions: response.requestOptions,
+          response: response,
+          type: DioExceptionType.badResponse,
+          message:
+              'Response body size ($declared bytes) exceeds the maximum '
+              'permitted ($maxResponseBytes bytes).',
+        ),
+      );
+      return null;
+    }
+
     loggy.debug('RESPONSE:\n${_truncateBody(response.data)}');
 
     handler.next(response);
@@ -66,5 +94,13 @@ class LoggingInterceptors extends Interceptor with UiLoggy {
     final s = data?.toString() ?? '';
     if (s.length > 500) return '${s.substring(0, 500)}... [truncated]';
     return s;
+  }
+
+  /// Best-effort parse of the `Content-Length` response header. Returns null
+  /// when absent or unparsable (e.g. chunked transfer-encoding).
+  static int? _declaredContentLength(Response<dynamic> response) {
+    final values = response.headers.value(Headers.contentLengthHeader);
+    if (values == null) return null;
+    return int.tryParse(values);
   }
 }

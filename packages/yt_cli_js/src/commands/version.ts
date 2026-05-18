@@ -3,8 +3,8 @@ import { getRuntime } from '../runtime.js';
 
 export function registerVersionCommand(program: Command): void {
   program
-    .command('runtime-version')
-    .description('Print the Dart runtime version')
+    .command('version')
+    .description('Print the youtube-cli runtime version')
     .action(async () => {
       try {
         const ns = await getRuntime();
