@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.2
+
+### Changed
+
+- **Bumped `yt` dependency to `^3.0.2`** to pick up the upstream repository URL
+  migration (`github.com/cdavis-code/yt` → `github.com/cdavis-code/yt_workspace`)
+  and tightened `json_annotation` / `json_serializable` constraints. No code
+  or behavioral changes in `yt_cli`.
+
 ## 3.0.1
 
 ### Added
