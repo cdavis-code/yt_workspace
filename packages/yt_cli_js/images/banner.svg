@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d0d0d;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#0a1a14;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a1f2b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="youtube-red" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF0000;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#CC0000;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="node-green" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3C873A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#68A063;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="ts-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3178C6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#235A97;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="terminal-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e1e1e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a0a0a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="google-accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4285F4;stop-opacity:1" />
+      <stop offset="33%" style="stop-color:#EA4335;stop-opacity:1" />
+      <stop offset="66%" style="stop-color:#FBBC05;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#34A853;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow-strong">
+      <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="640" fill="url(#bg)"/>
+
+  <!-- Grid pattern -->
+  <g opacity="0.06">
+    <line x1="0" y1="0" x2="1280" y2="640" stroke="#3C873A" stroke-width="1"/>
+    <line x1="1280" y1="0" x2="0" y2="640" stroke="#3C873A" stroke-width="1"/>
+    <line x1="640" y1="0" x2="640" y2="640" stroke="#3C873A" stroke-width="1"/>
+    <line x1="0" y1="320" x2="1280" y2="320" stroke="#3C873A" stroke-width="1"/>
+  </g>
+
+  <!-- Subtle decorative circles -->
+  <circle cx="180" cy="160" r="130" fill="#3C873A" opacity="0.06"/>
+  <circle cx="1100" cy="480" r="150" fill="#3178C6" opacity="0.05"/>
+  <circle cx="1100" cy="160" r="100" fill="#FF0000" opacity="0.04"/>
+  <circle cx="180" cy="480" r="110" fill="#CB3837" opacity="0.04"/>
+
+  <!-- Terminal window with prompt -->
+  <g transform="translate(420, 50)" filter="url(#glow)">
+    <!-- Terminal frame -->
+    <rect x="0" y="0" width="440" height="180" rx="12" fill="url(#terminal-bg)" stroke="url(#node-green)" stroke-width="2"/>
+    <!-- Title bar -->
+    <rect x="0" y="0" width="440" height="28" rx="12" fill="#0a1a14"/>
+    <rect x="0" y="14" width="440" height="14" fill="#0a1a14"/>
+    <!-- Window dots -->
+    <circle cx="18" cy="14" r="5" fill="#FF5F56"/>
+    <circle cx="36" cy="14" r="5" fill="#FFBD2E"/>
+    <circle cx="54" cy="14" r="5" fill="#27C93F"/>
+    <!-- Title text -->
+    <text x="220" y="19" font-family="'SF Mono', 'Fira Code', monospace" font-size="12" fill="#888" text-anchor="middle">youtube-cli — node</text>
+    <!-- Prompt line 1 -->
+    <text x="20" y="60" font-family="'SF Mono', 'Fira Code', 'Courier New', monospace" font-size="14" fill="#27C93F">$</text>
+    <text x="38" y="60" font-family="'SF Mono', 'Fira Code', 'Courier New', monospace" font-size="14" fill="#3C873A">npx</text>
+    <text x="74" y="60" font-family="'SF Mono', 'Fira Code', 'Courier New', monospace" font-size="14" fill="#e0e0e0">@unngh/youtube-cli search list</text>
+    <!-- Output line -->
+    <text x="20" y="86" font-family="'SF Mono', 'Fira Code', 'Courier New', monospace" font-size="13" fill="#888">▶ Node.js Crash Course — 2.1M views</text>
+    <text x="20" y="106" font-family="'SF Mono', 'Fira Code', 'Courier New', monospace" font-size="13" fill="#888">▶ TypeScript in 100 Seconds — 1.5M views</text>
+    <!-- Prompt line 2 -->
+    <text x="20" y="138" font-family="'SF Mono', 'Fira Code', 'Courier New', monospace" font-size="14" fill="#27C93F">$</text>
+    <text x="38" y="138" font-family="'SF Mono', 'Fira Code', 'Courier New', monospace" font-size="14" fill="#3C873A">youtube-cli</text>
+    <text x="138" y="138" font-family="'SF Mono', 'Fira Code', 'Courier New', monospace" font-size="14" fill="#e0e0e0">videos list --id </text>
+    <text x="280" y="138" font-family="'SF Mono', 'Fira Code', 'Courier New', monospace" font-size="14" fill="#FBBC05">"dQw4w9WgXcQ"</text>
+    <!-- Cursor -->
+    <rect x="392" y="126" width="9" height="16" fill="#3C873A">
+      <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- npm tag mini badge -->
+  <g transform="translate(610, 240)">
+    <rect x="0" y="0" width="60" height="24" rx="12" fill="#CB3837"/>
+    <text x="30" y="17" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">npm</text>
+  </g>
+
+  <!-- Connection nodes -->
+  <g opacity="0.4">
+    <circle cx="200" cy="180" r="6" fill="#3C873A"/>
+    <circle cx="1080" cy="180" r="6" fill="#3178C6"/>
+    <circle cx="200" cy="460" r="6" fill="#FF0000"/>
+    <circle cx="1080" cy="460" r="6" fill="#CB3837"/>
+    <line x1="200" y1="180" x2="420" y2="140" stroke="#3C873A" stroke-width="1.5" opacity="0.3"/>
+    <line x1="1080" y1="180" x2="860" y2="140" stroke="#3178C6" stroke-width="1.5" opacity="0.3"/>
+    <line x1="200" y1="460" x2="420" y2="300" stroke="#FF0000" stroke-width="1.5" opacity="0.3"/>
+    <line x1="1080" y1="460" x2="860" y2="300" stroke="#CB3837" stroke-width="1.5" opacity="0.3"/>
+  </g>
+
+  <!-- Title -->
+  <text x="640" y="370" font-family="'SF Mono', 'Fira Code', 'Courier New', monospace" font-size="64" font-weight="bold" fill="white" text-anchor="middle" filter="url(#glow-strong)">
+    @unngh/youtube-cli
+  </text>
+
+  <!-- Subtitle -->
+  <text x="640" y="420" font-family="Arial, sans-serif" font-size="26" fill="#3C873A" text-anchor="middle">
+    YouTube CLI for Node.js
+  </text>
+
+  <!-- Description -->
+  <text x="640" y="458" font-family="Arial, sans-serif" font-size="18" fill="#aab0b6" text-anchor="middle">
+    dart2js · TypeScript · Commander.js · npx
+  </text>
+
+  <!-- npm badge -->
+  <g transform="translate(420, 492)">
+    <rect x="0" y="0" width="60" height="30" rx="15" fill="#CB3837"/>
+    <text x="30" y="20" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">npm</text>
+  </g>
+
+  <!-- Version badge -->
+  <g transform="translate(492, 492)">
+    <rect x="0" y="0" width="80" height="30" rx="15" fill="#0d0d0d" stroke="#3C873A" stroke-width="1.5"/>
+    <text x="40" y="20" font-family="Arial, sans-serif" font-size="14" fill="#3C873A" text-anchor="middle">v1.0.1</text>
+  </g>
+
+  <!-- npx badge -->
+  <g transform="translate(584, 492)">
+    <rect x="0" y="0" width="60" height="30" rx="15" fill="#3178C6"/>
+    <text x="30" y="20" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="white" text-anchor="middle">npx</text>
+  </g>
+
+  <!-- Node badge -->
+  <g transform="translate(656, 492)">
+    <rect x="0" y="0" width="98" height="30" rx="15" fill="#0a1a14" stroke="#3C873A" stroke-width="1"/>
+    <text x="49" y="20" font-family="Arial, sans-serif" font-size="13" fill="#3C873A" text-anchor="middle">Node ≥ 18</text>
+  </g>
+
+  <!-- Cross-platform badge -->
+  <g transform="translate(766, 492)">
+    <rect x="0" y="0" width="120" height="30" rx="15" fill="#0d0d0d" stroke="#34A853" stroke-width="1"/>
+    <text x="60" y="20" font-family="Arial, sans-serif" font-size="13" fill="#34A853" text-anchor="middle">macOS·Linux·Win</text>
+  </g>
+
+  <!-- Feature icons at bottom -->
+  <g opacity="0.75">
+    <text x="120" y="565" font-family="Arial, sans-serif" font-size="15" fill="#FF0000" text-anchor="middle">▶️ videos</text>
+    <text x="320" y="565" font-family="Arial, sans-serif" font-size="15" fill="#3178C6" text-anchor="middle">📋 playlists</text>
+    <text x="520" y="565" font-family="Arial, sans-serif" font-size="15" fill="#EA4335" text-anchor="middle">📡 broadcast</text>
+    <text x="720" y="565" font-family="Arial, sans-serif" font-size="15" fill="#3C873A" text-anchor="middle">📊 analytics</text>
+    <text x="920" y="565" font-family="Arial, sans-serif" font-size="15" fill="#FBBC05" text-anchor="middle">🔍 search</text>
+    <text x="1120" y="565" font-family="Arial, sans-serif" font-size="15" fill="#4285F4" text-anchor="middle">🔑 authorize</text>
+  </g>
+</svg>

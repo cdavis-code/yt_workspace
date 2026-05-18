@@ -1,0 +1,39 @@
+{
+  "name": "@unngh/youtube-cli",
+  "version": "1.0.1",
+  "description": "YouTube Data API CLI tool for Node.js — search, channels, videos, playlists, and activities.",
+  "license": "MIT",
+  "author": "Chris Davis",
+  "homepage": "https://github.com/cdavis-code/yt_workspace/tree/main/packages/yt_cli_js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cdavis-code/yt_workspace.git",
+    "directory": "packages/yt_cli_js"
+  },
+  "bugs": {
+    "url": "https://github.com/cdavis-code/yt_workspace/issues"
+  },
+  "keywords": ["youtube", "youtube-api", "cli", "youtube-data-api", "node"],
+  "type": "module",
+  "bin": {
+    "youtube-cli": "./dist/cli.js"
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "commander": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0"
+  },
+  "scripts": {
+    "build:dart": "bash scripts/build.sh",
+    "build:ts": "tsup",
+    "build": "npm run build:dart && npm run build:ts",
+    "prepublishOnly": "npm run build"
+  }
+}
