@@ -1,5 +1,9 @@
 # yt_cli
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/cdavis-code/yt_workspace/refs/heads/main/packages/yt_cli/images/banner.svg" alt="yt_cli - Command-Line Tool for YouTube APIs" width="100%">
+</p>
+
 A CLI tool for the YouTube Data, Live Streaming, and Analytics APIs.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
