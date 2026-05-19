@@ -1,5 +1,61 @@
 # Changelog
 
+## 3.2.0
+
+### Added
+
+- **Full CLI parity with the `yt` package** — added top-level commands
+  for the eight remaining services that previously had no CLI surface:
+  - `yt playlist-items` — list / insert / update / delete playlist items
+  - `yt channel-banners` — upload a channel banner image
+  - `yt channel-sections` — list / insert / update / delete channel sections
+  - `yt captions` — list / insert / update / delete / download caption tracks
+  - `yt i18n-languages` — list YouTube application languages
+  - `yt i18n-regions` — list YouTube content regions
+  - `yt playlist-images` — list / insert / update / delete custom playlist images
+  - `yt third-party-links` — list / insert / update / delete third-party links
+
+  Every subcommand follows the existing `--body` JSON / `--file` upload
+  conventions and routes errors through `DioExceptionUsageException` so
+  output is consistent with the rest of the CLI.
+
+### Changed
+
+- **Bumped `yt` dependency to `^3.2.0`** to pick up the new
+  `Yt.captions` getter that exposes the existing `Captions` service on
+  the `Yt` facade.
+
+## 3.1.0
+
+### Changed
+
+- **Bumped `yt` dependency to `^3.1.0`** to pick up the latest upstream
+  changes:
+  - **`AnalyticsGroup` model completeness** — `snippet.publishedAt` and the
+    full `contentDetails` block (`itemCount`, `itemType`) are now exposed,
+    bringing parity with the YouTube Analytics API v2 Group resource.
+  - **OAuth interactive flow now uses explicit PKCE (RFC 7636 §4.1)** with
+    a cryptographically random `code_verifier`, hardening the loopback
+    redirect against authorization-code interception.
+  - **Loopback callback uses an OS-allocated ephemeral port** when the
+    registered redirect URI does not pin one (RFC 8252 §7.3).
+  - **Sanitized error messages from OAuth file parsing** — raw exception
+    text is no longer surfaced when `client_secrets.json` or
+    `access_tokens.json` cannot be parsed.
+  - **Response body size cap added to `LoggingInterceptors`** — responses
+    whose `Content-Length` exceeds 50 MiB are rejected as
+    `DioException(badResponse)` before reaching callers.
+  - **`Chat.insert` and `YoutubeApiHelper.buildParts`** now throw
+    `ArgumentError` (instead of bare `Exception`) for clearer
+    programmer-error semantics.
+
+### Removed
+
+- **BREAKING (transitive)**: The upstream `yt` package removed the
+  `Chat.send` convenience helper and the `EmojiFormatter` utility. The
+  `yt_cli` does not invoke either symbol, so no CLI command surface is
+  affected; this is documented for downstream library consumers only.
+
 ## 3.0.2
 
 ### Changed

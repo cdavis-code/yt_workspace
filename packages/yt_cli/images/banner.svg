@@ -129,7 +129,7 @@
   <!-- Version badge -->
   <g transform="translate(520, 492)">
     <rect x="0" y="0" width="80" height="30" rx="15" fill="#0d0d0d" stroke="#FF0000" stroke-width="1.5"/>
-    <text x="40" y="20" font-family="Arial, sans-serif" font-size="14" fill="#FF4444" text-anchor="middle">v3.0.2</text>
+    <text x="40" y="20" font-family="Arial, sans-serif" font-size="14" fill="#FF4444" text-anchor="middle">v3.2.0</text>
   </g>
 
   <!-- Homebrew badge -->

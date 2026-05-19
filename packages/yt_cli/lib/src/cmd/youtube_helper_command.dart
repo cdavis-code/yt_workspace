@@ -45,6 +45,22 @@ abstract class YtHelperCommand extends Command<void> {
 
   Analytics get analytics => _yt.analytics;
 
+  PlaylistItems get playlistItems => _yt.playlistItems;
+
+  ChannelBanners get channelBanners => _yt.channelBanners;
+
+  ChannelSections get channelSections => _yt.channelSections;
+
+  Captions get captions => _yt.captions;
+
+  I18nLanguages get i18nLanguages => _yt.i18nLanguages;
+
+  I18nRegions get i18nRegions => _yt.i18nRegions;
+
+  PlaylistImages get playlistImages => _yt.playlistImages;
+
+  ThirdPartyLinks get thirdPartyLinks => _yt.thirdPartyLinks;
+
   Future<void> initializeYt() async {
     const secretFilename = 'client_secret.json';
     const tokenFilename = 'youtube_server_tokens.json';

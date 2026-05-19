@@ -1,5 +1,5 @@
 name: yt_cli
-version: 3.0.2
+version: 3.2.0
 description: A CLI tool for the YouTube Data, Live Streaming, and Analytics APIs.
 homepage: https://github.com/cdavis-code/yt_workspace
 repository: https://github.com/cdavis-code/yt_workspace/tree/main/packages/yt_cli
@@ -24,7 +24,7 @@ executables:
   yt: yt
 
 dependencies:
-  yt: ^3.0.2
+  yt: ^3.2.0
   args: ^2.7.0
   dio: ^5.9.2
   loggy: ^2.0.3
