@@ -68,11 +68,12 @@ export YT_ACCESS_TOKENS_FILE="path/to/access_tokens.json"
 # Tap the Homebrew repository
 brew tap cdavis-code/yt
 
-# Install yt_mcp
+# Install yt_mcp (use hyphenated name: yt-mcp)
 brew install yt-mcp
 
-# Verify installation (binary is installed at /opt/homebrew/bin/yt_mcp or /usr/local/bin/yt_mcp)
+# Verify installation (binary is installed as 'yt_mcp' on your PATH)
 which yt_mcp
+# Output: /opt/homebrew/bin/yt_mcp (Apple Silicon) or /usr/local/bin/yt_mcp (Intel)
 
 # Configure credentials
 export YT_API_KEY="your-api-key-here"
@@ -80,6 +81,8 @@ export YT_API_KEY="your-api-key-here"
 export YT_CLIENT_SECRETS_FILE="path/to/client_secrets.json"
 export YT_ACCESS_TOKENS_FILE="path/to/access_tokens.json"
 ```
+
+**Note:** Install with `brew install yt-mcp` (hyphen), but the binary is available as `yt_mcp` (underscore) on your PATH.
 
 That's it! Configure your AI agent using one of the [MCP Host Configuration](#mcp-host-configuration) examples below, and the agent will launch the server automatically.
 
@@ -260,7 +263,8 @@ This package supports Homebrew installation via the `cdavis-code/yt` tap. To rel
 
 4. **Users install/update** via:
    ```bash
-   brew upgrade yt-mcp
+   brew install yt-mcp   # First-time installation
+   brew upgrade yt-mcp   # Update to latest version
    ```
 
 **Required secrets:** Set `HOMEBREW_TAP_TOKEN` in the GitHub repo under **Settings > Secrets and variables > Actions** (GitHub PAT with write access to `cdavis-code/homebrew-yt`).
