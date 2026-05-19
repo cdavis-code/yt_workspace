@@ -7,6 +7,7 @@ environment:
 workspace:
   - packages/yt
   - packages/yt_cli
+  - packages/yt_cli_js
   - packages/yt_js
   - packages/yt_mcp
   - packages/yt_mcp_js
@@ -37,8 +38,10 @@ melos:
       packageFilters:
         fileExists: build.yaml
     meta:
-      exec: dart \$MELOS_ROOT_PATH/tool/update_meta.dart
+      run: melos run _meta_internal --no-select
       description: Regenerate lib/meta.dart from pubspec.yaml for yt and yt_cli.
+    _meta_internal:
+      exec: dart \$MELOS_ROOT_PATH/tool/update_meta.dart
       packageFilters:
         scope:
           - yt
