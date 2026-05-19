@@ -3,6 +3,7 @@
 
 # Homebrew formula for yt_mcp
 # Install with: brew tap cdavis-code/yt && brew install yt-mcp
+# Note: 'yt-mcp' is an alias that points to the 'yt_mcp' formula
 class YtMcp < Formula
   desc "MCP server for YouTube Data and Live Streaming APIs"
   homepage "https://github.com/cdavis-code/yt_workspace"

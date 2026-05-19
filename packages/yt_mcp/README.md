@@ -69,7 +69,7 @@ export YT_ACCESS_TOKENS_FILE="path/to/access_tokens.json"
 brew tap cdavis-code/yt
 
 # Install yt_mcp
-brew install yt_mcp
+brew install yt-mcp
 
 # Verify installation (binary is installed at /opt/homebrew/bin/yt_mcp or /usr/local/bin/yt_mcp)
 which yt_mcp
