@@ -8,7 +8,6 @@ import 'dart:io' as io;
 import 'package:dart_mcp/server.dart';
 import 'package:dart_mcp/stdio.dart';
 
-
 import 'package:yt_mcp/src/yt_mcp_server.dart' as yt_mcp_server;
 
 Future<void> main() async {
@@ -23,10 +22,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
 
   MCPServerWithTools(super.channel)
     : super.fromStreamChannel(
-        implementation: Implementation(
-          name: 'mcp-server',
-          version: '1.0.0',
-        ),
+        implementation: Implementation(name: 'mcp-server', version: '1.0.0'),
         instructions: 'Auto-generated MCP server',
       ) {
     registerTool(
@@ -34,21 +30,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_channels_list',
         description: 'List YouTube channels by ID or username.',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated channel property names'
-    ),
-      'id': Schema.string(
-      description: 'Comma-separated channel IDs'
-    ),
-      'forUsername': Schema.string(
-      description: 'YouTube username'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return (1-50)'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated channel property names',
+            ),
+            'id': Schema.string(description: 'Comma-separated channel IDs'),
+            'forUsername': Schema.string(description: 'YouTube username'),
+            'maxResults': Schema.int(
+              description: 'Maximum items to return (1-50)',
+            ),
+          },
+        ),
       ),
       _yt_channels_list,
     );
@@ -57,17 +49,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_channels_update',
         description: 'Update channel metadata (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated channel property names'
-    ),
-      'body': Schema.object(),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated channel property names',
+            ),
+            'body': Schema.object(),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_channels_update,
     );
@@ -76,22 +68,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_search_list',
         description: 'Search YouTube for videos, channels, and playlists.',
         inputSchema: Schema.object(
-    properties: {
-      'q': Schema.string(
-      description: 'Search query term'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated resource property names'
-    ),
-      'type': Schema.string(
-      description: 'Resource type filter (video, channel, playlist)'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return (1-50)'
-    ),
-    },
-    required: ['q'],
-  ),
+          properties: {
+            'q': Schema.string(description: 'Search query term'),
+            'part': Schema.string(
+              description: 'Comma-separated resource property names',
+            ),
+            'type': Schema.string(
+              description: 'Resource type filter (video, channel, playlist)',
+            ),
+            'maxResults': Schema.int(
+              description: 'Maximum items to return (1-50)',
+            ),
+          },
+          required: ['q'],
+        ),
       ),
       _yt_search_list,
     );
@@ -100,49 +90,46 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_videos_list',
         description: 'List YouTube videos by ID or chart.',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Comma-separated video IDs'
-    ),
-      'chart': Schema.string(
-      description: 'Chart type (mostPopular)'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated video property names'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return (1-50)'
-    ),
-    },
-  ),
+          properties: {
+            'id': Schema.string(description: 'Comma-separated video IDs'),
+            'chart': Schema.string(description: 'Chart type (mostPopular)'),
+            'part': Schema.string(
+              description: 'Comma-separated video property names',
+            ),
+            'maxResults': Schema.int(
+              description: 'Maximum items to return (1-50)',
+            ),
+          },
+        ),
       ),
       _yt_videos_list,
     );
     registerTool(
       Tool(
         name: 'yt_videos_insert',
-        description: 'Upload a video to YouTube (requires OAuth). Provide the video file path.',
+        description:
+            'Upload a video to YouTube (requires OAuth). Provide the video file path.',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'videoFilePath': Schema.string(
-      description: 'Absolute or relative path to the video file'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated video property names'
-    ),
-      'notifySubscribers': Schema.bool(
-      description: 'Whether to notify subscribers'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['body', 'videoFilePath'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'videoFilePath': Schema.string(
+              description: 'Absolute or relative path to the video file',
+            ),
+            'part': Schema.string(
+              description: 'Comma-separated video property names',
+            ),
+            'notifySubscribers': Schema.bool(
+              description: 'Whether to notify subscribers',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['body', 'videoFilePath'],
+        ),
       ),
       _yt_videos_insert,
     );
@@ -151,50 +138,48 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_videos_update',
         description: 'Update video metadata (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated video property names'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated video property names',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_videos_update,
     );
     registerTool(
       Tool(
         name: 'yt_videos_rate',
-        description: 'Like, dislike, or remove rating for a video (requires OAuth).',
+        description:
+            'Like, dislike, or remove rating for a video (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Video ID'
-    ),
-      'rating': Schema.string(
-      description: 'Rating: "like", "dislike", or "none"'
-    ),
-    },
-    required: ['id', 'rating'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Video ID'),
+            'rating': Schema.string(
+              description: 'Rating: "like", "dislike", or "none"',
+            ),
+          },
+          required: ['id', 'rating'],
+        ),
       ),
       _yt_videos_rate,
     );
     registerTool(
       Tool(
         name: 'yt_videos_get_rating',
-        description: 'Get the rating that the authorized user gave to a video (requires OAuth).',
+        description:
+            'Get the rating that the authorized user gave to a video (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Comma-separated video IDs'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Comma-separated video IDs'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_videos_get_rating,
     );
@@ -203,14 +188,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_videos_report_abuse',
         description: 'Report a video for abusive content (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_videos_report_abuse,
     );
@@ -219,16 +204,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_videos_delete',
         description: 'Delete a video (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Video ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Video ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_videos_delete,
     );
@@ -237,21 +220,19 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlists_list',
         description: 'List YouTube playlists.',
         inputSchema: Schema.object(
-    properties: {
-      'channelId': Schema.string(
-      description: 'Channel ID to list playlists for'
-    ),
-      'id': Schema.string(
-      description: 'Comma-separated playlist IDs'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated playlist property names'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return (1-50)'
-    ),
-    },
-  ),
+          properties: {
+            'channelId': Schema.string(
+              description: 'Channel ID to list playlists for',
+            ),
+            'id': Schema.string(description: 'Comma-separated playlist IDs'),
+            'part': Schema.string(
+              description: 'Comma-separated playlist property names',
+            ),
+            'maxResults': Schema.int(
+              description: 'Maximum items to return (1-50)',
+            ),
+          },
+        ),
       ),
       _yt_playlists_list,
     );
@@ -260,20 +241,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlists_insert',
         description: 'Create a playlist (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated playlist property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated playlist property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_playlists_insert,
     );
@@ -282,20 +263,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlists_update',
         description: 'Update playlist metadata (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated playlist property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated playlist property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_playlists_update,
     );
@@ -304,19 +285,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlists_delete',
         description: 'Delete a playlist (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Playlist ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Playlist ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_playlists_delete,
     );
@@ -325,18 +304,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comments_list',
         description: 'List YouTube comments.',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated comment property names'
-    ),
-      'parentId': Schema.string(
-      description: 'Parent comment ID'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated comment property names',
+            ),
+            'parentId': Schema.string(description: 'Parent comment ID'),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+          },
+        ),
       ),
       _yt_comments_list,
     );
@@ -345,22 +320,18 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comments_list_by_ids',
         description: 'List comments by their IDs.',
         inputSchema: Schema.object(
-    properties: {
-      'ids': Schema.string(
-      description: 'Comma-separated comment IDs'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-      'textFormat': Schema.string(
-      description: 'Text format: "html" or "plainText"'
-    ),
-    },
-    required: ['ids'],
-  ),
+          properties: {
+            'ids': Schema.string(description: 'Comma-separated comment IDs'),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+            'textFormat': Schema.string(
+              description: 'Text format: "html" or "plainText"',
+            ),
+          },
+          required: ['ids'],
+        ),
       ),
       _yt_comments_list_by_ids,
     );
@@ -369,16 +340,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comments_list_by_id',
         description: 'Get a single comment by ID.',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Comment ID'
-    ),
-      'textFormat': Schema.string(
-      description: 'Text format: "html" or "plainText"'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Comment ID'),
+            'textFormat': Schema.string(
+              description: 'Text format: "html" or "plainText"',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_comments_list_by_id,
     );
@@ -387,22 +356,18 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comments_list_by_parent_id',
         description: 'List replies to a comment.',
         inputSchema: Schema.object(
-    properties: {
-      'parentId': Schema.string(
-      description: 'Parent comment ID'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-      'textFormat': Schema.string(
-      description: 'Text format: "html" or "plainText"'
-    ),
-    },
-    required: ['parentId'],
-  ),
+          properties: {
+            'parentId': Schema.string(description: 'Parent comment ID'),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+            'textFormat': Schema.string(
+              description: 'Text format: "html" or "plainText"',
+            ),
+          },
+          required: ['parentId'],
+        ),
       ),
       _yt_comments_list_by_parent_id,
     );
@@ -411,35 +376,32 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comments_insert',
         description: 'Create a comment reply (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated comment property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated comment property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_comments_insert,
     );
     registerTool(
       Tool(
         name: 'yt_comments_add',
-        description: 'Add a reply to a comment (requires OAuth). Helper method.',
+        description:
+            'Add a reply to a comment (requires OAuth). Helper method.',
         inputSchema: Schema.object(
-    properties: {
-      'parentId': Schema.string(
-      description: 'Parent comment ID'
-    ),
-      'textOriginal': Schema.string(
-      description: 'Comment text'
-    ),
-    },
-    required: ['parentId', 'textOriginal'],
-  ),
+          properties: {
+            'parentId': Schema.string(description: 'Parent comment ID'),
+            'textOriginal': Schema.string(description: 'Comment text'),
+          },
+          required: ['parentId', 'textOriginal'],
+        ),
       ),
       _yt_comments_add,
     );
@@ -448,17 +410,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comments_update',
         description: 'Update a comment (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated comment property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated comment property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_comments_update,
     );
@@ -467,16 +429,12 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comments_change',
         description: 'Change comment text (requires OAuth). Helper method.',
         inputSchema: Schema.object(
-    properties: {
-      'commentId': Schema.string(
-      description: 'Comment ID'
-    ),
-      'textOriginal': Schema.string(
-      description: 'New comment text'
-    ),
-    },
-    required: ['commentId', 'textOriginal'],
-  ),
+          properties: {
+            'commentId': Schema.string(description: 'Comment ID'),
+            'textOriginal': Schema.string(description: 'New comment text'),
+          },
+          required: ['commentId', 'textOriginal'],
+        ),
       ),
       _yt_comments_change,
     );
@@ -485,19 +443,19 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comments_set_moderation_status',
         description: 'Set moderation status for comments (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Comma-separated comment IDs'
-    ),
-      'moderationStatus': Schema.string(
-      description: 'Moderation status: "heldForReview", "likelySpam", "published", or "rejected"'
-    ),
-      'banAuthor': Schema.bool(
-      description: 'Ban the author (only valid when moderationStatus is "rejected")'
-    ),
-    },
-    required: ['id', 'moderationStatus'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Comma-separated comment IDs'),
+            'moderationStatus': Schema.string(
+              description:
+                  'Moderation status: "heldForReview", "likelySpam", "published", or "rejected"',
+            ),
+            'banAuthor': Schema.bool(
+              description:
+                  'Ban the author (only valid when moderationStatus is "rejected")',
+            ),
+          },
+          required: ['id', 'moderationStatus'],
+        ),
       ),
       _yt_comments_set_moderation_status,
     );
@@ -506,13 +464,9 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comments_delete',
         description: 'Delete a comment (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Comment ID'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {'id': Schema.string(description: 'Comment ID')},
+          required: ['id'],
+        ),
       ),
       _yt_comments_delete,
     );
@@ -521,18 +475,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comment_threads_list',
         description: 'List YouTube comment threads for a video.',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated comment thread property names'
-    ),
-      'videoId': Schema.string(
-      description: 'Video ID'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated comment thread property names',
+            ),
+            'videoId': Schema.string(description: 'Video ID'),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+          },
+        ),
       ),
       _yt_comment_threads_list,
     );
@@ -541,31 +491,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comment_threads_list_by_video_id',
         description: 'List comment threads for a specific video.',
         inputSchema: Schema.object(
-    properties: {
-      'videoId': Schema.string(
-      description: 'Video ID'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'moderationStatus': Schema.string(
-      description: 'Moderation status filter'
-    ),
-      'order': Schema.string(
-      description: 'Sort order: "time" or "relevance"'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-      'searchTerms': Schema.string(
-      description: 'Search terms to filter by'
-    ),
-      'textFormat': Schema.string(
-      description: 'Text format: "html" or "plainText"'
-    ),
-    },
-    required: ['videoId'],
-  ),
+          properties: {
+            'videoId': Schema.string(description: 'Video ID'),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'moderationStatus': Schema.string(
+              description: 'Moderation status filter',
+            ),
+            'order': Schema.string(
+              description: 'Sort order: "time" or "relevance"',
+            ),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+            'searchTerms': Schema.string(
+              description: 'Search terms to filter by',
+            ),
+            'textFormat': Schema.string(
+              description: 'Text format: "html" or "plainText"',
+            ),
+          },
+          required: ['videoId'],
+        ),
       ),
       _yt_comment_threads_list_by_video_id,
     );
@@ -574,31 +520,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comment_threads_list_by_ids',
         description: 'List comment threads by their IDs.',
         inputSchema: Schema.object(
-    properties: {
-      'ids': Schema.string(
-      description: 'Comma-separated comment thread IDs'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'moderationStatus': Schema.string(
-      description: 'Moderation status filter'
-    ),
-      'order': Schema.string(
-      description: 'Sort order'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-      'searchTerms': Schema.string(
-      description: 'Search terms'
-    ),
-      'textFormat': Schema.string(
-      description: 'Text format'
-    ),
-    },
-    required: ['ids'],
-  ),
+          properties: {
+            'ids': Schema.string(
+              description: 'Comma-separated comment thread IDs',
+            ),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'moderationStatus': Schema.string(
+              description: 'Moderation status filter',
+            ),
+            'order': Schema.string(description: 'Sort order'),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+            'searchTerms': Schema.string(description: 'Search terms'),
+            'textFormat': Schema.string(description: 'Text format'),
+          },
+          required: ['ids'],
+        ),
       ),
       _yt_comment_threads_list_by_ids,
     );
@@ -607,22 +545,16 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comment_threads_list_by_id',
         description: 'Get a single comment thread by ID.',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Comment thread ID'
-    ),
-      'moderationStatus': Schema.string(
-      description: 'Moderation status filter'
-    ),
-      'searchTerms': Schema.string(
-      description: 'Search terms'
-    ),
-      'textFormat': Schema.string(
-      description: 'Text format'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Comment thread ID'),
+            'moderationStatus': Schema.string(
+              description: 'Moderation status filter',
+            ),
+            'searchTerms': Schema.string(description: 'Search terms'),
+            'textFormat': Schema.string(description: 'Text format'),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_comment_threads_list_by_id,
     );
@@ -631,31 +563,21 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comment_threads_list_by_channel_id',
         description: 'List all comment threads related to a channel.',
         inputSchema: Schema.object(
-    properties: {
-      'channelId': Schema.string(
-      description: 'Channel ID'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'moderationStatus': Schema.string(
-      description: 'Moderation status filter'
-    ),
-      'order': Schema.string(
-      description: 'Sort order'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-      'searchTerms': Schema.string(
-      description: 'Search terms'
-    ),
-      'textFormat': Schema.string(
-      description: 'Text format'
-    ),
-    },
-    required: ['channelId'],
-  ),
+          properties: {
+            'channelId': Schema.string(description: 'Channel ID'),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'moderationStatus': Schema.string(
+              description: 'Moderation status filter',
+            ),
+            'order': Schema.string(description: 'Sort order'),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+            'searchTerms': Schema.string(description: 'Search terms'),
+            'textFormat': Schema.string(description: 'Text format'),
+          },
+          required: ['channelId'],
+        ),
       ),
       _yt_comment_threads_list_by_channel_id,
     );
@@ -664,32 +586,29 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_comment_threads_insert',
         description: 'Create a new top-level comment thread (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_comment_threads_insert,
     );
     registerTool(
       Tool(
         name: 'yt_comment_threads_add',
-        description: 'Add a top-level comment to a video (requires OAuth). Helper method.',
+        description:
+            'Add a top-level comment to a video (requires OAuth). Helper method.',
         inputSchema: Schema.object(
-    properties: {
-      'videoId': Schema.string(
-      description: 'Video ID'
-    ),
-      'textOriginal': Schema.string(
-      description: 'Comment text'
-    ),
-    },
-    required: ['videoId', 'textOriginal'],
-  ),
+          properties: {
+            'videoId': Schema.string(description: 'Video ID'),
+            'textOriginal': Schema.string(description: 'Comment text'),
+          },
+          required: ['videoId', 'textOriginal'],
+        ),
       ),
       _yt_comment_threads_add,
     );
@@ -698,52 +617,52 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_members_list',
         description: 'Lists channel members (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated member property names'
-    ),
-      'mode': Schema.string(
-      description: 'Mode: allCurrentMembers or updatesSince'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated member property names',
+            ),
+            'mode': Schema.string(
+              description: 'Mode: allCurrentMembers or updatesSince',
+            ),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+          },
+        ),
       ),
       _yt_members_list,
     );
     registerTool(
       Tool(
         name: 'yt_memberships_levels_list',
-        description: 'Lists membership levels for the channel (requires OAuth).',
+        description:
+            'Lists membership levels for the channel (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated level property names'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated level property names',
+            ),
+          },
+        ),
       ),
       _yt_memberships_levels_list,
     );
     registerTool(
       Tool(
         name: 'yt_video_abuse_report_reasons_list',
-        description: 'Retrieves reasons for reporting abusive videos (requires OAuth).',
+        description:
+            'Retrieves reasons for reporting abusive videos (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated resource property names'
-    ),
-      'hl': Schema.string(
-      description: 'Language code for localized labels'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated resource property names',
+            ),
+            'hl': Schema.string(
+              description: 'Language code for localized labels',
+            ),
+          },
+        ),
       ),
       _yt_video_abuse_report_reasons_list,
     );
@@ -752,31 +671,25 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlist_items_list',
         description: 'List items in a playlist.',
         inputSchema: Schema.object(
-    properties: {
-      'playlistId': Schema.string(
-      description: 'Playlist ID'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'id': Schema.string(
-      description: 'Comma-separated playlist item IDs'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'videoId': Schema.string(
-      description: 'Filter by video ID'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-    },
-    required: ['playlistId'],
-  ),
+          properties: {
+            'playlistId': Schema.string(description: 'Playlist ID'),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'id': Schema.string(
+              description: 'Comma-separated playlist item IDs',
+            ),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'videoId': Schema.string(description: 'Filter by video ID'),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+          },
+          required: ['playlistId'],
+        ),
       ),
       _yt_playlist_items_list,
     );
@@ -785,20 +698,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlist_items_insert',
         description: 'Add an item to a playlist (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_playlist_items_insert,
     );
@@ -807,20 +720,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlist_items_update',
         description: 'Update a playlist item (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_playlist_items_update,
     );
@@ -829,19 +742,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlist_items_delete',
         description: 'Remove an item from a playlist (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Playlist item ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Playlist item ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_playlist_items_delete,
     );
@@ -850,45 +761,35 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_subscriptions_list',
         description: 'List subscriptions.',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'channelId': Schema.string(
-      description: 'Channel ID'
-    ),
-      'id': Schema.string(
-      description: 'Comma-separated subscription IDs'
-    ),
-      'mine': Schema.bool(
-      description: 'Return authenticated user\'s subscriptions'
-    ),
-      'myRecentSubscribers': Schema.bool(
-      description: 'Return recent subscribers'
-    ),
-      'mySubscribers': Schema.bool(
-      description: 'Return all subscribers'
-    ),
-      'forChannelId': Schema.string(
-      description: 'Filter by channel ID'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-      'order': Schema.string(
-      description: 'Sort order'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'channelId': Schema.string(description: 'Channel ID'),
+            'id': Schema.string(
+              description: 'Comma-separated subscription IDs',
+            ),
+            'mine': Schema.bool(
+              description: 'Return authenticated user\'s subscriptions',
+            ),
+            'myRecentSubscribers': Schema.bool(
+              description: 'Return recent subscribers',
+            ),
+            'mySubscribers': Schema.bool(description: 'Return all subscribers'),
+            'forChannelId': Schema.string(description: 'Filter by channel ID'),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+            'order': Schema.string(description: 'Sort order'),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+          },
+        ),
       ),
       _yt_subscriptions_list,
     );
@@ -897,20 +798,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_subscriptions_insert',
         description: 'Subscribe to a channel (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_subscriptions_insert,
     );
@@ -919,19 +820,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_subscriptions_delete',
         description: 'Unsubscribe from a channel (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Subscription ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Subscription ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_subscriptions_delete,
     );
@@ -940,33 +839,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_activities_list',
         description: 'List channel activities.',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'channelId': Schema.string(
-      description: 'Channel ID'
-    ),
-      'mine': Schema.bool(
-      description: 'Return authenticated user\'s activities'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-      'publishedAfter': Schema.string(
-      description: 'Published after (RFC 3339)'
-    ),
-      'publishedBefore': Schema.string(
-      description: 'Published before (RFC 3339)'
-    ),
-      'regionCode': Schema.string(
-      description: 'Region code'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'channelId': Schema.string(description: 'Channel ID'),
+            'mine': Schema.bool(
+              description: 'Return authenticated user\'s activities',
+            ),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+            'publishedAfter': Schema.string(
+              description: 'Published after (RFC 3339)',
+            ),
+            'publishedBefore': Schema.string(
+              description: 'Published before (RFC 3339)',
+            ),
+            'regionCode': Schema.string(description: 'Region code'),
+          },
+        ),
       ),
       _yt_activities_list,
     );
@@ -975,21 +868,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_video_categories_list',
         description: 'List video categories.',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Comma-separated category IDs'
-    ),
-      'regionCode': Schema.string(
-      description: 'Region code (e.g., "US")'
-    ),
-      'hl': Schema.string(
-      description: 'Language code for labels'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-    },
-  ),
+          properties: {
+            'id': Schema.string(description: 'Comma-separated category IDs'),
+            'regionCode': Schema.string(
+              description: 'Region code (e.g., "US")',
+            ),
+            'hl': Schema.string(description: 'Language code for labels'),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+          },
+        ),
       ),
       _yt_video_categories_list,
     );
@@ -998,22 +887,18 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_captions_list',
         description: 'List caption tracks for a video.',
         inputSchema: Schema.object(
-    properties: {
-      'videoId': Schema.string(
-      description: 'Video ID'
-    ),
-      'id': Schema.string(
-      description: 'Comma-separated caption IDs'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-    },
-    required: ['videoId'],
-  ),
+          properties: {
+            'videoId': Schema.string(description: 'Video ID'),
+            'id': Schema.string(description: 'Comma-separated caption IDs'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+          },
+          required: ['videoId'],
+        ),
       ),
       _yt_captions_list,
     );
@@ -1022,20 +907,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_captions_insert',
         description: 'Upload a caption track (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'captionFilePath': Schema.string(
-      description: 'Absolute or relative path to the caption file'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['body', 'captionFilePath'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'captionFilePath': Schema.string(
+              description: 'Absolute or relative path to the caption file',
+            ),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['body', 'captionFilePath'],
+        ),
       ),
       _yt_captions_insert,
     );
@@ -1044,20 +929,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_captions_update',
         description: 'Update a caption track (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'captionFilePath': Schema.string(
-      description: 'Absolute or relative path to the caption file'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['body', 'captionFilePath'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'captionFilePath': Schema.string(
+              description: 'Absolute or relative path to the caption file',
+            ),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['body', 'captionFilePath'],
+        ),
       ),
       _yt_captions_update,
     );
@@ -1066,16 +951,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_captions_delete',
         description: 'Delete a caption track (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Caption ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Caption ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_captions_delete,
     );
@@ -1084,22 +967,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_captions_download',
         description: 'Download a caption track.',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Caption ID'
-    ),
-      'tfmt': Schema.string(
-      description: 'Caption format: "srt", "vtt", "sbv"'
-    ),
-      'tlang': Schema.string(
-      description: 'Target language for auto-translate'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Caption ID'),
+            'tfmt': Schema.string(
+              description: 'Caption format: "srt", "vtt", "sbv"',
+            ),
+            'tlang': Schema.string(
+              description: 'Target language for auto-translate',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_captions_download,
     );
@@ -1108,16 +989,15 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_thumbnails_set',
         description: 'Set a custom thumbnail for a video (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'videoId': Schema.string(
-      description: 'Video ID'
-    ),
-      'thumbnailFilePath': Schema.string(
-      description: 'Absolute or relative path to the thumbnail image file'
-    ),
-    },
-    required: ['videoId', 'thumbnailFilePath'],
-  ),
+          properties: {
+            'videoId': Schema.string(description: 'Video ID'),
+            'thumbnailFilePath': Schema.string(
+              description:
+                  'Absolute or relative path to the thumbnail image file',
+            ),
+          },
+          required: ['videoId', 'thumbnailFilePath'],
+        ),
       ),
       _yt_thumbnails_set,
     );
@@ -1126,14 +1006,12 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_watermarks_set',
         description: 'Set a channel watermark image (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'channelId': Schema.string(
-      description: 'Channel ID'
-    ),
-      'watermarksResource': Schema.object(),
-    },
-    required: ['channelId', 'watermarksResource'],
-  ),
+          properties: {
+            'channelId': Schema.string(description: 'Channel ID'),
+            'watermarksResource': Schema.object(),
+          },
+          required: ['channelId', 'watermarksResource'],
+        ),
       ),
       _yt_watermarks_set,
     );
@@ -1142,13 +1020,9 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_watermarks_unset',
         description: 'Remove a channel watermark (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'channelId': Schema.string(
-      description: 'Channel ID'
-    ),
-    },
-    required: ['channelId'],
-  ),
+          properties: {'channelId': Schema.string(description: 'Channel ID')},
+          required: ['channelId'],
+        ),
       ),
       _yt_watermarks_unset,
     );
@@ -1157,22 +1031,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_channel_banners_insert',
         description: 'Upload a channel banner image (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'imageFilePath': Schema.string(
-      description: 'Absolute or relative path to the banner image file'
-    ),
-      'channelId': Schema.string(
-      description: 'Channel ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['imageFilePath'],
-  ),
+          properties: {
+            'imageFilePath': Schema.string(
+              description: 'Absolute or relative path to the banner image file',
+            ),
+            'channelId': Schema.string(description: 'Channel ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['imageFilePath'],
+        ),
       ),
       _yt_channel_banners_insert,
     );
@@ -1181,27 +1053,21 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_channel_sections_list',
         description: 'List channel sections.',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'channelId': Schema.string(
-      description: 'Channel ID'
-    ),
-      'id': Schema.string(
-      description: 'Comma-separated section IDs'
-    ),
-      'mine': Schema.bool(
-      description: 'Return authenticated user\'s sections'
-    ),
-      'hl': Schema.string(
-      description: 'Language for localization'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'channelId': Schema.string(description: 'Channel ID'),
+            'id': Schema.string(description: 'Comma-separated section IDs'),
+            'mine': Schema.bool(
+              description: 'Return authenticated user\'s sections',
+            ),
+            'hl': Schema.string(description: 'Language for localization'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+        ),
       ),
       _yt_channel_sections_list,
     );
@@ -1210,20 +1076,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_channel_sections_insert',
         description: 'Add a channel section (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_channel_sections_insert,
     );
@@ -1232,17 +1098,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_channel_sections_update',
         description: 'Update a channel section (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_channel_sections_update,
     );
@@ -1251,16 +1117,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_channel_sections_delete',
         description: 'Delete a channel section (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Channel section ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Channel section ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_channel_sections_delete,
     );
@@ -1269,15 +1133,15 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_i18n_languages_list',
         description: 'List supported UI languages.',
         inputSchema: Schema.object(
-    properties: {
-      'hl': Schema.string(
-      description: 'Language code for localized names'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-    },
-  ),
+          properties: {
+            'hl': Schema.string(
+              description: 'Language code for localized names',
+            ),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+          },
+        ),
       ),
       _yt_i18n_languages_list,
     );
@@ -1286,15 +1150,15 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_i18n_regions_list',
         description: 'List supported content regions.',
         inputSchema: Schema.object(
-    properties: {
-      'hl': Schema.string(
-      description: 'Language code for localized names'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-    },
-  ),
+          properties: {
+            'hl': Schema.string(
+              description: 'Language code for localized names',
+            ),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+          },
+        ),
       ),
       _yt_i18n_regions_list,
     );
@@ -1303,28 +1167,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlist_images_list',
         description: 'List custom images for a playlist.',
         inputSchema: Schema.object(
-    properties: {
-      'parent': Schema.string(
-      description: 'Playlist parent (e.g., "playlists/PLAYLIST_ID")'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['parent'],
-  ),
+          properties: {
+            'parent': Schema.string(
+              description: 'Playlist parent (e.g., "playlists/PLAYLIST_ID")',
+            ),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['parent'],
+        ),
       ),
       _yt_playlist_images_list,
     );
@@ -1333,25 +1195,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlist_images_insert',
         description: 'Upload a custom playlist image (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'parent': Schema.string(
-      description: 'Playlist parent'
-    ),
-      'imageFilePath': Schema.string(
-      description: 'Absolute or relative path to the image file'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['parent', 'imageFilePath'],
-  ),
+          properties: {
+            'parent': Schema.string(description: 'Playlist parent'),
+            'imageFilePath': Schema.string(
+              description: 'Absolute or relative path to the image file',
+            ),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['parent', 'imageFilePath'],
+        ),
       ),
       _yt_playlist_images_insert,
     );
@@ -1360,22 +1220,22 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlist_images_update',
         description: 'Replace a playlist image (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'imageFilePath': Schema.string(
-      description: 'Absolute or relative path to the new image file'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['imageFilePath'],
-  ),
+          properties: {
+            'imageFilePath': Schema.string(
+              description: 'Absolute or relative path to the new image file',
+            ),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['imageFilePath'],
+        ),
       ),
       _yt_playlist_images_update,
     );
@@ -1384,16 +1244,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_playlist_images_delete',
         description: 'Delete a playlist image (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Playlist image ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Playlist image ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_playlist_images_delete,
     );
@@ -1402,21 +1260,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_third_party_links_list',
         description: 'List third-party links.',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'externalChannelId': Schema.string(
-      description: 'External channel ID'
-    ),
-      'linkingToken': Schema.string(
-      description: 'Linking token'
-    ),
-      'type': Schema.string(
-      description: 'Link type'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'externalChannelId': Schema.string(
+              description: 'External channel ID',
+            ),
+            'linkingToken': Schema.string(description: 'Linking token'),
+            'type': Schema.string(description: 'Link type'),
+          },
+        ),
       ),
       _yt_third_party_links_list,
     );
@@ -1425,17 +1279,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_third_party_links_insert',
         description: 'Create a third-party link (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'externalChannelId': Schema.string(
-      description: 'External channel ID'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'externalChannelId': Schema.string(
+              description: 'External channel ID',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_third_party_links_insert,
     );
@@ -1444,17 +1298,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_third_party_links_update',
         description: 'Update a third-party link (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'externalChannelId': Schema.string(
-      description: 'External channel ID'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'externalChannelId': Schema.string(
+              description: 'External channel ID',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_third_party_links_update,
     );
@@ -1463,22 +1317,18 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_third_party_links_delete',
         description: 'Delete a third-party link (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'linkingToken': Schema.string(
-      description: 'Linking token'
-    ),
-      'type': Schema.string(
-      description: 'Link type'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'externalChannelId': Schema.string(
-      description: 'External channel ID'
-    ),
-    },
-    required: ['linkingToken', 'type'],
-  ),
+          properties: {
+            'linkingToken': Schema.string(description: 'Linking token'),
+            'type': Schema.string(description: 'Link type'),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'externalChannelId': Schema.string(
+              description: 'External channel ID',
+            ),
+          },
+          required: ['linkingToken', 'type'],
+        ),
       ),
       _yt_third_party_links_delete,
     );
@@ -1487,36 +1337,33 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_broadcasts_list',
         description: 'List live broadcasts.',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'broadcastStatus': Schema.string(
-      description: 'Broadcast status: "all", "active", "completed", "upcoming"'
-    ),
-      'broadcastType': Schema.string(
-      description: 'Broadcast type: "all", "event", "persistent"'
-    ),
-      'id': Schema.string(
-      description: 'Comma-separated broadcast IDs'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'mine': Schema.bool(
-      description: 'Return authenticated user\'s broadcasts'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'broadcastStatus': Schema.string(
+              description:
+                  'Broadcast status: "all", "active", "completed", "upcoming"',
+            ),
+            'broadcastType': Schema.string(
+              description: 'Broadcast type: "all", "event", "persistent"',
+            ),
+            'id': Schema.string(description: 'Comma-separated broadcast IDs'),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'mine': Schema.bool(
+              description: 'Return authenticated user\'s broadcasts',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+          },
+        ),
       ),
       _yt_broadcasts_list,
     );
@@ -1525,20 +1372,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_broadcasts_insert',
         description: 'Create a live broadcast (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_broadcasts_insert,
     );
@@ -1547,20 +1394,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_broadcasts_update',
         description: 'Update a live broadcast (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_broadcasts_update,
     );
@@ -1569,25 +1416,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_broadcasts_transition',
         description: 'Transition a broadcast to a new status (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Broadcast ID'
-    ),
-      'broadcastStatus': Schema.string(
-      description: 'Target status: "testing", "live", "complete"'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['id', 'broadcastStatus'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Broadcast ID'),
+            'broadcastStatus': Schema.string(
+              description: 'Target status: "testing", "live", "complete"',
+            ),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['id', 'broadcastStatus'],
+        ),
       ),
       _yt_broadcasts_transition,
     );
@@ -1596,25 +1441,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_broadcasts_bind',
         description: 'Bind a broadcast to a stream (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Broadcast ID'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'streamId': Schema.string(
-      description: 'Stream ID (omit to unbind)'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Broadcast ID'),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'streamId': Schema.string(
+              description: 'Stream ID (omit to unbind)',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_broadcasts_bind,
     );
@@ -1623,41 +1466,38 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_broadcasts_delete',
         description: 'Delete a live broadcast (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Broadcast ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Broadcast ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_broadcasts_delete,
     );
     registerTool(
       Tool(
         name: 'yt_broadcasts_cuepoint',
-        description: 'Insert a cuepoint into a live broadcast (requires OAuth).',
+        description:
+            'Insert a cuepoint into a live broadcast (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Broadcast ID'
-    ),
-      'body': Schema.object(),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['id', 'body'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Broadcast ID'),
+            'body': Schema.object(),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['id', 'body'],
+        ),
       ),
       _yt_broadcasts_cuepoint,
     );
@@ -1682,30 +1522,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_live_streams_list',
         description: 'List live streams.',
         inputSchema: Schema.object(
-    properties: {
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'id': Schema.string(
-      description: 'Comma-separated stream IDs'
-    ),
-      'mine': Schema.bool(
-      description: 'Return authenticated user\'s streams'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-    },
-  ),
+          properties: {
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'id': Schema.string(description: 'Comma-separated stream IDs'),
+            'mine': Schema.bool(
+              description: 'Return authenticated user\'s streams',
+            ),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+          },
+        ),
       ),
       _yt_live_streams_list,
     );
@@ -1714,20 +1550,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_live_streams_insert',
         description: 'Create a live stream (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_live_streams_insert,
     );
@@ -1736,20 +1572,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_live_streams_update',
         description: 'Update a live stream (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_live_streams_update,
     );
@@ -1758,19 +1594,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_live_streams_delete',
         description: 'Delete a live stream (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Stream ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-      'onBehalfOfContentOwnerChannel': Schema.string(
-      description: 'On behalf of content owner channel'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Stream ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+            'onBehalfOfContentOwnerChannel': Schema.string(
+              description: 'On behalf of content owner channel',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_live_streams_delete,
     );
@@ -1779,28 +1613,22 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_live_chat_list',
         description: 'List live chat messages.',
         inputSchema: Schema.object(
-    properties: {
-      'liveChatId': Schema.string(
-      description: 'Live chat ID'
-    ),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-      'hl': Schema.string(
-      description: 'Language code for localization'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum items to return'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-      'profileImageSize': Schema.int(
-      description: 'Profile image size in pixels'
-    ),
-    },
-    required: ['liveChatId'],
-  ),
+          properties: {
+            'liveChatId': Schema.string(description: 'Live chat ID'),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+            'hl': Schema.string(description: 'Language code for localization'),
+            'maxResults': Schema.int(description: 'Maximum items to return'),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+            'profileImageSize': Schema.int(
+              description: 'Profile image size in pixels',
+            ),
+          },
+          required: ['liveChatId'],
+        ),
       ),
       _yt_live_chat_list,
     );
@@ -1809,14 +1637,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_live_chat_insert',
         description: 'Send a live chat message (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'part': Schema.string(
-      description: 'Comma-separated property names'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'part': Schema.string(
+              description: 'Comma-separated property names',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_live_chat_insert,
     );
@@ -1825,13 +1653,9 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_live_chat_delete',
         description: 'Delete a live chat message (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Chat message ID'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {'id': Schema.string(description: 'Chat message ID')},
+          required: ['id'],
+        ),
       ),
       _yt_live_chat_delete,
     );
@@ -1840,43 +1664,35 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_analytics_query',
         description: 'Query YouTube Analytics reports.',
         inputSchema: Schema.object(
-    properties: {
-      'ids': Schema.string(
-      description: 'Analytics ID (e.g., "channel==CHANNEL_ID" or "contentOwner==OWNER")'
-    ),
-      'startDate': Schema.string(
-      description: 'Start date (YYYY-MM-DD)'
-    ),
-      'endDate': Schema.string(
-      description: 'End date (YYYY-MM-DD)'
-    ),
-      'metrics': Schema.string(
-      description: 'Comma-separated metrics (e.g., "views,likes,subscribersGained")'
-    ),
-      'dimensions': Schema.string(
-      description: 'Comma-separated dimensions (e.g., "day,country")'
-    ),
-      'filters': Schema.string(
-      description: 'Filters (e.g., "country==US")'
-    ),
-      'maxResults': Schema.int(
-      description: 'Maximum results'
-    ),
-      'sort': Schema.string(
-      description: 'Comma-separated sort fields'
-    ),
-      'startIndex': Schema.int(
-      description: 'Start index'
-    ),
-      'currency': Schema.string(
-      description: 'Currency code (e.g., "USD")'
-    ),
-      'includeHistoricalChannelData': Schema.bool(
-      description: 'Include historical channel data'
-    ),
-    },
-    required: ['ids', 'startDate', 'endDate', 'metrics'],
-  ),
+          properties: {
+            'ids': Schema.string(
+              description:
+                  'Analytics ID (e.g., "channel==CHANNEL_ID" or "contentOwner==OWNER")',
+            ),
+            'startDate': Schema.string(description: 'Start date (YYYY-MM-DD)'),
+            'endDate': Schema.string(description: 'End date (YYYY-MM-DD)'),
+            'metrics': Schema.string(
+              description:
+                  'Comma-separated metrics (e.g., "views,likes,subscribersGained")',
+            ),
+            'dimensions': Schema.string(
+              description: 'Comma-separated dimensions (e.g., "day,country")',
+            ),
+            'filters': Schema.string(
+              description: 'Filters (e.g., "country==US")',
+            ),
+            'maxResults': Schema.int(description: 'Maximum results'),
+            'sort': Schema.string(description: 'Comma-separated sort fields'),
+            'startIndex': Schema.int(description: 'Start index'),
+            'currency': Schema.string(
+              description: 'Currency code (e.g., "USD")',
+            ),
+            'includeHistoricalChannelData': Schema.bool(
+              description: 'Include historical channel data',
+            ),
+          },
+          required: ['ids', 'startDate', 'endDate', 'metrics'],
+        ),
       ),
       _yt_analytics_query,
     );
@@ -1885,21 +1701,19 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_analytics_groups_list',
         description: 'List analytics groups.',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Group ID'
-    ),
-      'mine': Schema.bool(
-      description: 'Return authenticated user\'s groups'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-  ),
+          properties: {
+            'id': Schema.string(description: 'Group ID'),
+            'mine': Schema.bool(
+              description: 'Return authenticated user\'s groups',
+            ),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+        ),
       ),
       _yt_analytics_groups_list,
     );
@@ -1908,14 +1722,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_analytics_groups_insert',
         description: 'Create an analytics group (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_analytics_groups_insert,
     );
@@ -1924,14 +1738,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_analytics_groups_update',
         description: 'Update an analytics group (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_analytics_groups_update,
     );
@@ -1940,16 +1754,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_analytics_groups_delete',
         description: 'Delete an analytics group (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Group ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Group ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_analytics_groups_delete,
     );
@@ -1958,21 +1770,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_analytics_group_items_list',
         description: 'List items in an analytics group.',
         inputSchema: Schema.object(
-    properties: {
-      'groupId': Schema.string(
-      description: 'Group ID'
-    ),
-      'id': Schema.string(
-      description: 'Group item ID'
-    ),
-      'pageToken': Schema.string(
-      description: 'Page token for pagination'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-  ),
+          properties: {
+            'groupId': Schema.string(description: 'Group ID'),
+            'id': Schema.string(description: 'Group item ID'),
+            'pageToken': Schema.string(
+              description: 'Page token for pagination',
+            ),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+        ),
       ),
       _yt_analytics_group_items_list,
     );
@@ -1981,14 +1789,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_analytics_group_items_insert',
         description: 'Add an item to an analytics group (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'body': Schema.object(),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['body'],
-  ),
+          properties: {
+            'body': Schema.object(),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['body'],
+        ),
       ),
       _yt_analytics_group_items_insert,
     );
@@ -1997,16 +1805,14 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         name: 'yt_analytics_group_items_delete',
         description: 'Remove an item from an analytics group (requires OAuth).',
         inputSchema: Schema.object(
-    properties: {
-      'id': Schema.string(
-      description: 'Group item ID'
-    ),
-      'onBehalfOfContentOwner': Schema.string(
-      description: 'On behalf of content owner'
-    ),
-    },
-    required: ['id'],
-  ),
+          properties: {
+            'id': Schema.string(description: 'Group item ID'),
+            'onBehalfOfContentOwner': Schema.string(
+              description: 'On behalf of content owner',
+            ),
+          },
+          required: ['id'],
+        ),
       ),
       _yt_analytics_group_items_delete,
     );
@@ -2028,12 +1834,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
 
   FutureOr<CallToolResult> _yt_channels_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
-    final id = request.arguments?['id'] as String?;
-    final forUsername = request.arguments?['forUsername'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
+      final part = request.arguments?['part'] as String?;
+      final id = request.arguments?['id'] as String?;
+      final forUsername = request.arguments?['forUsername'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().channelsList(part: part, id: id, forUsername: forUsername, maxResults: maxResults);
+      final result = await yt_mcp_server.YtMcpServer().channelsList(
+        part: part,
+        id: id,
+        forUsername: forUsername,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2044,18 +1855,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_channels_update(CallToolRequest request) async {
     try {
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final body = request.arguments!['body'] as dynamic;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final body = request.arguments!['body'] as dynamic;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().channelsUpdate(part: part, body: body, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      final result = await yt_mcp_server.YtMcpServer().channelsUpdate(
+        part: part,
+        body: body,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2066,19 +1885,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_search_list(CallToolRequest request) async {
     try {
-    final q = request.arguments!['q'] as String;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final type = request.arguments?['type'] as String?;
-    final maxResults = (request.arguments?['maxResults'] as int?) ?? 5;
+      final q = request.arguments!['q'] as String;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final type = request.arguments?['type'] as String?;
+      final maxResults = (request.arguments?['maxResults'] as int?) ?? 5;
 
-      final result = await yt_mcp_server.YtMcpServer().searchList(q: q, part: part, type: type, maxResults: maxResults);
+      final result = await yt_mcp_server.YtMcpServer().searchList(
+        q: q,
+        part: part,
+        type: type,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2089,19 +1916,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_videos_list(CallToolRequest request) async {
     try {
-    final id = request.arguments?['id'] as String?;
-    final chart = request.arguments?['chart'] as String?;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final maxResults = (request.arguments?['maxResults'] as int?) ?? 5;
+      final id = request.arguments?['id'] as String?;
+      final chart = request.arguments?['chart'] as String?;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final maxResults = (request.arguments?['maxResults'] as int?) ?? 5;
 
-      final result = await yt_mcp_server.YtMcpServer().videosList(id: id, chart: chart, part: part, maxResults: maxResults);
+      final result = await yt_mcp_server.YtMcpServer().videosList(
+        id: id,
+        chart: chart,
+        part: part,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2112,21 +1947,36 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_videos_insert(CallToolRequest request) async {
     try {
-    final body = request.arguments!['body'] as dynamic;
-    final videoFilePath = request.arguments!['videoFilePath'] as String;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
-    final notifySubscribers = request.arguments?['notifySubscribers'] as bool?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+      final body = request.arguments!['body'] as dynamic;
+      final videoFilePath = request.arguments!['videoFilePath'] as String;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,status,contentDetails';
+      final notifySubscribers =
+          request.arguments?['notifySubscribers'] as bool?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().videosInsert(body: body, videoFilePath: videoFilePath, part: part, notifySubscribers: notifySubscribers, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      final result = await yt_mcp_server.YtMcpServer().videosInsert(
+        body: body,
+        videoFilePath: videoFilePath,
+        part: part,
+        notifySubscribers: notifySubscribers,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2137,17 +1987,25 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_videos_update(CallToolRequest request) async {
     try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,status,contentDetails';
 
-      final result = await yt_mcp_server.YtMcpServer().videosUpdate(body: body, part: part);
+      final result = await yt_mcp_server.YtMcpServer().videosUpdate(
+        body: body,
+        part: part,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2158,17 +2016,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_videos_rate(CallToolRequest request) async {
     try {
-    final id = request.arguments!['id'] as String;
-    final rating = request.arguments!['rating'] as String;
+      final id = request.arguments!['id'] as String;
+      final rating = request.arguments!['rating'] as String;
 
-      final result = await yt_mcp_server.YtMcpServer().videosRate(id: id, rating: rating);
+      final result = await yt_mcp_server.YtMcpServer().videosRate(
+        id: id,
+        rating: rating,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2179,17 +2043,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_videos_get_rating(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().videosGetRating(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_videos_get_rating(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().videosGetRating(
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2200,17 +2073,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_videos_report_abuse(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().videosReportAbuse(body: body, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_videos_report_abuse(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().videosReportAbuse(
+        body: body,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2221,17 +2103,24 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_videos_delete(CallToolRequest request) async {
     try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().videosDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      final result = await yt_mcp_server.YtMcpServer().videosDelete(
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2242,19 +2131,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_playlists_list(CallToolRequest request) async {
     try {
-    final channelId = request.arguments?['channelId'] as String?;
-    final id = request.arguments?['id'] as String?;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final maxResults = (request.arguments?['maxResults'] as int?) ?? 5;
+      final channelId = request.arguments?['channelId'] as String?;
+      final id = request.arguments?['id'] as String?;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final maxResults = (request.arguments?['maxResults'] as int?) ?? 5;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistsList(channelId: channelId, id: id, part: part, maxResults: maxResults);
+      final result = await yt_mcp_server.YtMcpServer().playlistsList(
+        channelId: channelId,
+        id: id,
+        part: part,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2265,19 +2162,31 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_playlists_insert(CallToolRequest request) async {
     try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails,status';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,contentDetails,status';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      final result = await yt_mcp_server.YtMcpServer().playlistsInsert(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2288,19 +2197,31 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_playlists_update(CallToolRequest request) async {
     try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails,status';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,contentDetails,status';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      final result = await yt_mcp_server.YtMcpServer().playlistsUpdate(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2311,18 +2232,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_playlists_delete(CallToolRequest request) async {
     try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      final result = await yt_mcp_server.YtMcpServer().playlistsDelete(
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2333,18 +2263,25 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_comments_list(CallToolRequest request) async {
     try {
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final parentId = request.arguments?['parentId'] as String?;
-    final maxResults = (request.arguments?['maxResults'] as int?) ?? 20;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final parentId = request.arguments?['parentId'] as String?;
+      final maxResults = (request.arguments?['maxResults'] as int?) ?? 20;
 
-      final result = await yt_mcp_server.YtMcpServer().commentsList(part: part, parentId: parentId, maxResults: maxResults);
+      final result = await yt_mcp_server.YtMcpServer().commentsList(
+        part: part,
+        parentId: parentId,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2355,19 +2292,29 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comments_list_by_ids(CallToolRequest request) async {
-    try {
-    final ids = request.arguments!['ids'] as String;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final pageToken = request.arguments?['pageToken'] as String?;
-    final textFormat = request.arguments?['textFormat'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentsListByIds(ids: ids, maxResults: maxResults, pageToken: pageToken, textFormat: textFormat);
+  FutureOr<CallToolResult> _yt_comments_list_by_ids(
+    CallToolRequest request,
+  ) async {
+    try {
+      final ids = request.arguments!['ids'] as String;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+      final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentsListByIds(
+        ids: ids,
+        maxResults: maxResults,
+        pageToken: pageToken,
+        textFormat: textFormat,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2378,17 +2325,25 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comments_list_by_id(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final textFormat = request.arguments?['textFormat'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentsListById(id: id, textFormat: textFormat);
+  FutureOr<CallToolResult> _yt_comments_list_by_id(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentsListById(
+        id: id,
+        textFormat: textFormat,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2399,19 +2354,29 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comments_list_by_parent_id(CallToolRequest request) async {
-    try {
-    final parentId = request.arguments!['parentId'] as String;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final pageToken = request.arguments?['pageToken'] as String?;
-    final textFormat = request.arguments?['textFormat'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentsListByParentId(parentId: parentId, maxResults: maxResults, pageToken: pageToken, textFormat: textFormat);
+  FutureOr<CallToolResult> _yt_comments_list_by_parent_id(
+    CallToolRequest request,
+  ) async {
+    try {
+      final parentId = request.arguments!['parentId'] as String;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+      final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentsListByParentId(
+        parentId: parentId,
+        maxResults: maxResults,
+        pageToken: pageToken,
+        textFormat: textFormat,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2422,18 +2387,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_comments_insert(CallToolRequest request) async {
     try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+      final body = request.arguments!['body'] as dynamic;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      final result = await yt_mcp_server.YtMcpServer().commentsInsert(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2444,17 +2417,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_comments_add(CallToolRequest request) async {
     try {
-    final parentId = request.arguments!['parentId'] as String;
-    final textOriginal = request.arguments!['textOriginal'] as String;
+      final parentId = request.arguments!['parentId'] as String;
+      final textOriginal = request.arguments!['textOriginal'] as String;
 
-      final result = await yt_mcp_server.YtMcpServer().commentsAdd(parentId: parentId, textOriginal: textOriginal);
+      final result = await yt_mcp_server.YtMcpServer().commentsAdd(
+        parentId: parentId,
+        textOriginal: textOriginal,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2465,18 +2444,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_comments_update(CallToolRequest request) async {
     try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+      final body = request.arguments!['body'] as dynamic;
+      final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      final result = await yt_mcp_server.YtMcpServer().commentsUpdate(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2487,17 +2474,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_comments_change(CallToolRequest request) async {
     try {
-    final commentId = request.arguments!['commentId'] as String;
-    final textOriginal = request.arguments!['textOriginal'] as String;
+      final commentId = request.arguments!['commentId'] as String;
+      final textOriginal = request.arguments!['textOriginal'] as String;
 
-      final result = await yt_mcp_server.YtMcpServer().commentsChange(commentId: commentId, textOriginal: textOriginal);
+      final result = await yt_mcp_server.YtMcpServer().commentsChange(
+        commentId: commentId,
+        textOriginal: textOriginal,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2508,18 +2501,28 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comments_set_moderation_status(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final moderationStatus = request.arguments!['moderationStatus'] as String;
-    final banAuthor = request.arguments?['banAuthor'] as bool?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentsSetModerationStatus(id: id, moderationStatus: moderationStatus, banAuthor: banAuthor);
+  FutureOr<CallToolResult> _yt_comments_set_moderation_status(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final moderationStatus = request.arguments!['moderationStatus'] as String;
+      final banAuthor = request.arguments?['banAuthor'] as bool?;
+
+      final result = await yt_mcp_server.YtMcpServer()
+          .commentsSetModerationStatus(
+            id: id,
+            moderationStatus: moderationStatus,
+            banAuthor: banAuthor,
+          );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2530,14 +2533,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_comments_delete(CallToolRequest request) async {
     try {
-    final id = request.arguments!['id'] as String;
+      final id = request.arguments!['id'] as String;
 
       final result = await yt_mcp_server.YtMcpServer().commentsDelete(id: id);
       return CallToolResult(
@@ -2550,18 +2556,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comment_threads_list(CallToolRequest request) async {
-    try {
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final videoId = request.arguments?['videoId'] as String?;
-    final maxResults = (request.arguments?['maxResults'] as int?) ?? 20;
 
-      final result = await yt_mcp_server.YtMcpServer().commentThreadsList(part: part, videoId: videoId, maxResults: maxResults);
+  FutureOr<CallToolResult> _yt_comment_threads_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final videoId = request.arguments?['videoId'] as String?;
+      final maxResults = (request.arguments?['maxResults'] as int?) ?? 20;
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsList(
+        part: part,
+        videoId: videoId,
+        maxResults: maxResults,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2572,22 +2587,37 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comment_threads_list_by_video_id(CallToolRequest request) async {
-    try {
-    final videoId = request.arguments!['videoId'] as String;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final moderationStatus = request.arguments?['moderationStatus'] as String?;
-    final order = request.arguments?['order'] as String?;
-    final pageToken = request.arguments?['pageToken'] as String?;
-    final searchTerms = request.arguments?['searchTerms'] as String?;
-    final textFormat = request.arguments?['textFormat'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentThreadsListByVideoId(videoId: videoId, maxResults: maxResults, moderationStatus: moderationStatus, order: order, pageToken: pageToken, searchTerms: searchTerms, textFormat: textFormat);
+  FutureOr<CallToolResult> _yt_comment_threads_list_by_video_id(
+    CallToolRequest request,
+  ) async {
+    try {
+      final videoId = request.arguments!['videoId'] as String;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final moderationStatus =
+          request.arguments?['moderationStatus'] as String?;
+      final order = request.arguments?['order'] as String?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+      final searchTerms = request.arguments?['searchTerms'] as String?;
+      final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer()
+          .commentThreadsListByVideoId(
+            videoId: videoId,
+            maxResults: maxResults,
+            moderationStatus: moderationStatus,
+            order: order,
+            pageToken: pageToken,
+            searchTerms: searchTerms,
+            textFormat: textFormat,
+          );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2598,22 +2628,36 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comment_threads_list_by_ids(CallToolRequest request) async {
-    try {
-    final ids = request.arguments!['ids'] as String;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final moderationStatus = request.arguments?['moderationStatus'] as String?;
-    final order = request.arguments?['order'] as String?;
-    final pageToken = request.arguments?['pageToken'] as String?;
-    final searchTerms = request.arguments?['searchTerms'] as String?;
-    final textFormat = request.arguments?['textFormat'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentThreadsListByIds(ids: ids, maxResults: maxResults, moderationStatus: moderationStatus, order: order, pageToken: pageToken, searchTerms: searchTerms, textFormat: textFormat);
+  FutureOr<CallToolResult> _yt_comment_threads_list_by_ids(
+    CallToolRequest request,
+  ) async {
+    try {
+      final ids = request.arguments!['ids'] as String;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final moderationStatus =
+          request.arguments?['moderationStatus'] as String?;
+      final order = request.arguments?['order'] as String?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+      final searchTerms = request.arguments?['searchTerms'] as String?;
+      final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsListByIds(
+        ids: ids,
+        maxResults: maxResults,
+        moderationStatus: moderationStatus,
+        order: order,
+        pageToken: pageToken,
+        searchTerms: searchTerms,
+        textFormat: textFormat,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2624,19 +2668,30 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comment_threads_list_by_id(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final moderationStatus = request.arguments?['moderationStatus'] as String?;
-    final searchTerms = request.arguments?['searchTerms'] as String?;
-    final textFormat = request.arguments?['textFormat'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentThreadsListById(id: id, moderationStatus: moderationStatus, searchTerms: searchTerms, textFormat: textFormat);
+  FutureOr<CallToolResult> _yt_comment_threads_list_by_id(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final moderationStatus =
+          request.arguments?['moderationStatus'] as String?;
+      final searchTerms = request.arguments?['searchTerms'] as String?;
+      final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsListById(
+        id: id,
+        moderationStatus: moderationStatus,
+        searchTerms: searchTerms,
+        textFormat: textFormat,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2647,43 +2702,68 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comment_threads_list_by_channel_id(CallToolRequest request) async {
-    try {
-    final channelId = request.arguments!['channelId'] as String;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final moderationStatus = request.arguments?['moderationStatus'] as String?;
-    final order = request.arguments?['order'] as String?;
-    final pageToken = request.arguments?['pageToken'] as String?;
-    final searchTerms = request.arguments?['searchTerms'] as String?;
-    final textFormat = request.arguments?['textFormat'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentThreadsListByChannelId(channelId: channelId, maxResults: maxResults, moderationStatus: moderationStatus, order: order, pageToken: pageToken, searchTerms: searchTerms, textFormat: textFormat);
+  FutureOr<CallToolResult> _yt_comment_threads_list_by_channel_id(
+    CallToolRequest request,
+  ) async {
+    try {
+      final channelId = request.arguments!['channelId'] as String;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final moderationStatus =
+          request.arguments?['moderationStatus'] as String?;
+      final order = request.arguments?['order'] as String?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+      final searchTerms = request.arguments?['searchTerms'] as String?;
+      final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer()
+          .commentThreadsListByChannelId(
+            channelId: channelId,
+            maxResults: maxResults,
+            moderationStatus: moderationStatus,
+            order: order,
+            pageToken: pageToken,
+            searchTerms: searchTerms,
+            textFormat: textFormat,
+          );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
     } catch (e, st) {
       if (_logErrors) {
-        io.stderr.writeln('[easy_api] yt_comment_threads_list_by_channel_id: $e');
+        io.stderr.writeln(
+          '[easy_api] yt_comment_threads_list_by_channel_id: $e',
+        );
         io.stderr.writeln(st);
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comment_threads_insert(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
 
-      final result = await yt_mcp_server.YtMcpServer().commentThreadsInsert(body: body, part: part);
+  FutureOr<CallToolResult> _yt_comment_threads_insert(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsInsert(
+        body: body,
+        part: part,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2694,17 +2774,25 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_comment_threads_add(CallToolRequest request) async {
-    try {
-    final videoId = request.arguments!['videoId'] as String;
-    final textOriginal = request.arguments!['textOriginal'] as String;
 
-      final result = await yt_mcp_server.YtMcpServer().commentThreadsAdd(videoId: videoId, textOriginal: textOriginal);
+  FutureOr<CallToolResult> _yt_comment_threads_add(
+    CallToolRequest request,
+  ) async {
+    try {
+      final videoId = request.arguments!['videoId'] as String;
+      final textOriginal = request.arguments!['textOriginal'] as String;
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsAdd(
+        videoId: videoId,
+        textOriginal: textOriginal,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2715,19 +2803,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_members_list(CallToolRequest request) async {
     try {
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final mode = request.arguments?['mode'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final pageToken = request.arguments?['pageToken'] as String?;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final mode = request.arguments?['mode'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final pageToken = request.arguments?['pageToken'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().membersList(part: part, mode: mode, maxResults: maxResults, pageToken: pageToken);
+      final result = await yt_mcp_server.YtMcpServer().membersList(
+        part: part,
+        mode: mode,
+        maxResults: maxResults,
+        pageToken: pageToken,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2738,16 +2834,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_memberships_levels_list(CallToolRequest request) async {
-    try {
-    final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
 
-      final result = await yt_mcp_server.YtMcpServer().membershipsLevelsList(part: part);
+  FutureOr<CallToolResult> _yt_memberships_levels_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
+
+      final result = await yt_mcp_server.YtMcpServer().membershipsLevelsList(
+        part: part,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2758,17 +2861,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_video_abuse_report_reasons_list(CallToolRequest request) async {
-    try {
-    final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
-    final hl = request.arguments?['hl'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().videoAbuseReportReasonsList(part: part, hl: hl);
+  FutureOr<CallToolResult> _yt_video_abuse_report_reasons_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
+      final hl = request.arguments?['hl'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer()
+          .videoAbuseReportReasonsList(part: part, hl: hl);
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2779,22 +2888,37 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_playlist_items_list(CallToolRequest request) async {
-    try {
-    final playlistId = request.arguments!['playlistId'] as String;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
-    final id = request.arguments?['id'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final videoId = request.arguments?['videoId'] as String?;
-    final pageToken = request.arguments?['pageToken'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistItemsList(playlistId: playlistId, part: part, id: id, maxResults: maxResults, onBehalfOfContentOwner: onBehalfOfContentOwner, videoId: videoId, pageToken: pageToken);
+  FutureOr<CallToolResult> _yt_playlist_items_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final playlistId = request.arguments!['playlistId'] as String;
+      final part =
+          (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
+      final id = request.arguments?['id'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final videoId = request.arguments?['videoId'] as String?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistItemsList(
+        playlistId: playlistId,
+        part: part,
+        id: id,
+        maxResults: maxResults,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        videoId: videoId,
+        pageToken: pageToken,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2805,19 +2929,32 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_playlist_items_insert(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistItemsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_playlist_items_insert(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistItemsInsert(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2828,19 +2965,32 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_playlist_items_update(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistItemsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_playlist_items_update(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistItemsUpdate(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2851,18 +3001,29 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_playlist_items_delete(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistItemsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_playlist_items_delete(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistItemsDelete(
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2873,27 +3034,49 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_subscriptions_list(CallToolRequest request) async {
-    try {
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
-    final channelId = request.arguments?['channelId'] as String?;
-    final id = request.arguments?['id'] as String?;
-    final mine = request.arguments?['mine'] as bool?;
-    final myRecentSubscribers = request.arguments?['myRecentSubscribers'] as bool?;
-    final mySubscribers = request.arguments?['mySubscribers'] as bool?;
-    final forChannelId = request.arguments?['forChannelId'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
-    final order = request.arguments?['order'] as String?;
-    final pageToken = request.arguments?['pageToken'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().subscriptionsList(part: part, channelId: channelId, id: id, mine: mine, myRecentSubscribers: myRecentSubscribers, mySubscribers: mySubscribers, forChannelId: forChannelId, maxResults: maxResults, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel, order: order, pageToken: pageToken);
+  FutureOr<CallToolResult> _yt_subscriptions_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final part =
+          (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
+      final channelId = request.arguments?['channelId'] as String?;
+      final id = request.arguments?['id'] as String?;
+      final mine = request.arguments?['mine'] as bool?;
+      final myRecentSubscribers =
+          request.arguments?['myRecentSubscribers'] as bool?;
+      final mySubscribers = request.arguments?['mySubscribers'] as bool?;
+      final forChannelId = request.arguments?['forChannelId'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+      final order = request.arguments?['order'] as String?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().subscriptionsList(
+        part: part,
+        channelId: channelId,
+        id: id,
+        mine: mine,
+        myRecentSubscribers: myRecentSubscribers,
+        mySubscribers: mySubscribers,
+        forChannelId: forChannelId,
+        maxResults: maxResults,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+        order: order,
+        pageToken: pageToken,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2904,19 +3087,32 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_subscriptions_insert(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().subscriptionsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_subscriptions_insert(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().subscriptionsInsert(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2927,18 +3123,29 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_subscriptions_delete(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().subscriptionsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_subscriptions_delete(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().subscriptionsDelete(
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2949,23 +3156,36 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_activities_list(CallToolRequest request) async {
     try {
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
-    final channelId = request.arguments?['channelId'] as String?;
-    final mine = request.arguments?['mine'] as bool?;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final pageToken = request.arguments?['pageToken'] as String?;
-    final publishedAfter = request.arguments?['publishedAfter'] as String?;
-    final publishedBefore = request.arguments?['publishedBefore'] as String?;
-    final regionCode = request.arguments?['regionCode'] as String?;
+      final part =
+          (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
+      final channelId = request.arguments?['channelId'] as String?;
+      final mine = request.arguments?['mine'] as bool?;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+      final publishedAfter = request.arguments?['publishedAfter'] as String?;
+      final publishedBefore = request.arguments?['publishedBefore'] as String?;
+      final regionCode = request.arguments?['regionCode'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().activitiesList(part: part, channelId: channelId, mine: mine, maxResults: maxResults, pageToken: pageToken, publishedAfter: publishedAfter, publishedBefore: publishedBefore, regionCode: regionCode);
+      final result = await yt_mcp_server.YtMcpServer().activitiesList(
+        part: part,
+        channelId: channelId,
+        mine: mine,
+        maxResults: maxResults,
+        pageToken: pageToken,
+        publishedAfter: publishedAfter,
+        publishedBefore: publishedBefore,
+        regionCode: regionCode,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2976,19 +3196,29 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_video_categories_list(CallToolRequest request) async {
-    try {
-    final id = request.arguments?['id'] as String?;
-    final regionCode = request.arguments?['regionCode'] as String?;
-    final hl = request.arguments?['hl'] as String?;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
 
-      final result = await yt_mcp_server.YtMcpServer().videoCategoriesList(id: id, regionCode: regionCode, hl: hl, part: part);
+  FutureOr<CallToolResult> _yt_video_categories_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments?['id'] as String?;
+      final regionCode = request.arguments?['regionCode'] as String?;
+      final hl = request.arguments?['hl'] as String?;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+
+      final result = await yt_mcp_server.YtMcpServer().videoCategoriesList(
+        id: id,
+        regionCode: regionCode,
+        hl: hl,
+        part: part,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -2999,19 +3229,28 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_captions_list(CallToolRequest request) async {
     try {
-    final videoId = request.arguments!['videoId'] as String;
-    final id = request.arguments?['id'] as String?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
+      final videoId = request.arguments!['videoId'] as String;
+      final id = request.arguments?['id'] as String?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
 
-      final result = await yt_mcp_server.YtMcpServer().captionsList(videoId: videoId, id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, part: part);
+      final result = await yt_mcp_server.YtMcpServer().captionsList(
+        videoId: videoId,
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        part: part,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3022,19 +3261,28 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_captions_insert(CallToolRequest request) async {
     try {
-    final body = request.arguments!['body'] as dynamic;
-    final captionFilePath = request.arguments!['captionFilePath'] as String;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+      final body = request.arguments!['body'] as dynamic;
+      final captionFilePath = request.arguments!['captionFilePath'] as String;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().captionsInsert(body: body, captionFilePath: captionFilePath, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      final result = await yt_mcp_server.YtMcpServer().captionsInsert(
+        body: body,
+        captionFilePath: captionFilePath,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3045,19 +3293,28 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_captions_update(CallToolRequest request) async {
     try {
-    final body = request.arguments!['body'] as dynamic;
-    final captionFilePath = request.arguments!['captionFilePath'] as String;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+      final body = request.arguments!['body'] as dynamic;
+      final captionFilePath = request.arguments!['captionFilePath'] as String;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().captionsUpdate(body: body, captionFilePath: captionFilePath, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      final result = await yt_mcp_server.YtMcpServer().captionsUpdate(
+        body: body,
+        captionFilePath: captionFilePath,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3068,17 +3325,24 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_captions_delete(CallToolRequest request) async {
     try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().captionsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      final result = await yt_mcp_server.YtMcpServer().captionsDelete(
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3089,19 +3353,30 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_captions_download(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final tfmt = request.arguments?['tfmt'] as String?;
-    final tlang = request.arguments?['tlang'] as String?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().captionsDownload(id: id, tfmt: tfmt, tlang: tlang, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_captions_download(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final tfmt = request.arguments?['tfmt'] as String?;
+      final tlang = request.arguments?['tlang'] as String?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().captionsDownload(
+        id: id,
+        tfmt: tfmt,
+        tlang: tlang,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3112,17 +3387,24 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_thumbnails_set(CallToolRequest request) async {
     try {
-    final videoId = request.arguments!['videoId'] as String;
-    final thumbnailFilePath = request.arguments!['thumbnailFilePath'] as String;
+      final videoId = request.arguments!['videoId'] as String;
+      final thumbnailFilePath =
+          request.arguments!['thumbnailFilePath'] as String;
 
-      final result = await yt_mcp_server.YtMcpServer().thumbnailsSet(videoId: videoId, thumbnailFilePath: thumbnailFilePath);
+      final result = await yt_mcp_server.YtMcpServer().thumbnailsSet(
+        videoId: videoId,
+        thumbnailFilePath: thumbnailFilePath,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3133,17 +3415,24 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_watermarks_set(CallToolRequest request) async {
     try {
-    final channelId = request.arguments!['channelId'] as String;
-    final watermarksResource = request.arguments!['watermarksResource'] as dynamic;
+      final channelId = request.arguments!['channelId'] as String;
+      final watermarksResource =
+          request.arguments!['watermarksResource'] as dynamic;
 
-      final result = await yt_mcp_server.YtMcpServer().watermarksSet(channelId: channelId, watermarksResource: watermarksResource);
+      final result = await yt_mcp_server.YtMcpServer().watermarksSet(
+        channelId: channelId,
+        watermarksResource: watermarksResource,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3154,16 +3443,21 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_watermarks_unset(CallToolRequest request) async {
     try {
-    final channelId = request.arguments!['channelId'] as String;
+      final channelId = request.arguments!['channelId'] as String;
 
-      final result = await yt_mcp_server.YtMcpServer().watermarksUnset(channelId: channelId);
+      final result = await yt_mcp_server.YtMcpServer().watermarksUnset(
+        channelId: channelId,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3174,19 +3468,31 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_channel_banners_insert(CallToolRequest request) async {
-    try {
-    final imageFilePath = request.arguments!['imageFilePath'] as String;
-    final channelId = request.arguments?['channelId'] as String?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().channelBannersInsert(imageFilePath: imageFilePath, channelId: channelId, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_channel_banners_insert(
+    CallToolRequest request,
+  ) async {
+    try {
+      final imageFilePath = request.arguments!['imageFilePath'] as String;
+      final channelId = request.arguments?['channelId'] as String?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().channelBannersInsert(
+        imageFilePath: imageFilePath,
+        channelId: channelId,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3197,21 +3503,36 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_channel_sections_list(CallToolRequest request) async {
-    try {
-    final part = (request.arguments?['part'] as String?) ?? 'contentDetails,id,snippet';
-    final channelId = request.arguments?['channelId'] as String?;
-    final id = request.arguments?['id'] as String?;
-    final mine = request.arguments?['mine'] as bool?;
-    final hl = request.arguments?['hl'] as String?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().channelSectionsList(part: part, channelId: channelId, id: id, mine: mine, hl: hl, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_channel_sections_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'contentDetails,id,snippet';
+      final channelId = request.arguments?['channelId'] as String?;
+      final id = request.arguments?['id'] as String?;
+      final mine = request.arguments?['mine'] as bool?;
+      final hl = request.arguments?['hl'] as String?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().channelSectionsList(
+        part: part,
+        channelId: channelId,
+        id: id,
+        mine: mine,
+        hl: hl,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3222,19 +3543,33 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_channel_sections_insert(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'contentDetails,id,snippet';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().channelSectionsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_channel_sections_insert(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'contentDetails,id,snippet';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().channelSectionsInsert(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3245,18 +3580,30 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_channel_sections_update(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'contentDetails,id,snippet';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().channelSectionsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_channel_sections_update(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'contentDetails,id,snippet';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().channelSectionsUpdate(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3267,17 +3614,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_channel_sections_delete(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().channelSectionsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_channel_sections_delete(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().channelSectionsDelete(
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3288,17 +3644,25 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_i18n_languages_list(CallToolRequest request) async {
-    try {
-    final hl = request.arguments?['hl'] as String?;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
 
-      final result = await yt_mcp_server.YtMcpServer().i18nLanguagesList(hl: hl, part: part);
+  FutureOr<CallToolResult> _yt_i18n_languages_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final hl = request.arguments?['hl'] as String?;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+
+      final result = await yt_mcp_server.YtMcpServer().i18nLanguagesList(
+        hl: hl,
+        part: part,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3309,17 +3673,25 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_i18n_regions_list(CallToolRequest request) async {
-    try {
-    final hl = request.arguments?['hl'] as String?;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
 
-      final result = await yt_mcp_server.YtMcpServer().i18nRegionsList(hl: hl, part: part);
+  FutureOr<CallToolResult> _yt_i18n_regions_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final hl = request.arguments?['hl'] as String?;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+
+      final result = await yt_mcp_server.YtMcpServer().i18nRegionsList(
+        hl: hl,
+        part: part,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3330,21 +3702,35 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_playlist_images_list(CallToolRequest request) async {
-    try {
-    final parent = request.arguments!['parent'] as String;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final pageToken = request.arguments?['pageToken'] as String?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistImagesList(parent: parent, part: part, maxResults: maxResults, pageToken: pageToken, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_playlist_images_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final parent = request.arguments!['parent'] as String;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistImagesList(
+        parent: parent,
+        part: part,
+        maxResults: maxResults,
+        pageToken: pageToken,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3355,20 +3741,33 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_playlist_images_insert(CallToolRequest request) async {
-    try {
-    final parent = request.arguments!['parent'] as String;
-    final imageFilePath = request.arguments!['imageFilePath'] as String;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistImagesInsert(parent: parent, imageFilePath: imageFilePath, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_playlist_images_insert(
+    CallToolRequest request,
+  ) async {
+    try {
+      final parent = request.arguments!['parent'] as String;
+      final imageFilePath = request.arguments!['imageFilePath'] as String;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistImagesInsert(
+        parent: parent,
+        imageFilePath: imageFilePath,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3379,19 +3778,31 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_playlist_images_update(CallToolRequest request) async {
-    try {
-    final imageFilePath = request.arguments!['imageFilePath'] as String;
-    final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistImagesUpdate(imageFilePath: imageFilePath, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_playlist_images_update(
+    CallToolRequest request,
+  ) async {
+    try {
+      final imageFilePath = request.arguments!['imageFilePath'] as String;
+      final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistImagesUpdate(
+        imageFilePath: imageFilePath,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3402,17 +3813,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_playlist_images_delete(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistImagesDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_playlist_images_delete(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistImagesDelete(
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3423,19 +3843,30 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_third_party_links_list(CallToolRequest request) async {
-    try {
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status';
-    final externalChannelId = request.arguments?['externalChannelId'] as String?;
-    final linkingToken = request.arguments?['linkingToken'] as String?;
-    final type = request.arguments?['type'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksList(part: part, externalChannelId: externalChannelId, linkingToken: linkingToken, type: type);
+  FutureOr<CallToolResult> _yt_third_party_links_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final part = (request.arguments?['part'] as String?) ?? 'snippet,status';
+      final externalChannelId =
+          request.arguments?['externalChannelId'] as String?;
+      final linkingToken = request.arguments?['linkingToken'] as String?;
+      final type = request.arguments?['type'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksList(
+        part: part,
+        externalChannelId: externalChannelId,
+        linkingToken: linkingToken,
+        type: type,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3446,18 +3877,28 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_third_party_links_insert(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status';
-    final externalChannelId = request.arguments?['externalChannelId'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksInsert(body: body, part: part, externalChannelId: externalChannelId);
+  FutureOr<CallToolResult> _yt_third_party_links_insert(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet,status';
+      final externalChannelId =
+          request.arguments?['externalChannelId'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksInsert(
+        body: body,
+        part: part,
+        externalChannelId: externalChannelId,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3468,18 +3909,28 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_third_party_links_update(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status';
-    final externalChannelId = request.arguments?['externalChannelId'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksUpdate(body: body, part: part, externalChannelId: externalChannelId);
+  FutureOr<CallToolResult> _yt_third_party_links_update(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet,status';
+      final externalChannelId =
+          request.arguments?['externalChannelId'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksUpdate(
+        body: body,
+        part: part,
+        externalChannelId: externalChannelId,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3490,19 +3941,30 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_third_party_links_delete(CallToolRequest request) async {
-    try {
-    final linkingToken = request.arguments!['linkingToken'] as String;
-    final type = request.arguments!['type'] as String;
-    final part = request.arguments?['part'] as String?;
-    final externalChannelId = request.arguments?['externalChannelId'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksDelete(linkingToken: linkingToken, type: type, part: part, externalChannelId: externalChannelId);
+  FutureOr<CallToolResult> _yt_third_party_links_delete(
+    CallToolRequest request,
+  ) async {
+    try {
+      final linkingToken = request.arguments!['linkingToken'] as String;
+      final type = request.arguments!['type'] as String;
+      final part = request.arguments?['part'] as String?;
+      final externalChannelId =
+          request.arguments?['externalChannelId'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksDelete(
+        linkingToken: linkingToken,
+        type: type,
+        part: part,
+        externalChannelId: externalChannelId,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3513,24 +3975,41 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_broadcasts_list(CallToolRequest request) async {
     try {
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
-    final broadcastStatus = request.arguments?['broadcastStatus'] as String?;
-    final broadcastType = request.arguments?['broadcastType'] as String?;
-    final id = request.arguments?['id'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final mine = request.arguments?['mine'] as bool?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
-    final pageToken = request.arguments?['pageToken'] as String?;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,status,contentDetails';
+      final broadcastStatus = request.arguments?['broadcastStatus'] as String?;
+      final broadcastType = request.arguments?['broadcastType'] as String?;
+      final id = request.arguments?['id'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final mine = request.arguments?['mine'] as bool?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+      final pageToken = request.arguments?['pageToken'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().broadcastsList(part: part, broadcastStatus: broadcastStatus, broadcastType: broadcastType, id: id, maxResults: maxResults, mine: mine, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel, pageToken: pageToken);
+      final result = await yt_mcp_server.YtMcpServer().broadcastsList(
+        part: part,
+        broadcastStatus: broadcastStatus,
+        broadcastType: broadcastType,
+        id: id,
+        maxResults: maxResults,
+        mine: mine,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+        pageToken: pageToken,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3541,19 +4020,33 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_broadcasts_insert(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().broadcastsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_broadcasts_insert(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,status,contentDetails';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsInsert(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3564,19 +4057,33 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_broadcasts_update(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().broadcastsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_broadcasts_update(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,status,contentDetails';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsUpdate(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3587,20 +4094,35 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_broadcasts_transition(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final broadcastStatus = request.arguments!['broadcastStatus'] as String;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().broadcastsTransition(id: id, broadcastStatus: broadcastStatus, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_broadcasts_transition(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final broadcastStatus = request.arguments!['broadcastStatus'] as String;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,status,contentDetails';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsTransition(
+        id: id,
+        broadcastStatus: broadcastStatus,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3611,20 +4133,33 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_broadcasts_bind(CallToolRequest request) async {
     try {
-    final id = request.arguments!['id'] as String;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
-    final streamId = request.arguments?['streamId'] as String?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+      final id = request.arguments!['id'] as String;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,status,contentDetails';
+      final streamId = request.arguments?['streamId'] as String?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().broadcastsBind(id: id, part: part, streamId: streamId, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      final result = await yt_mcp_server.YtMcpServer().broadcastsBind(
+        id: id,
+        part: part,
+        streamId: streamId,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3635,18 +4170,29 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_broadcasts_delete(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().broadcastsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_broadcasts_delete(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsDelete(
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3657,19 +4203,31 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_broadcasts_cuepoint(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final body = request.arguments!['body'] as dynamic;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().broadcastsCuepoint(id: id, body: body, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_broadcasts_cuepoint(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final body = request.arguments!['body'] as dynamic;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsCuepoint(
+        id: id,
+        body: body,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3680,15 +4238,18 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_broadcasts_get_active(CallToolRequest request) async {
+
+  FutureOr<CallToolResult> _yt_broadcasts_get_active(
+    CallToolRequest request,
+  ) async {
     try {
-
-
       final result = await yt_mcp_server.YtMcpServer().broadcastsGetActive();
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
@@ -3700,42 +4261,65 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_broadcasts_get_upcoming_and_active(CallToolRequest request) async {
+
+  FutureOr<CallToolResult> _yt_broadcasts_get_upcoming_and_active(
+    CallToolRequest request,
+  ) async {
     try {
-
-
-      final result = await yt_mcp_server.YtMcpServer().broadcastsGetUpcomingAndActive();
+      final result = await yt_mcp_server.YtMcpServer()
+          .broadcastsGetUpcomingAndActive();
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
     } catch (e, st) {
       if (_logErrors) {
-        io.stderr.writeln('[easy_api] yt_broadcasts_get_upcoming_and_active: $e');
+        io.stderr.writeln(
+          '[easy_api] yt_broadcasts_get_upcoming_and_active: $e',
+        );
         io.stderr.writeln(st);
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_live_streams_list(CallToolRequest request) async {
-    try {
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
-    final id = request.arguments?['id'] as String?;
-    final mine = request.arguments?['mine'] as bool?;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
-    final pageToken = request.arguments?['pageToken'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().liveStreamsList(part: part, id: id, mine: mine, maxResults: maxResults, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel, pageToken: pageToken);
+  FutureOr<CallToolResult> _yt_live_streams_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,status,contentDetails';
+      final id = request.arguments?['id'] as String?;
+      final mine = request.arguments?['mine'] as bool?;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().liveStreamsList(
+        part: part,
+        id: id,
+        mine: mine,
+        maxResults: maxResults,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+        pageToken: pageToken,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3746,19 +4330,33 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_live_streams_insert(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().liveStreamsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_live_streams_insert(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,status,contentDetails';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().liveStreamsInsert(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3769,19 +4367,33 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_live_streams_update(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().liveStreamsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_live_streams_update(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final part =
+          (request.arguments?['part'] as String?) ??
+          'snippet,status,contentDetails';
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().liveStreamsUpdate(
+        body: body,
+        part: part,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3792,18 +4404,29 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_live_streams_delete(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().liveStreamsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+  FutureOr<CallToolResult> _yt_live_streams_delete(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+      final onBehalfOfContentOwnerChannel =
+          request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().liveStreamsDelete(
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+        onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3814,21 +4437,32 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_live_chat_list(CallToolRequest request) async {
     try {
-    final liveChatId = request.arguments!['liveChatId'] as String;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet,authorDetails';
-    final hl = request.arguments?['hl'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final pageToken = request.arguments?['pageToken'] as String?;
-    final profileImageSize = request.arguments?['profileImageSize'] as int?;
+      final liveChatId = request.arguments!['liveChatId'] as String;
+      final part =
+          (request.arguments?['part'] as String?) ?? 'snippet,authorDetails';
+      final hl = request.arguments?['hl'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+      final profileImageSize = request.arguments?['profileImageSize'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().liveChatList(liveChatId: liveChatId, part: part, hl: hl, maxResults: maxResults, pageToken: pageToken, profileImageSize: profileImageSize);
+      final result = await yt_mcp_server.YtMcpServer().liveChatList(
+        liveChatId: liveChatId,
+        part: part,
+        hl: hl,
+        maxResults: maxResults,
+        pageToken: pageToken,
+        profileImageSize: profileImageSize,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3839,17 +4473,23 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_live_chat_insert(CallToolRequest request) async {
     try {
-    final body = request.arguments!['body'] as dynamic;
-    final part = (request.arguments?['part'] as String?) ?? 'snippet';
+      final body = request.arguments!['body'] as dynamic;
+      final part = (request.arguments?['part'] as String?) ?? 'snippet';
 
-      final result = await yt_mcp_server.YtMcpServer().liveChatInsert(body: body, part: part);
+      final result = await yt_mcp_server.YtMcpServer().liveChatInsert(
+        body: body,
+        part: part,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3860,14 +4500,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_live_chat_delete(CallToolRequest request) async {
     try {
-    final id = request.arguments!['id'] as String;
+      final id = request.arguments!['id'] as String;
 
       final result = await yt_mcp_server.YtMcpServer().liveChatDelete(id: id);
       return CallToolResult(
@@ -3880,26 +4523,42 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
+
   FutureOr<CallToolResult> _yt_analytics_query(CallToolRequest request) async {
     try {
-    final ids = request.arguments!['ids'] as String;
-    final startDate = request.arguments!['startDate'] as String;
-    final endDate = request.arguments!['endDate'] as String;
-    final metrics = request.arguments!['metrics'] as String;
-    final dimensions = request.arguments?['dimensions'] as String?;
-    final filters = request.arguments?['filters'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
-    final sort = request.arguments?['sort'] as String?;
-    final startIndex = request.arguments?['startIndex'] as int?;
-    final currency = request.arguments?['currency'] as String?;
-    final includeHistoricalChannelData = request.arguments?['includeHistoricalChannelData'] as bool?;
+      final ids = request.arguments!['ids'] as String;
+      final startDate = request.arguments!['startDate'] as String;
+      final endDate = request.arguments!['endDate'] as String;
+      final metrics = request.arguments!['metrics'] as String;
+      final dimensions = request.arguments?['dimensions'] as String?;
+      final filters = request.arguments?['filters'] as String?;
+      final maxResults = request.arguments?['maxResults'] as int?;
+      final sort = request.arguments?['sort'] as String?;
+      final startIndex = request.arguments?['startIndex'] as int?;
+      final currency = request.arguments?['currency'] as String?;
+      final includeHistoricalChannelData =
+          request.arguments?['includeHistoricalChannelData'] as bool?;
 
-      final result = await yt_mcp_server.YtMcpServer().analyticsQuery(ids: ids, startDate: startDate, endDate: endDate, metrics: metrics, dimensions: dimensions, filters: filters, maxResults: maxResults, sort: sort, startIndex: startIndex, currency: currency, includeHistoricalChannelData: includeHistoricalChannelData);
+      final result = await yt_mcp_server.YtMcpServer().analyticsQuery(
+        ids: ids,
+        startDate: startDate,
+        endDate: endDate,
+        metrics: metrics,
+        dimensions: dimensions,
+        filters: filters,
+        maxResults: maxResults,
+        sort: sort,
+        startIndex: startIndex,
+        currency: currency,
+        includeHistoricalChannelData: includeHistoricalChannelData,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3910,19 +4569,30 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_analytics_groups_list(CallToolRequest request) async {
-    try {
-    final id = request.arguments?['id'] as String?;
-    final mine = request.arguments?['mine'] as bool?;
-    final pageToken = request.arguments?['pageToken'] as String?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsList(id: id, mine: mine, pageToken: pageToken, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_analytics_groups_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments?['id'] as String?;
+      final mine = request.arguments?['mine'] as bool?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsList(
+        id: id,
+        mine: mine,
+        pageToken: pageToken,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3933,17 +4603,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_analytics_groups_insert(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsInsert(body: body, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_analytics_groups_insert(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsInsert(
+        body: body,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3954,17 +4633,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_analytics_groups_update(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsUpdate(body: body, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_analytics_groups_update(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsUpdate(
+        body: body,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3975,17 +4663,26 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_analytics_groups_delete(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_analytics_groups_delete(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsDelete(
+        id: id,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -3996,19 +4693,30 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_analytics_group_items_list(CallToolRequest request) async {
-    try {
-    final groupId = request.arguments?['groupId'] as String?;
-    final id = request.arguments?['id'] as String?;
-    final pageToken = request.arguments?['pageToken'] as String?;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().analyticsGroupItemsList(groupId: groupId, id: id, pageToken: pageToken, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_analytics_group_items_list(
+    CallToolRequest request,
+  ) async {
+    try {
+      final groupId = request.arguments?['groupId'] as String?;
+      final id = request.arguments?['id'] as String?;
+      final pageToken = request.arguments?['pageToken'] as String?;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupItemsList(
+        groupId: groupId,
+        id: id,
+        pageToken: pageToken,
+        onBehalfOfContentOwner: onBehalfOfContentOwner,
+      );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -4019,17 +4727,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_analytics_group_items_insert(CallToolRequest request) async {
-    try {
-    final body = request.arguments!['body'] as dynamic;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().analyticsGroupItemsInsert(body: body, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_analytics_group_items_insert(
+    CallToolRequest request,
+  ) async {
+    try {
+      final body = request.arguments!['body'] as dynamic;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer()
+          .analyticsGroupItemsInsert(
+            body: body,
+            onBehalfOfContentOwner: onBehalfOfContentOwner,
+          );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -4040,17 +4758,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
-  FutureOr<CallToolResult> _yt_analytics_group_items_delete(CallToolRequest request) async {
-    try {
-    final id = request.arguments!['id'] as String;
-    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().analyticsGroupItemsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+  FutureOr<CallToolResult> _yt_analytics_group_items_delete(
+    CallToolRequest request,
+  ) async {
+    try {
+      final id = request.arguments!['id'] as String;
+      final onBehalfOfContentOwner =
+          request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer()
+          .analyticsGroupItemsDelete(
+            id: id,
+            onBehalfOfContentOwner: onBehalfOfContentOwner,
+          );
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -4061,24 +4789,27 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [TextContent(text: 'An error occurred while processing the request.')],
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
         isError: true,
       );
     }
   }
 
-
-
   String _serializeResult(dynamic result) {
     if (result == null) return 'null';
     try {
       if (result is List) {
-        final items = result.map((e) {
-          if (e == null) return null;
-          final toJson = e.toJson;
-          if (toJson != null && toJson is Function) return toJson();
-          return e.toString();
-        }).where((e) => e != null).toList();
+        final items = result
+            .map((e) {
+              if (e == null) return null;
+              final toJson = e.toJson;
+              if (toJson != null && toJson is Function) return toJson();
+              return e.toString();
+            })
+            .where((e) => e != null)
+            .toList();
         return jsonEncode(items);
       }
       final toJson = result.toJson;
