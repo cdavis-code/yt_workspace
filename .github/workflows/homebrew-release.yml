@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'yt_cli-v*'
+      - 'yt_mcp-v*'
   workflow_dispatch:
     inputs:
       tag:
@@ -43,16 +44,37 @@ jobs:
       - name: Install dependencies
         run: dart pub get
 
+      - name: Extract package name
+        id: package
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          if [[ "$TAG" == yt_cli-* ]]; then
+            PKG="yt_cli"
+            BIN_NAME="yt"
+            SRC_FILE="bin/yt.dart"
+          elif [[ "$TAG" == yt_mcp-* ]]; then
+            PKG="yt_mcp"
+            BIN_NAME="yt_mcp"
+            SRC_FILE="bin/yt_mcp_server.dart"
+          else
+            echo "Unknown tag format: $TAG"
+            exit 1
+          fi
+          echo "package=$PKG" >> "$GITHUB_OUTPUT"
+          echo "binary=$BIN_NAME" >> "$GITHUB_OUTPUT"
+          echo "source=$SRC_FILE" >> "$GITHUB_OUTPUT"
+          echo "Package: $PKG, Binary: $BIN_NAME, Source: $SRC_FILE"
+
       - name: Compile binary
         run: |
-          dart compile exe packages/yt_cli/bin/yt.dart \
-            -o yt-${{ matrix.target }}
+          dart compile exe packages/${{ steps.package.outputs.package }}/${{ steps.package.outputs.source }} \
+            -o ${{ steps.package.outputs.binary }}-${{ matrix.target }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: yt-${{ matrix.target }}
-          path: yt-${{ matrix.target }}
+          name: ${{ steps.package.outputs.binary }}-${{ matrix.target }}
+          path: ${{ steps.package.outputs.binary }}-${{ matrix.target }}
 
   release:
     name: Create GitHub Release
