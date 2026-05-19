@@ -8,6 +8,7 @@ import 'dart:io' as io;
 import 'package:dart_mcp/server.dart';
 import 'package:dart_mcp/stdio.dart';
 
+
 import 'package:yt_mcp/src/yt_mcp_server.dart' as yt_mcp_server;
 
 Future<void> main() async {
@@ -22,60 +23,2003 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
 
   MCPServerWithTools(super.channel)
     : super.fromStreamChannel(
-        implementation: Implementation(name: 'mcp-server', version: '1.0.0'),
+        implementation: Implementation(
+          name: 'mcp-server',
+          version: '1.0.0',
+        ),
         instructions: 'Auto-generated MCP server',
       ) {
     registerTool(
       Tool(
-        name: 'search',
-        description:
-            'Search for available tools by name or description. Returns matching tools with their parameter information. Use this to discover available tools before calling execute.',
+        name: 'yt_channels_list',
+        description: 'List YouTube channels by ID or username.',
         inputSchema: Schema.object(
-          properties: {
-            'query': Schema.string(
-              description:
-                  'Search terms. Space-separated terms are AND-matched against tool names and descriptions (case-insensitive).',
-            ),
-            'detail_level': UntitledSingleSelectEnumSchema(
-              description:
-                  'Level of detail: "brief" (name + description), "detailed" (+ parameter names/types/required), "full" (+ complete parameter schemas).',
-              values: ['brief', 'detailed', 'full'],
-            ),
-          },
-          required: ['query'],
-        ),
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated channel property names'
+    ),
+      'id': Schema.string(
+      description: 'Comma-separated channel IDs'
+    ),
+      'forUsername': Schema.string(
+      description: 'YouTube username'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return (1-50)'
+    ),
+    },
+  ),
       ),
-      _search,
+      _yt_channels_list,
     );
     registerTool(
       Tool(
-        name: 'execute',
-        description:
-            'Execute JavaScript code with access to MCP tool functions. Use call_tool(name, params) to call any tool by name, or use external_<toolName>(args) convenience wrappers. Use the search tool first to discover available tools and their signatures. All calls are async - use await for sequential calls and Promise.all() for parallel calls. Return a value to include it in the result.',
+        name: 'yt_channels_update',
+        description: 'Update a channel's metadata (requires OAuth).',
         inputSchema: Schema.object(
-          properties: {
-            'code': Schema.string(description: 'JavaScript code to execute.'),
-          },
-          required: ['code'],
-        ),
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated channel property names'
+    ),
+      'body': Schema.object(),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['body'],
+  ),
       ),
-      _execute,
+      _yt_channels_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_search_list',
+        description: 'Search YouTube for videos, channels, and playlists.',
+        inputSchema: Schema.object(
+    properties: {
+      'q': Schema.string(
+      description: 'Search query term'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated resource property names'
+    ),
+      'type': Schema.string(
+      description: 'Resource type filter (video, channel, playlist)'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return (1-50)'
+    ),
+    },
+    required: ['q'],
+  ),
+      ),
+      _yt_search_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_videos_list',
+        description: 'List YouTube videos by ID or chart.',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Comma-separated video IDs'
+    ),
+      'chart': Schema.string(
+      description: 'Chart type (mostPopular)'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated video property names'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return (1-50)'
+    ),
+    },
+  ),
+      ),
+      _yt_videos_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_videos_insert',
+        description: 'Upload a video to YouTube (requires OAuth). Provide the video file path.',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'videoFilePath': Schema.string(
+      description: 'Absolute or relative path to the video file'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated video property names'
+    ),
+      'notifySubscribers': Schema.bool(
+      description: 'Whether to notify subscribers'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['body', 'videoFilePath'],
+  ),
+      ),
+      _yt_videos_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_videos_update',
+        description: 'Update a video's metadata (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated video property names'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_videos_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_videos_rate',
+        description: 'Like, dislike, or remove rating for a video (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Video ID'
+    ),
+      'rating': Schema.string(
+      description: 'Rating: "like", "dislike", or "none"'
+    ),
+    },
+    required: ['id', 'rating'],
+  ),
+      ),
+      _yt_videos_rate,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_videos_get_rating',
+        description: 'Get the rating that the authorized user gave to a video (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Comma-separated video IDs'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_videos_get_rating,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_videos_report_abuse',
+        description: 'Report a video for abusive content (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_videos_report_abuse,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_videos_delete',
+        description: 'Delete a video (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Video ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_videos_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlists_list',
+        description: 'List YouTube playlists.',
+        inputSchema: Schema.object(
+    properties: {
+      'channelId': Schema.string(
+      description: 'Channel ID to list playlists for'
+    ),
+      'id': Schema.string(
+      description: 'Comma-separated playlist IDs'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated playlist property names'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return (1-50)'
+    ),
+    },
+  ),
+      ),
+      _yt_playlists_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlists_insert',
+        description: 'Create a playlist (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated playlist property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_playlists_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlists_update',
+        description: 'Update a playlist's metadata (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated playlist property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_playlists_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlists_delete',
+        description: 'Delete a playlist (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Playlist ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_playlists_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comments_list',
+        description: 'List YouTube comments.',
+        inputSchema: Schema.object(
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated comment property names'
+    ),
+      'parentId': Schema.string(
+      description: 'Parent comment ID'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+    },
+  ),
+      ),
+      _yt_comments_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comments_list_by_ids',
+        description: 'List comments by their IDs.',
+        inputSchema: Schema.object(
+    properties: {
+      'ids': Schema.string(
+      description: 'Comma-separated comment IDs'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+      'textFormat': Schema.string(
+      description: 'Text format: "html" or "plainText"'
+    ),
+    },
+    required: ['ids'],
+  ),
+      ),
+      _yt_comments_list_by_ids,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comments_list_by_id',
+        description: 'Get a single comment by ID.',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Comment ID'
+    ),
+      'textFormat': Schema.string(
+      description: 'Text format: "html" or "plainText"'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_comments_list_by_id,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comments_list_by_parent_id',
+        description: 'List replies to a comment.',
+        inputSchema: Schema.object(
+    properties: {
+      'parentId': Schema.string(
+      description: 'Parent comment ID'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+      'textFormat': Schema.string(
+      description: 'Text format: "html" or "plainText"'
+    ),
+    },
+    required: ['parentId'],
+  ),
+      ),
+      _yt_comments_list_by_parent_id,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comments_insert',
+        description: 'Create a comment reply (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated comment property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_comments_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comments_add',
+        description: 'Add a reply to a comment (requires OAuth). Helper method.',
+        inputSchema: Schema.object(
+    properties: {
+      'parentId': Schema.string(
+      description: 'Parent comment ID'
+    ),
+      'textOriginal': Schema.string(
+      description: 'Comment text'
+    ),
+    },
+    required: ['parentId', 'textOriginal'],
+  ),
+      ),
+      _yt_comments_add,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comments_update',
+        description: 'Update a comment (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated comment property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_comments_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comments_change',
+        description: 'Change a comment's text (requires OAuth). Helper method.',
+        inputSchema: Schema.object(
+    properties: {
+      'commentId': Schema.string(
+      description: 'Comment ID'
+    ),
+      'textOriginal': Schema.string(
+      description: 'New comment text'
+    ),
+    },
+    required: ['commentId', 'textOriginal'],
+  ),
+      ),
+      _yt_comments_change,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comments_set_moderation_status',
+        description: 'Set moderation status for comments (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Comma-separated comment IDs'
+    ),
+      'moderationStatus': Schema.string(
+      description: 'Moderation status: "heldForReview", "likelySpam", "published", or "rejected"'
+    ),
+      'banAuthor': Schema.bool(
+      description: 'Ban the author (only valid when moderationStatus is "rejected")'
+    ),
+    },
+    required: ['id', 'moderationStatus'],
+  ),
+      ),
+      _yt_comments_set_moderation_status,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comments_delete',
+        description: 'Delete a comment (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Comment ID'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_comments_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comment_threads_list',
+        description: 'List YouTube comment threads for a video.',
+        inputSchema: Schema.object(
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated comment thread property names'
+    ),
+      'videoId': Schema.string(
+      description: 'Video ID'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+    },
+  ),
+      ),
+      _yt_comment_threads_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comment_threads_list_by_video_id',
+        description: 'List comment threads for a specific video.',
+        inputSchema: Schema.object(
+    properties: {
+      'videoId': Schema.string(
+      description: 'Video ID'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'moderationStatus': Schema.string(
+      description: 'Moderation status filter'
+    ),
+      'order': Schema.string(
+      description: 'Sort order: "time" or "relevance"'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+      'searchTerms': Schema.string(
+      description: 'Search terms to filter by'
+    ),
+      'textFormat': Schema.string(
+      description: 'Text format: "html" or "plainText"'
+    ),
+    },
+    required: ['videoId'],
+  ),
+      ),
+      _yt_comment_threads_list_by_video_id,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comment_threads_list_by_ids',
+        description: 'List comment threads by their IDs.',
+        inputSchema: Schema.object(
+    properties: {
+      'ids': Schema.string(
+      description: 'Comma-separated comment thread IDs'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'moderationStatus': Schema.string(
+      description: 'Moderation status filter'
+    ),
+      'order': Schema.string(
+      description: 'Sort order'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+      'searchTerms': Schema.string(
+      description: 'Search terms'
+    ),
+      'textFormat': Schema.string(
+      description: 'Text format'
+    ),
+    },
+    required: ['ids'],
+  ),
+      ),
+      _yt_comment_threads_list_by_ids,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comment_threads_list_by_id',
+        description: 'Get a single comment thread by ID.',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Comment thread ID'
+    ),
+      'moderationStatus': Schema.string(
+      description: 'Moderation status filter'
+    ),
+      'searchTerms': Schema.string(
+      description: 'Search terms'
+    ),
+      'textFormat': Schema.string(
+      description: 'Text format'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_comment_threads_list_by_id,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comment_threads_list_by_channel_id',
+        description: 'List all comment threads related to a channel.',
+        inputSchema: Schema.object(
+    properties: {
+      'channelId': Schema.string(
+      description: 'Channel ID'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'moderationStatus': Schema.string(
+      description: 'Moderation status filter'
+    ),
+      'order': Schema.string(
+      description: 'Sort order'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+      'searchTerms': Schema.string(
+      description: 'Search terms'
+    ),
+      'textFormat': Schema.string(
+      description: 'Text format'
+    ),
+    },
+    required: ['channelId'],
+  ),
+      ),
+      _yt_comment_threads_list_by_channel_id,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comment_threads_insert',
+        description: 'Create a new top-level comment thread (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_comment_threads_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_comment_threads_add',
+        description: 'Add a top-level comment to a video (requires OAuth). Helper method.',
+        inputSchema: Schema.object(
+    properties: {
+      'videoId': Schema.string(
+      description: 'Video ID'
+    ),
+      'textOriginal': Schema.string(
+      description: 'Comment text'
+    ),
+    },
+    required: ['videoId', 'textOriginal'],
+  ),
+      ),
+      _yt_comment_threads_add,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_members_list',
+        description: 'Lists channel members (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated member property names'
+    ),
+      'mode': Schema.string(
+      description: 'Mode: allCurrentMembers or updatesSince'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+    },
+  ),
+      ),
+      _yt_members_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_memberships_levels_list',
+        description: 'Lists membership levels for the channel (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated level property names'
+    ),
+    },
+  ),
+      ),
+      _yt_memberships_levels_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_video_abuse_report_reasons_list',
+        description: 'Retrieves reasons for reporting abusive videos (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated resource property names'
+    ),
+      'hl': Schema.string(
+      description: 'Language code for localized labels'
+    ),
+    },
+  ),
+      ),
+      _yt_video_abuse_report_reasons_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlist_items_list',
+        description: 'List items in a playlist.',
+        inputSchema: Schema.object(
+    properties: {
+      'playlistId': Schema.string(
+      description: 'Playlist ID'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'id': Schema.string(
+      description: 'Comma-separated playlist item IDs'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'videoId': Schema.string(
+      description: 'Filter by video ID'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+    },
+    required: ['playlistId'],
+  ),
+      ),
+      _yt_playlist_items_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlist_items_insert',
+        description: 'Add an item to a playlist (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_playlist_items_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlist_items_update',
+        description: 'Update a playlist item (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_playlist_items_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlist_items_delete',
+        description: 'Remove an item from a playlist (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Playlist item ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_playlist_items_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_subscriptions_list',
+        description: 'List subscriptions.',
+        inputSchema: Schema.object(
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'channelId': Schema.string(
+      description: 'Channel ID'
+    ),
+      'id': Schema.string(
+      description: 'Comma-separated subscription IDs'
+    ),
+      'mine': Schema.bool(
+      description: 'Return authenticated user\'s subscriptions'
+    ),
+      'myRecentSubscribers': Schema.bool(
+      description: 'Return recent subscribers'
+    ),
+      'mySubscribers': Schema.bool(
+      description: 'Return all subscribers'
+    ),
+      'forChannelId': Schema.string(
+      description: 'Filter by channel ID'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+      'order': Schema.string(
+      description: 'Sort order'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+    },
+  ),
+      ),
+      _yt_subscriptions_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_subscriptions_insert',
+        description: 'Subscribe to a channel (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_subscriptions_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_subscriptions_delete',
+        description: 'Unsubscribe from a channel (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Subscription ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_subscriptions_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_activities_list',
+        description: 'List channel activities.',
+        inputSchema: Schema.object(
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'channelId': Schema.string(
+      description: 'Channel ID'
+    ),
+      'mine': Schema.bool(
+      description: 'Return authenticated user\'s activities'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+      'publishedAfter': Schema.string(
+      description: 'Published after (RFC 3339)'
+    ),
+      'publishedBefore': Schema.string(
+      description: 'Published before (RFC 3339)'
+    ),
+      'regionCode': Schema.string(
+      description: 'Region code'
+    ),
+    },
+  ),
+      ),
+      _yt_activities_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_video_categories_list',
+        description: 'List video categories.',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Comma-separated category IDs'
+    ),
+      'regionCode': Schema.string(
+      description: 'Region code (e.g., "US")'
+    ),
+      'hl': Schema.string(
+      description: 'Language code for labels'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+    },
+  ),
+      ),
+      _yt_video_categories_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_captions_list',
+        description: 'List caption tracks for a video.',
+        inputSchema: Schema.object(
+    properties: {
+      'videoId': Schema.string(
+      description: 'Video ID'
+    ),
+      'id': Schema.string(
+      description: 'Comma-separated caption IDs'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+    },
+    required: ['videoId'],
+  ),
+      ),
+      _yt_captions_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_captions_insert',
+        description: 'Upload a caption track (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'captionFilePath': Schema.string(
+      description: 'Absolute or relative path to the caption file'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['body', 'captionFilePath'],
+  ),
+      ),
+      _yt_captions_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_captions_update',
+        description: 'Update a caption track (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'captionFilePath': Schema.string(
+      description: 'Absolute or relative path to the caption file'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['body', 'captionFilePath'],
+  ),
+      ),
+      _yt_captions_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_captions_delete',
+        description: 'Delete a caption track (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Caption ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_captions_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_captions_download',
+        description: 'Download a caption track.',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Caption ID'
+    ),
+      'tfmt': Schema.string(
+      description: 'Caption format: "srt", "vtt", "sbv"'
+    ),
+      'tlang': Schema.string(
+      description: 'Target language for auto-translate'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_captions_download,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_thumbnails_set',
+        description: 'Set a custom thumbnail for a video (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'videoId': Schema.string(
+      description: 'Video ID'
+    ),
+      'thumbnailFilePath': Schema.string(
+      description: 'Absolute or relative path to the thumbnail image file'
+    ),
+    },
+    required: ['videoId', 'thumbnailFilePath'],
+  ),
+      ),
+      _yt_thumbnails_set,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_watermarks_set',
+        description: 'Set a channel watermark image (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'channelId': Schema.string(
+      description: 'Channel ID'
+    ),
+      'watermarksResource': Schema.object(),
+    },
+    required: ['channelId', 'watermarksResource'],
+  ),
+      ),
+      _yt_watermarks_set,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_watermarks_unset',
+        description: 'Remove a channel watermark (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'channelId': Schema.string(
+      description: 'Channel ID'
+    ),
+    },
+    required: ['channelId'],
+  ),
+      ),
+      _yt_watermarks_unset,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_channel_banners_insert',
+        description: 'Upload a channel banner image (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'imageFilePath': Schema.string(
+      description: 'Absolute or relative path to the banner image file'
+    ),
+      'channelId': Schema.string(
+      description: 'Channel ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['imageFilePath'],
+  ),
+      ),
+      _yt_channel_banners_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_channel_sections_list',
+        description: 'List channel sections.',
+        inputSchema: Schema.object(
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'channelId': Schema.string(
+      description: 'Channel ID'
+    ),
+      'id': Schema.string(
+      description: 'Comma-separated section IDs'
+    ),
+      'mine': Schema.bool(
+      description: 'Return authenticated user\'s sections'
+    ),
+      'hl': Schema.string(
+      description: 'Language for localization'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+  ),
+      ),
+      _yt_channel_sections_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_channel_sections_insert',
+        description: 'Add a channel section (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_channel_sections_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_channel_sections_update',
+        description: 'Update a channel section (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_channel_sections_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_channel_sections_delete',
+        description: 'Delete a channel section (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Channel section ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_channel_sections_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_i18n_languages_list',
+        description: 'List supported UI languages.',
+        inputSchema: Schema.object(
+    properties: {
+      'hl': Schema.string(
+      description: 'Language code for localized names'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+    },
+  ),
+      ),
+      _yt_i18n_languages_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_i18n_regions_list',
+        description: 'List supported content regions.',
+        inputSchema: Schema.object(
+    properties: {
+      'hl': Schema.string(
+      description: 'Language code for localized names'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+    },
+  ),
+      ),
+      _yt_i18n_regions_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlist_images_list',
+        description: 'List custom images for a playlist.',
+        inputSchema: Schema.object(
+    properties: {
+      'parent': Schema.string(
+      description: 'Playlist parent (e.g., "playlists/PLAYLIST_ID")'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['parent'],
+  ),
+      ),
+      _yt_playlist_images_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlist_images_insert',
+        description: 'Upload a custom playlist image (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'parent': Schema.string(
+      description: 'Playlist parent'
+    ),
+      'imageFilePath': Schema.string(
+      description: 'Absolute or relative path to the image file'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['parent', 'imageFilePath'],
+  ),
+      ),
+      _yt_playlist_images_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlist_images_update',
+        description: 'Replace a playlist image (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'imageFilePath': Schema.string(
+      description: 'Absolute or relative path to the new image file'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['imageFilePath'],
+  ),
+      ),
+      _yt_playlist_images_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_playlist_images_delete',
+        description: 'Delete a playlist image (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Playlist image ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_playlist_images_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_third_party_links_list',
+        description: 'List third-party links.',
+        inputSchema: Schema.object(
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'externalChannelId': Schema.string(
+      description: 'External channel ID'
+    ),
+      'linkingToken': Schema.string(
+      description: 'Linking token'
+    ),
+      'type': Schema.string(
+      description: 'Link type'
+    ),
+    },
+  ),
+      ),
+      _yt_third_party_links_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_third_party_links_insert',
+        description: 'Create a third-party link (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'externalChannelId': Schema.string(
+      description: 'External channel ID'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_third_party_links_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_third_party_links_update',
+        description: 'Update a third-party link (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'externalChannelId': Schema.string(
+      description: 'External channel ID'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_third_party_links_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_third_party_links_delete',
+        description: 'Delete a third-party link (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'linkingToken': Schema.string(
+      description: 'Linking token'
+    ),
+      'type': Schema.string(
+      description: 'Link type'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'externalChannelId': Schema.string(
+      description: 'External channel ID'
+    ),
+    },
+    required: ['linkingToken', 'type'],
+  ),
+      ),
+      _yt_third_party_links_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_broadcasts_list',
+        description: 'List live broadcasts.',
+        inputSchema: Schema.object(
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'broadcastStatus': Schema.string(
+      description: 'Broadcast status: "all", "active", "completed", "upcoming"'
+    ),
+      'broadcastType': Schema.string(
+      description: 'Broadcast type: "all", "event", "persistent"'
+    ),
+      'id': Schema.string(
+      description: 'Comma-separated broadcast IDs'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'mine': Schema.bool(
+      description: 'Return authenticated user\'s broadcasts'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+    },
+  ),
+      ),
+      _yt_broadcasts_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_broadcasts_insert',
+        description: 'Create a live broadcast (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_broadcasts_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_broadcasts_update',
+        description: 'Update a live broadcast (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_broadcasts_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_broadcasts_transition',
+        description: 'Transition a broadcast to a new status (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Broadcast ID'
+    ),
+      'broadcastStatus': Schema.string(
+      description: 'Target status: "testing", "live", "complete"'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['id', 'broadcastStatus'],
+  ),
+      ),
+      _yt_broadcasts_transition,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_broadcasts_bind',
+        description: 'Bind a broadcast to a stream (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Broadcast ID'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'streamId': Schema.string(
+      description: 'Stream ID (omit to unbind)'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_broadcasts_bind,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_broadcasts_delete',
+        description: 'Delete a live broadcast (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Broadcast ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_broadcasts_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_broadcasts_cuepoint',
+        description: 'Insert a cuepoint into a live broadcast (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Broadcast ID'
+    ),
+      'body': Schema.object(),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['id', 'body'],
+  ),
+      ),
+      _yt_broadcasts_cuepoint,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_broadcasts_get_active',
+        description: 'Get the currently active broadcast.',
+        inputSchema: Schema.object(),
+      ),
+      _yt_broadcasts_get_active,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_broadcasts_get_upcoming_and_active',
+        description: 'Get upcoming and active broadcasts.',
+        inputSchema: Schema.object(),
+      ),
+      _yt_broadcasts_get_upcoming_and_active,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_live_streams_list',
+        description: 'List live streams.',
+        inputSchema: Schema.object(
+    properties: {
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'id': Schema.string(
+      description: 'Comma-separated stream IDs'
+    ),
+      'mine': Schema.bool(
+      description: 'Return authenticated user\'s streams'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+    },
+  ),
+      ),
+      _yt_live_streams_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_live_streams_insert',
+        description: 'Create a live stream (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_live_streams_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_live_streams_update',
+        description: 'Update a live stream (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_live_streams_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_live_streams_delete',
+        description: 'Delete a live stream (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Stream ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+      'onBehalfOfContentOwnerChannel': Schema.string(
+      description: 'On behalf of content owner channel'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_live_streams_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_live_chat_list',
+        description: 'List live chat messages.',
+        inputSchema: Schema.object(
+    properties: {
+      'liveChatId': Schema.string(
+      description: 'Live chat ID'
+    ),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+      'hl': Schema.string(
+      description: 'Language code for localization'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum items to return'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+      'profileImageSize': Schema.int(
+      description: 'Profile image size in pixels'
+    ),
+    },
+    required: ['liveChatId'],
+  ),
+      ),
+      _yt_live_chat_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_live_chat_insert',
+        description: 'Send a live chat message (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'part': Schema.string(
+      description: 'Comma-separated property names'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_live_chat_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_live_chat_delete',
+        description: 'Delete a live chat message (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Chat message ID'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_live_chat_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_analytics_query',
+        description: 'Query YouTube Analytics reports.',
+        inputSchema: Schema.object(
+    properties: {
+      'ids': Schema.string(
+      description: 'Analytics ID (e.g., "channel==CHANNEL_ID" or "contentOwner==OWNER")'
+    ),
+      'startDate': Schema.string(
+      description: 'Start date (YYYY-MM-DD)'
+    ),
+      'endDate': Schema.string(
+      description: 'End date (YYYY-MM-DD)'
+    ),
+      'metrics': Schema.string(
+      description: 'Comma-separated metrics (e.g., "views,likes,subscribersGained")'
+    ),
+      'dimensions': Schema.string(
+      description: 'Comma-separated dimensions (e.g., "day,country")'
+    ),
+      'filters': Schema.string(
+      description: 'Filters (e.g., "country==US")'
+    ),
+      'maxResults': Schema.int(
+      description: 'Maximum results'
+    ),
+      'sort': Schema.string(
+      description: 'Comma-separated sort fields'
+    ),
+      'startIndex': Schema.int(
+      description: 'Start index'
+    ),
+      'currency': Schema.string(
+      description: 'Currency code (e.g., "USD")'
+    ),
+      'includeHistoricalChannelData': Schema.bool(
+      description: 'Include historical channel data'
+    ),
+    },
+    required: ['ids', 'startDate', 'endDate', 'metrics'],
+  ),
+      ),
+      _yt_analytics_query,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_analytics_groups_list',
+        description: 'List analytics groups.',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Group ID'
+    ),
+      'mine': Schema.bool(
+      description: 'Return authenticated user\'s groups'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+  ),
+      ),
+      _yt_analytics_groups_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_analytics_groups_insert',
+        description: 'Create an analytics group (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_analytics_groups_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_analytics_groups_update',
+        description: 'Update an analytics group (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_analytics_groups_update,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_analytics_groups_delete',
+        description: 'Delete an analytics group (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Group ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_analytics_groups_delete,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_analytics_group_items_list',
+        description: 'List items in an analytics group.',
+        inputSchema: Schema.object(
+    properties: {
+      'groupId': Schema.string(
+      description: 'Group ID'
+    ),
+      'id': Schema.string(
+      description: 'Group item ID'
+    ),
+      'pageToken': Schema.string(
+      description: 'Page token for pagination'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+  ),
+      ),
+      _yt_analytics_group_items_list,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_analytics_group_items_insert',
+        description: 'Add an item to an analytics group (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'body': Schema.object(),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['body'],
+  ),
+      ),
+      _yt_analytics_group_items_insert,
+    );
+    registerTool(
+      Tool(
+        name: 'yt_analytics_group_items_delete',
+        description: 'Remove an item from an analytics group (requires OAuth).',
+        inputSchema: Schema.object(
+    properties: {
+      'id': Schema.string(
+      description: 'Group item ID'
+    ),
+      'onBehalfOfContentOwner': Schema.string(
+      description: 'On behalf of content owner'
+    ),
+    },
+    required: ['id'],
+  ),
+      ),
+      _yt_analytics_group_items_delete,
     );
   }
 
   FutureOr<CallToolResult> _yt_channels_list(CallToolRequest request) async {
     try {
-      final part = request.arguments?['part'] as String?;
-      final id = request.arguments?['id'] as String?;
-      final forUsername = request.arguments?['forUsername'] as String?;
-      final maxResults = request.arguments?['maxResults'] as int?;
+    final part = request.arguments?['part'] as String?;
+    final id = request.arguments?['id'] as String?;
+    final forUsername = request.arguments?['forUsername'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().channelsList(
-        part: part,
-        id: id,
-        forUsername: forUsername,
-        maxResults: maxResults,
-      );
+      final result = await yt_mcp_server.YtMcpServer().channelsList(part: part, id: id, forUsername: forUsername, maxResults: maxResults);
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -86,27 +2030,41 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [
-          TextContent(text: 'An error occurred while processing the request.'),
-        ],
+        content: [TextContent(text: 'An error occurred while processing the request.')],
         isError: true,
       );
     }
   }
+  FutureOr<CallToolResult> _yt_channels_update(CallToolRequest request) async {
+    try {
+    final part = request.arguments?['part'] as String?;
+    final body = request.arguments!['body'] as dynamic;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
+      final result = await yt_mcp_server.YtMcpServer().channelsUpdate(part: part, body: body, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_channels_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
   FutureOr<CallToolResult> _yt_search_list(CallToolRequest request) async {
     try {
-      final q = request.arguments!['q'] as String;
-      final part = request.arguments?['part'] as String?;
-      final type = request.arguments?['type'] as String?;
-      final maxResults = request.arguments?['maxResults'] as int?;
+    final q = request.arguments!['q'] as String;
+    final part = request.arguments?['part'] as String?;
+    final type = request.arguments?['type'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().searchList(
-        q: q,
-        part: part,
-        type: type,
-        maxResults: maxResults,
-      );
+      final result = await yt_mcp_server.YtMcpServer().searchList(q: q, part: part, type: type, maxResults: maxResults);
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -117,27 +2075,19 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [
-          TextContent(text: 'An error occurred while processing the request.'),
-        ],
+        content: [TextContent(text: 'An error occurred while processing the request.')],
         isError: true,
       );
     }
   }
-
   FutureOr<CallToolResult> _yt_videos_list(CallToolRequest request) async {
     try {
-      final id = request.arguments?['id'] as String?;
-      final chart = request.arguments?['chart'] as String?;
-      final part = request.arguments?['part'] as String?;
-      final maxResults = request.arguments?['maxResults'] as int?;
+    final id = request.arguments?['id'] as String?;
+    final chart = request.arguments?['chart'] as String?;
+    final part = request.arguments?['part'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().videosList(
-        id: id,
-        chart: chart,
-        part: part,
-        maxResults: maxResults,
-      );
+      final result = await yt_mcp_server.YtMcpServer().videosList(id: id, chart: chart, part: part, maxResults: maxResults);
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -148,27 +2098,149 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [
-          TextContent(text: 'An error occurred while processing the request.'),
-        ],
+        content: [TextContent(text: 'An error occurred while processing the request.')],
         isError: true,
       );
     }
   }
+  FutureOr<CallToolResult> _yt_videos_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final videoFilePath = request.arguments!['videoFilePath'] as String;
+    final part = request.arguments?['part'] as String?;
+    final notifySubscribers = request.arguments?['notifySubscribers'] as bool?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
+      final result = await yt_mcp_server.YtMcpServer().videosInsert(body: body, videoFilePath: videoFilePath, part: part, notifySubscribers: notifySubscribers, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_videos_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_videos_update(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().videosUpdate(body: body, part: part);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_videos_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_videos_rate(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final rating = request.arguments!['rating'] as String;
+
+      final result = await yt_mcp_server.YtMcpServer().videosRate(id: id, rating: rating);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_videos_rate: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_videos_get_rating(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().videosGetRating(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_videos_get_rating: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_videos_report_abuse(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().videosReportAbuse(body: body, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_videos_report_abuse: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_videos_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().videosDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_videos_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
   FutureOr<CallToolResult> _yt_playlists_list(CallToolRequest request) async {
     try {
-      final channelId = request.arguments?['channelId'] as String?;
-      final id = request.arguments?['id'] as String?;
-      final part = request.arguments?['part'] as String?;
-      final maxResults = request.arguments?['maxResults'] as int?;
+    final channelId = request.arguments?['channelId'] as String?;
+    final id = request.arguments?['id'] as String?;
+    final part = request.arguments?['part'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().playlistsList(
-        channelId: channelId,
-        id: id,
-        part: part,
-        maxResults: maxResults,
-      );
+      final result = await yt_mcp_server.YtMcpServer().playlistsList(channelId: channelId, id: id, part: part, maxResults: maxResults);
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -179,25 +2251,86 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [
-          TextContent(text: 'An error occurred while processing the request.'),
-        ],
+        content: [TextContent(text: 'An error occurred while processing the request.')],
         isError: true,
       );
     }
   }
+  FutureOr<CallToolResult> _yt_playlists_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
+      final result = await yt_mcp_server.YtMcpServer().playlistsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_playlists_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_playlists_update(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_playlists_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_playlists_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_playlists_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
   FutureOr<CallToolResult> _yt_comments_list(CallToolRequest request) async {
     try {
-      final part = request.arguments?['part'] as String?;
-      final parentId = request.arguments?['parentId'] as String?;
-      final maxResults = request.arguments?['maxResults'] as int?;
+    final part = request.arguments?['part'] as String?;
+    final parentId = request.arguments?['parentId'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentsList(
-        part: part,
-        parentId: parentId,
-        maxResults: maxResults,
-      );
+      final result = await yt_mcp_server.YtMcpServer().commentsList(part: part, parentId: parentId, maxResults: maxResults);
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -208,27 +2341,213 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [
-          TextContent(text: 'An error occurred while processing the request.'),
-        ],
+        content: [TextContent(text: 'An error occurred while processing the request.')],
         isError: true,
       );
     }
   }
-
-  FutureOr<CallToolResult> _yt_comment_threads_list(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _yt_comments_list_by_ids(CallToolRequest request) async {
     try {
-      final part = request.arguments?['part'] as String?;
-      final videoId = request.arguments?['videoId'] as String?;
-      final maxResults = request.arguments?['maxResults'] as int?;
+    final ids = request.arguments!['ids'] as String;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+    final textFormat = request.arguments?['textFormat'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().commentThreadsList(
-        part: part,
-        videoId: videoId,
-        maxResults: maxResults,
+      final result = await yt_mcp_server.YtMcpServer().commentsListByIds(ids: ids, maxResults: maxResults, pageToken: pageToken, textFormat: textFormat);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
       );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comments_list_by_ids: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comments_list_by_id(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentsListById(id: id, textFormat: textFormat);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comments_list_by_id: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comments_list_by_parent_id(CallToolRequest request) async {
+    try {
+    final parentId = request.arguments!['parentId'] as String;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+    final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentsListByParentId(parentId: parentId, maxResults: maxResults, pageToken: pageToken, textFormat: textFormat);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comments_list_by_parent_id: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comments_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comments_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comments_add(CallToolRequest request) async {
+    try {
+    final parentId = request.arguments!['parentId'] as String;
+    final textOriginal = request.arguments!['textOriginal'] as String;
+
+      final result = await yt_mcp_server.YtMcpServer().commentsAdd(parentId: parentId, textOriginal: textOriginal);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comments_add: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comments_update(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comments_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comments_change(CallToolRequest request) async {
+    try {
+    final commentId = request.arguments!['commentId'] as String;
+    final textOriginal = request.arguments!['textOriginal'] as String;
+
+      final result = await yt_mcp_server.YtMcpServer().commentsChange(commentId: commentId, textOriginal: textOriginal);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comments_change: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comments_set_moderation_status(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final moderationStatus = request.arguments!['moderationStatus'] as String;
+    final banAuthor = request.arguments?['banAuthor'] as bool?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentsSetModerationStatus(id: id, moderationStatus: moderationStatus, banAuthor: banAuthor);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comments_set_moderation_status: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comments_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+
+      final result = await yt_mcp_server.YtMcpServer().commentsDelete(id: id);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comments_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comment_threads_list(CallToolRequest request) async {
+    try {
+    final part = request.arguments?['part'] as String?;
+    final videoId = request.arguments?['videoId'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsList(part: part, videoId: videoId, maxResults: maxResults);
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -239,27 +2558,162 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [
-          TextContent(text: 'An error occurred while processing the request.'),
-        ],
+        content: [TextContent(text: 'An error occurred while processing the request.')],
         isError: true,
       );
     }
   }
+  FutureOr<CallToolResult> _yt_comment_threads_list_by_video_id(CallToolRequest request) async {
+    try {
+    final videoId = request.arguments!['videoId'] as String;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final moderationStatus = request.arguments?['moderationStatus'] as String?;
+    final order = request.arguments?['order'] as String?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+    final searchTerms = request.arguments?['searchTerms'] as String?;
+    final textFormat = request.arguments?['textFormat'] as String?;
 
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsListByVideoId(videoId: videoId, maxResults: maxResults, moderationStatus: moderationStatus, order: order, pageToken: pageToken, searchTerms: searchTerms, textFormat: textFormat);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comment_threads_list_by_video_id: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comment_threads_list_by_ids(CallToolRequest request) async {
+    try {
+    final ids = request.arguments!['ids'] as String;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final moderationStatus = request.arguments?['moderationStatus'] as String?;
+    final order = request.arguments?['order'] as String?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+    final searchTerms = request.arguments?['searchTerms'] as String?;
+    final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsListByIds(ids: ids, maxResults: maxResults, moderationStatus: moderationStatus, order: order, pageToken: pageToken, searchTerms: searchTerms, textFormat: textFormat);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comment_threads_list_by_ids: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comment_threads_list_by_id(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final moderationStatus = request.arguments?['moderationStatus'] as String?;
+    final searchTerms = request.arguments?['searchTerms'] as String?;
+    final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsListById(id: id, moderationStatus: moderationStatus, searchTerms: searchTerms, textFormat: textFormat);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comment_threads_list_by_id: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comment_threads_list_by_channel_id(CallToolRequest request) async {
+    try {
+    final channelId = request.arguments!['channelId'] as String;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final moderationStatus = request.arguments?['moderationStatus'] as String?;
+    final order = request.arguments?['order'] as String?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+    final searchTerms = request.arguments?['searchTerms'] as String?;
+    final textFormat = request.arguments?['textFormat'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsListByChannelId(channelId: channelId, maxResults: maxResults, moderationStatus: moderationStatus, order: order, pageToken: pageToken, searchTerms: searchTerms, textFormat: textFormat);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comment_threads_list_by_channel_id: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comment_threads_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsInsert(body: body, part: part);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comment_threads_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_comment_threads_add(CallToolRequest request) async {
+    try {
+    final videoId = request.arguments!['videoId'] as String;
+    final textOriginal = request.arguments!['textOriginal'] as String;
+
+      final result = await yt_mcp_server.YtMcpServer().commentThreadsAdd(videoId: videoId, textOriginal: textOriginal);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_comment_threads_add: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
   FutureOr<CallToolResult> _yt_members_list(CallToolRequest request) async {
     try {
-      final part = request.arguments?['part'] as String?;
-      final mode = request.arguments?['mode'] as String?;
-      final maxResults = request.arguments?['maxResults'] as int?;
-      final pageToken = request.arguments?['pageToken'] as String?;
+    final part = request.arguments?['part'] as String?;
+    final mode = request.arguments?['mode'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final pageToken = request.arguments?['pageToken'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().membersList(
-        part: part,
-        mode: mode,
-        maxResults: maxResults,
-        pageToken: pageToken,
-      );
+      final result = await yt_mcp_server.YtMcpServer().membersList(part: part, mode: mode, maxResults: maxResults, pageToken: pageToken);
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -270,23 +2724,16 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [
-          TextContent(text: 'An error occurred while processing the request.'),
-        ],
+        content: [TextContent(text: 'An error occurred while processing the request.')],
         isError: true,
       );
     }
   }
-
-  FutureOr<CallToolResult> _yt_memberships_levels_list(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _yt_memberships_levels_list(CallToolRequest request) async {
     try {
-      final part = request.arguments?['part'] as String?;
+    final part = request.arguments?['part'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer().membershipsLevelsList(
-        part: part,
-      );
+      final result = await yt_mcp_server.YtMcpServer().membershipsLevelsList(part: part);
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -297,23 +2744,17 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [
-          TextContent(text: 'An error occurred while processing the request.'),
-        ],
+        content: [TextContent(text: 'An error occurred while processing the request.')],
         isError: true,
       );
     }
   }
-
-  FutureOr<CallToolResult> _yt_video_abuse_report_reasons_list(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _yt_video_abuse_report_reasons_list(CallToolRequest request) async {
     try {
-      final part = request.arguments?['part'] as String?;
-      final hl = request.arguments?['hl'] as String?;
+    final part = request.arguments?['part'] as String?;
+    final hl = request.arguments?['hl'] as String?;
 
-      final result = await yt_mcp_server.YtMcpServer()
-          .videoAbuseReportReasonsList(part: part, hl: hl);
+      final result = await yt_mcp_server.YtMcpServer().videoAbuseReportReasonsList(part: part, hl: hl);
       return CallToolResult(
         content: [TextContent(text: _serializeResult(result))],
       );
@@ -324,548 +2765,1306 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [
-          TextContent(text: 'An error occurred while processing the request.'),
-        ],
+        content: [TextContent(text: 'An error occurred while processing the request.')],
         isError: true,
       );
     }
   }
-
-  static const _codeModeToolSpecs = <Map<String, dynamic>>[
-    <String, dynamic>{
-      'name': 'yt_channels_list',
-      'description': 'List YouTube channels by ID or username.',
-      'parameters': <Map<String, dynamic>>[
-        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
-        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
-        <String, dynamic>{
-          'name': 'forUsername',
-          'type': 'string',
-          'required': false,
-        },
-        <String, dynamic>{
-          'name': 'maxResults',
-          'type': 'number',
-          'required': false,
-        },
-      ],
-    },
-    <String, dynamic>{
-      'name': 'yt_search_list',
-      'description': 'Search YouTube for videos, channels, and playlists.',
-      'parameters': <Map<String, dynamic>>[
-        <String, dynamic>{'name': 'q', 'type': 'string', 'required': true},
-        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
-        <String, dynamic>{'name': 'type', 'type': 'string', 'required': false},
-        <String, dynamic>{
-          'name': 'maxResults',
-          'type': 'number',
-          'required': false,
-        },
-      ],
-    },
-    <String, dynamic>{
-      'name': 'yt_videos_list',
-      'description': 'List YouTube videos by ID or chart.',
-      'parameters': <Map<String, dynamic>>[
-        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
-        <String, dynamic>{'name': 'chart', 'type': 'string', 'required': false},
-        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
-        <String, dynamic>{
-          'name': 'maxResults',
-          'type': 'number',
-          'required': false,
-        },
-      ],
-    },
-    <String, dynamic>{
-      'name': 'yt_playlists_list',
-      'description': 'List YouTube playlists.',
-      'parameters': <Map<String, dynamic>>[
-        <String, dynamic>{
-          'name': 'channelId',
-          'type': 'string',
-          'required': false,
-        },
-        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
-        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
-        <String, dynamic>{
-          'name': 'maxResults',
-          'type': 'number',
-          'required': false,
-        },
-      ],
-    },
-    <String, dynamic>{
-      'name': 'yt_comments_list',
-      'description': 'List YouTube comments.',
-      'parameters': <Map<String, dynamic>>[
-        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
-        <String, dynamic>{
-          'name': 'parentId',
-          'type': 'string',
-          'required': false,
-        },
-        <String, dynamic>{
-          'name': 'maxResults',
-          'type': 'number',
-          'required': false,
-        },
-      ],
-    },
-    <String, dynamic>{
-      'name': 'yt_comment_threads_list',
-      'description': 'List YouTube comment threads for a video.',
-      'parameters': <Map<String, dynamic>>[
-        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
-        <String, dynamic>{
-          'name': 'videoId',
-          'type': 'string',
-          'required': false,
-        },
-        <String, dynamic>{
-          'name': 'maxResults',
-          'type': 'number',
-          'required': false,
-        },
-      ],
-    },
-    <String, dynamic>{
-      'name': 'yt_members_list',
-      'description': 'Lists channel members (requires OAuth).',
-      'parameters': <Map<String, dynamic>>[
-        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
-        <String, dynamic>{'name': 'mode', 'type': 'string', 'required': false},
-        <String, dynamic>{
-          'name': 'maxResults',
-          'type': 'number',
-          'required': false,
-        },
-        <String, dynamic>{
-          'name': 'pageToken',
-          'type': 'string',
-          'required': false,
-        },
-      ],
-    },
-    <String, dynamic>{
-      'name': 'yt_memberships_levels_list',
-      'description':
-          'Lists membership levels for the channel (requires OAuth).',
-      'parameters': <Map<String, dynamic>>[
-        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
-      ],
-    },
-    <String, dynamic>{
-      'name': 'yt_video_abuse_report_reasons_list',
-      'description':
-          'Retrieves reasons for reporting abusive videos (requires OAuth).',
-      'parameters': <Map<String, dynamic>>[
-        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
-        <String, dynamic>{'name': 'hl', 'type': 'string', 'required': false},
-      ],
-    },
-  ];
-  FutureOr<CallToolResult> _search(CallToolRequest request) async {
+  FutureOr<CallToolResult> _yt_playlist_items_list(CallToolRequest request) async {
     try {
-      final query = (request.arguments?['query'] as String?) ?? '';
-      final detailLevel =
-          (request.arguments?['detail_level'] as String?) ?? 'brief';
+    final playlistId = request.arguments!['playlistId'] as String;
+    final part = request.arguments?['part'] as String?;
+    final id = request.arguments?['id'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final videoId = request.arguments?['videoId'] as String?;
+    final pageToken = request.arguments?['pageToken'] as String?;
 
-      final terms = query
-          .toLowerCase()
-          .split(' ')
-          .where((t) => t.isNotEmpty)
-          .toList();
-
-      if (terms.isEmpty) {
-        final results = _codeModeToolSpecs
-            .map((tool) => _formatSearchResult(tool, detailLevel))
-            .toList();
-        return CallToolResult(
-          content: [TextContent(text: jsonEncode(results))],
-        );
-      }
-
-      // Phase 1: strict AND match — all terms must appear in name or description
-      final andMatches = _codeModeToolSpecs.where((tool) {
-        final name = (tool['name'] as String).toLowerCase();
-        final desc = (tool['description'] as String).toLowerCase();
-        return terms.every(
-          (term) => name.contains(term) || desc.contains(term),
-        );
-      }).toList();
-
-      List<Map<String, dynamic>> matches;
-      if (andMatches.isNotEmpty) {
-        matches = andMatches;
-      } else {
-        // Phase 2: ranked OR match — score each tool by how many terms it matches
-        final scored = _codeModeToolSpecs
-            .map((tool) {
-              final name = (tool['name'] as String).toLowerCase();
-              final desc = (tool['description'] as String).toLowerCase();
-              int score = 0;
-              for (final term in terms) {
-                if (name.contains(term) || desc.contains(term)) score++;
-              }
-              return MapEntry(tool, score);
-            })
-            .where((e) => e.value > 0)
-            .toList();
-
-        scored.sort((a, b) => b.value.compareTo(a.value));
-        matches = scored.map((e) => e.key).toList();
-      }
-
-      final results = matches
-          .map((tool) => _formatSearchResult(tool, detailLevel))
-          .toList();
-
-      return CallToolResult(content: [TextContent(text: jsonEncode(results))]);
+      final result = await yt_mcp_server.YtMcpServer().playlistItemsList(playlistId: playlistId, part: part, id: id, maxResults: maxResults, onBehalfOfContentOwner: onBehalfOfContentOwner, videoId: videoId, pageToken: pageToken);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
     } catch (e, st) {
       if (_logErrors) {
-        io.stderr.writeln('[easy_api] _search: $e');
+        io.stderr.writeln('[easy_api] yt_playlist_items_list: $e');
         io.stderr.writeln(st);
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [
-          TextContent(text: 'An error occurred while processing the request.'),
-        ],
+        content: [TextContent(text: 'An error occurred while processing the request.')],
         isError: true,
       );
     }
   }
-
-  Map<String, dynamic> _formatSearchResult(
-    Map<String, dynamic> tool,
-    String detailLevel,
-  ) {
-    final name = tool['name'] as String;
-    final desc = tool['description'] as String;
-    final params = tool['parameters'] as List<Map<String, dynamic>>;
-
-    if (detailLevel == 'brief') {
-      return {'name': name, 'description': desc};
-    } else if (detailLevel == 'detailed') {
-      final paramInfo = params
-          .map(
-            (p) => {
-              'name': p['name'],
-              'type': p['type'],
-              'required': p['required'],
-            },
-          )
-          .toList();
-      return {'name': name, 'description': desc, 'parameters': paramInfo};
-    } else {
-      final paramInfo = params.map((p) {
-        final map = <String, dynamic>{
-          'name': p['name'],
-          'type': p['type'],
-          'required': p['required'],
-        };
-        return map;
-      }).toList();
-      return {'name': name, 'description': desc, 'parameters': paramInfo};
-    }
-  }
-  // ignore: prefer_adjacent_string_concatenation
-
-  FutureOr<CallToolResult> _execute(CallToolRequest request) async {
+  FutureOr<CallToolResult> _yt_playlist_items_insert(CallToolRequest request) async {
     try {
-      final code = request.arguments!['code'] as String;
-      final result = await _runCodeSandbox(code, 30);
-      return CallToolResult(content: [TextContent(text: result ?? 'null')]);
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistItemsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
     } catch (e, st) {
       if (_logErrors) {
-        io.stderr.writeln('[easy_api] _execute: $e');
+        io.stderr.writeln('[easy_api] yt_playlist_items_insert: $e');
         io.stderr.writeln(st);
         await io.stderr.flush();
       }
       return CallToolResult(
-        content: [
-          TextContent(text: 'An error occurred while processing the request.'),
-        ],
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_playlist_items_update(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistItemsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_playlist_items_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_playlist_items_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistItemsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_playlist_items_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_subscriptions_list(CallToolRequest request) async {
+    try {
+    final part = request.arguments?['part'] as String?;
+    final channelId = request.arguments?['channelId'] as String?;
+    final id = request.arguments?['id'] as String?;
+    final mine = request.arguments?['mine'] as bool?;
+    final myRecentSubscribers = request.arguments?['myRecentSubscribers'] as bool?;
+    final mySubscribers = request.arguments?['mySubscribers'] as bool?;
+    final forChannelId = request.arguments?['forChannelId'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+    final order = request.arguments?['order'] as String?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().subscriptionsList(part: part, channelId: channelId, id: id, mine: mine, myRecentSubscribers: myRecentSubscribers, mySubscribers: mySubscribers, forChannelId: forChannelId, maxResults: maxResults, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel, order: order, pageToken: pageToken);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_subscriptions_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_subscriptions_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().subscriptionsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_subscriptions_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_subscriptions_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().subscriptionsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_subscriptions_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_activities_list(CallToolRequest request) async {
+    try {
+    final part = request.arguments?['part'] as String?;
+    final channelId = request.arguments?['channelId'] as String?;
+    final mine = request.arguments?['mine'] as bool?;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+    final publishedAfter = request.arguments?['publishedAfter'] as String?;
+    final publishedBefore = request.arguments?['publishedBefore'] as String?;
+    final regionCode = request.arguments?['regionCode'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().activitiesList(part: part, channelId: channelId, mine: mine, maxResults: maxResults, pageToken: pageToken, publishedAfter: publishedAfter, publishedBefore: publishedBefore, regionCode: regionCode);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_activities_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_video_categories_list(CallToolRequest request) async {
+    try {
+    final id = request.arguments?['id'] as String?;
+    final regionCode = request.arguments?['regionCode'] as String?;
+    final hl = request.arguments?['hl'] as String?;
+    final part = request.arguments?['part'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().videoCategoriesList(id: id, regionCode: regionCode, hl: hl, part: part);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_video_categories_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_captions_list(CallToolRequest request) async {
+    try {
+    final videoId = request.arguments!['videoId'] as String;
+    final id = request.arguments?['id'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final part = request.arguments?['part'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().captionsList(videoId: videoId, id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, part: part);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_captions_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_captions_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final captionFilePath = request.arguments!['captionFilePath'] as String;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().captionsInsert(body: body, captionFilePath: captionFilePath, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_captions_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_captions_update(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final captionFilePath = request.arguments!['captionFilePath'] as String;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().captionsUpdate(body: body, captionFilePath: captionFilePath, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_captions_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_captions_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().captionsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_captions_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_captions_download(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final tfmt = request.arguments?['tfmt'] as String?;
+    final tlang = request.arguments?['tlang'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().captionsDownload(id: id, tfmt: tfmt, tlang: tlang, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_captions_download: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_thumbnails_set(CallToolRequest request) async {
+    try {
+    final videoId = request.arguments!['videoId'] as String;
+    final thumbnailFilePath = request.arguments!['thumbnailFilePath'] as String;
+
+      final result = await yt_mcp_server.YtMcpServer().thumbnailsSet(videoId: videoId, thumbnailFilePath: thumbnailFilePath);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_thumbnails_set: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_watermarks_set(CallToolRequest request) async {
+    try {
+    final channelId = request.arguments!['channelId'] as String;
+    final watermarksResource = request.arguments!['watermarksResource'] as dynamic;
+
+      final result = await yt_mcp_server.YtMcpServer().watermarksSet(channelId: channelId, watermarksResource: watermarksResource);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_watermarks_set: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_watermarks_unset(CallToolRequest request) async {
+    try {
+    final channelId = request.arguments!['channelId'] as String;
+
+      final result = await yt_mcp_server.YtMcpServer().watermarksUnset(channelId: channelId);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_watermarks_unset: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_channel_banners_insert(CallToolRequest request) async {
+    try {
+    final imageFilePath = request.arguments!['imageFilePath'] as String;
+    final channelId = request.arguments?['channelId'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().channelBannersInsert(imageFilePath: imageFilePath, channelId: channelId, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_channel_banners_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_channel_sections_list(CallToolRequest request) async {
+    try {
+    final part = request.arguments?['part'] as String?;
+    final channelId = request.arguments?['channelId'] as String?;
+    final id = request.arguments?['id'] as String?;
+    final mine = request.arguments?['mine'] as bool?;
+    final hl = request.arguments?['hl'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().channelSectionsList(part: part, channelId: channelId, id: id, mine: mine, hl: hl, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_channel_sections_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_channel_sections_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().channelSectionsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_channel_sections_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_channel_sections_update(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().channelSectionsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_channel_sections_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_channel_sections_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().channelSectionsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_channel_sections_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_i18n_languages_list(CallToolRequest request) async {
+    try {
+    final hl = request.arguments?['hl'] as String?;
+    final part = request.arguments?['part'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().i18nLanguagesList(hl: hl, part: part);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_i18n_languages_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_i18n_regions_list(CallToolRequest request) async {
+    try {
+    final hl = request.arguments?['hl'] as String?;
+    final part = request.arguments?['part'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().i18nRegionsList(hl: hl, part: part);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_i18n_regions_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_playlist_images_list(CallToolRequest request) async {
+    try {
+    final parent = request.arguments!['parent'] as String;
+    final part = request.arguments?['part'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistImagesList(parent: parent, part: part, maxResults: maxResults, pageToken: pageToken, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_playlist_images_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_playlist_images_insert(CallToolRequest request) async {
+    try {
+    final parent = request.arguments!['parent'] as String;
+    final imageFilePath = request.arguments!['imageFilePath'] as String;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistImagesInsert(parent: parent, imageFilePath: imageFilePath, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_playlist_images_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_playlist_images_update(CallToolRequest request) async {
+    try {
+    final imageFilePath = request.arguments!['imageFilePath'] as String;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistImagesUpdate(imageFilePath: imageFilePath, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_playlist_images_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_playlist_images_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().playlistImagesDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_playlist_images_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_third_party_links_list(CallToolRequest request) async {
+    try {
+    final part = request.arguments?['part'] as String?;
+    final externalChannelId = request.arguments?['externalChannelId'] as String?;
+    final linkingToken = request.arguments?['linkingToken'] as String?;
+    final type = request.arguments?['type'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksList(part: part, externalChannelId: externalChannelId, linkingToken: linkingToken, type: type);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_third_party_links_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_third_party_links_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final externalChannelId = request.arguments?['externalChannelId'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksInsert(body: body, part: part, externalChannelId: externalChannelId);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_third_party_links_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_third_party_links_update(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final externalChannelId = request.arguments?['externalChannelId'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksUpdate(body: body, part: part, externalChannelId: externalChannelId);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_third_party_links_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_third_party_links_delete(CallToolRequest request) async {
+    try {
+    final linkingToken = request.arguments!['linkingToken'] as String;
+    final type = request.arguments!['type'] as String;
+    final part = request.arguments?['part'] as String?;
+    final externalChannelId = request.arguments?['externalChannelId'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksDelete(linkingToken: linkingToken, type: type, part: part, externalChannelId: externalChannelId);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_third_party_links_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_broadcasts_list(CallToolRequest request) async {
+    try {
+    final part = request.arguments?['part'] as String?;
+    final broadcastStatus = request.arguments?['broadcastStatus'] as String?;
+    final broadcastType = request.arguments?['broadcastType'] as String?;
+    final id = request.arguments?['id'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final mine = request.arguments?['mine'] as bool?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsList(part: part, broadcastStatus: broadcastStatus, broadcastType: broadcastType, id: id, maxResults: maxResults, mine: mine, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel, pageToken: pageToken);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_broadcasts_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_broadcasts_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_broadcasts_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_broadcasts_update(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_broadcasts_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_broadcasts_transition(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final broadcastStatus = request.arguments!['broadcastStatus'] as String;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsTransition(id: id, broadcastStatus: broadcastStatus, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_broadcasts_transition: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_broadcasts_bind(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final part = request.arguments?['part'] as String?;
+    final streamId = request.arguments?['streamId'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsBind(id: id, part: part, streamId: streamId, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_broadcasts_bind: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_broadcasts_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_broadcasts_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_broadcasts_cuepoint(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final body = request.arguments!['body'] as dynamic;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsCuepoint(id: id, body: body, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_broadcasts_cuepoint: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_broadcasts_get_active(CallToolRequest request) async {
+    try {
+
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsGetActive();
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_broadcasts_get_active: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_broadcasts_get_upcoming_and_active(CallToolRequest request) async {
+    try {
+
+
+      final result = await yt_mcp_server.YtMcpServer().broadcastsGetUpcomingAndActive();
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_broadcasts_get_upcoming_and_active: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_live_streams_list(CallToolRequest request) async {
+    try {
+    final part = request.arguments?['part'] as String?;
+    final id = request.arguments?['id'] as String?;
+    final mine = request.arguments?['mine'] as bool?;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().liveStreamsList(part: part, id: id, mine: mine, maxResults: maxResults, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel, pageToken: pageToken);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_live_streams_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_live_streams_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().liveStreamsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_live_streams_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_live_streams_update(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().liveStreamsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_live_streams_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_live_streams_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+    final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().liveStreamsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel: onBehalfOfContentOwnerChannel);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_live_streams_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_live_chat_list(CallToolRequest request) async {
+    try {
+    final liveChatId = request.arguments!['liveChatId'] as String;
+    final part = request.arguments?['part'] as String?;
+    final hl = request.arguments?['hl'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+    final profileImageSize = request.arguments?['profileImageSize'] as int?;
+
+      final result = await yt_mcp_server.YtMcpServer().liveChatList(liveChatId: liveChatId, part: part, hl: hl, maxResults: maxResults, pageToken: pageToken, profileImageSize: profileImageSize);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_live_chat_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_live_chat_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final part = request.arguments?['part'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().liveChatInsert(body: body, part: part);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_live_chat_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_live_chat_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+
+      final result = await yt_mcp_server.YtMcpServer().liveChatDelete(id: id);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_live_chat_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_analytics_query(CallToolRequest request) async {
+    try {
+    final ids = request.arguments!['ids'] as String;
+    final startDate = request.arguments!['startDate'] as String;
+    final endDate = request.arguments!['endDate'] as String;
+    final metrics = request.arguments!['metrics'] as String;
+    final dimensions = request.arguments?['dimensions'] as String?;
+    final filters = request.arguments?['filters'] as String?;
+    final maxResults = request.arguments?['maxResults'] as int?;
+    final sort = request.arguments?['sort'] as String?;
+    final startIndex = request.arguments?['startIndex'] as int?;
+    final currency = request.arguments?['currency'] as String?;
+    final includeHistoricalChannelData = request.arguments?['includeHistoricalChannelData'] as bool?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsQuery(ids: ids, startDate: startDate, endDate: endDate, metrics: metrics, dimensions: dimensions, filters: filters, maxResults: maxResults, sort: sort, startIndex: startIndex, currency: currency, includeHistoricalChannelData: includeHistoricalChannelData);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_analytics_query: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_analytics_groups_list(CallToolRequest request) async {
+    try {
+    final id = request.arguments?['id'] as String?;
+    final mine = request.arguments?['mine'] as bool?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsList(id: id, mine: mine, pageToken: pageToken, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_analytics_groups_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_analytics_groups_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsInsert(body: body, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_analytics_groups_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_analytics_groups_update(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsUpdate(body: body, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_analytics_groups_update: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_analytics_groups_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_analytics_groups_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_analytics_group_items_list(CallToolRequest request) async {
+    try {
+    final groupId = request.arguments?['groupId'] as String?;
+    final id = request.arguments?['id'] as String?;
+    final pageToken = request.arguments?['pageToken'] as String?;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupItemsList(groupId: groupId, id: id, pageToken: pageToken, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_analytics_group_items_list: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_analytics_group_items_insert(CallToolRequest request) async {
+    try {
+    final body = request.arguments!['body'] as dynamic;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupItemsInsert(body: body, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_analytics_group_items_insert: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
+        isError: true,
+      );
+    }
+  }
+  FutureOr<CallToolResult> _yt_analytics_group_items_delete(CallToolRequest request) async {
+    try {
+    final id = request.arguments!['id'] as String;
+    final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
+
+      final result = await yt_mcp_server.YtMcpServer().analyticsGroupItemsDelete(id: id, onBehalfOfContentOwner: onBehalfOfContentOwner);
+      return CallToolResult(
+        content: [TextContent(text: _serializeResult(result))],
+      );
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] yt_analytics_group_items_delete: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [TextContent(text: 'An error occurred while processing the request.')],
         isError: true,
       );
     }
   }
 
-  Future<String?> _runCodeSandbox(String userCode, int timeoutSeconds) async {
-    io.Process? process;
-    io.Directory? tempDir;
-    try {
-      final wrapper = _buildJsWrapper(userCode);
-      tempDir = await io.Directory.systemTemp.createTemp('mcp_code_mode_');
-      final scriptFile = io.File('${tempDir.path}/sandbox.js');
-      await scriptFile.writeAsString(wrapper);
 
-      process = await io.Process.start('node', [
-        '--max-old-space-size=64',
-        scriptFile.path,
-      ]);
-    } catch (e) {
-      await tempDir?.delete(recursive: true);
-      throw StateError('Code mode requires Node.js to be installed');
-    }
-
-    try {
-      final resultCompleter = Completer<String?>();
-      final errorCompleter = Completer<String>();
-
-      process.stdout
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .listen((line) {
-            if (line.trim().isEmpty) return;
-
-            try {
-              final msg = jsonDecode(line) as Map<String, dynamic>;
-              final type = msg['type'] as String?;
-
-              if (type == 'call') {
-                final callId = msg['callId'] as String;
-                final toolName = msg['tool'] as String;
-                final args =
-                    (msg['args'] as Map<String, dynamic>?) ??
-                    <String, dynamic>{};
-
-                _dispatchCodeModeToolCall(toolName, args)
-                    .then((resultJson) {
-                      process?.stdin.writeln(
-                        jsonEncode({
-                          'type': 'result',
-                          'callId': callId,
-                          'data': resultJson,
-                        }),
-                      );
-                    })
-                    .catchError((e, st) {
-                      if (_logErrors) {
-                        io.stderr.writeln(
-                          '[easy_api] _dispatchCodeModeToolCall($toolName): $e',
-                        );
-                        io.stderr.writeln(st);
-                        io.stderr
-                            .flush(); // fire-and-forget; callback is not async
-                      }
-                      process?.stdin.writeln(
-                        jsonEncode({
-                          'type': 'result',
-                          'callId': callId,
-                          'data': null,
-                          'error':
-                              'An error occurred while processing the request.',
-                        }),
-                      );
-                    });
-              } else if (type == 'done') {
-                final result = msg['result'];
-                if (result == null) {
-                  resultCompleter.complete(null);
-                } else if (result is String) {
-                  resultCompleter.complete(result);
-                } else {
-                  resultCompleter.complete(jsonEncode(result));
-                }
-              } else if (type == 'error') {
-                errorCompleter.complete(
-                  msg['message'] as String? ?? 'Unknown error',
-                );
-              }
-            } catch (_) {
-              // Ignore non-JSON lines
-            }
-          });
-
-      // Wait for result, error, or timeout
-      final timeoutFuture = Future.delayed(
-        Duration(seconds: timeoutSeconds),
-        () => throw StateError(
-          'Code execution timed out after $timeoutSeconds seconds',
-        ),
-      );
-
-      final result = await Future.any<String?>([
-        resultCompleter.future,
-        errorCompleter.future.then(
-          (e) => throw StateError('Code execution error: $e'),
-        ),
-        timeoutFuture,
-      ]);
-
-      return result;
-    } finally {
-      process.kill(io.ProcessSignal.sigkill);
-      await tempDir.delete(recursive: true);
-    }
-  }
-
-  String _buildJsWrapper(String userCode) {
-    final sb = StringBuffer();
-    sb.writeln('// Code Mode Sandbox - IPC Layer');
-    sb.writeln('const __pending = {};');
-    sb.writeln('let __callId = 0;');
-    sb.writeln("let __buffer = '';");
-    sb.writeln();
-    sb.writeln("process.stdin.on('data', (chunk) => {");
-    sb.writeln('  __buffer += chunk.toString();');
-    sb.writeln("  const lines = __buffer.split('\\n');");
-    sb.writeln('  __buffer = lines.pop();');
-    sb.writeln('  for (const line of lines) {');
-    sb.writeln("    if (!line.trim()) continue;");
-    sb.writeln('    try {');
-    sb.writeln('      const msg = JSON.parse(line);');
-    sb.writeln("      if (msg.type === 'result' && __pending[msg.callId]) {");
-    sb.writeln('        const { resolve, reject } = __pending[msg.callId];');
-    sb.writeln('        if (msg.error) { reject(new Error(msg.error)); }');
-    sb.writeln('        else { resolve(msg.data); }');
-    sb.writeln('        delete __pending[msg.callId];');
-    sb.writeln('      }');
-    sb.writeln('    } catch (e) {}');
-    sb.writeln('  }');
-    sb.writeln('});');
-    sb.writeln();
-    sb.writeln('function __send(msg) {');
-    sb.writeln("  process.stdout.write(JSON.stringify(msg) + '\\n');");
-    sb.writeln('}');
-    sb.writeln();
-    sb.writeln('async function __externalCall(tool, args) {');
-    sb.writeln('  const callId = String(++__callId);');
-    sb.writeln('  return new Promise((resolve, reject) => {');
-    sb.writeln('    __pending[callId] = { resolve, reject };');
-    sb.writeln("    __send({ type: 'call', callId, tool, args: args || {} });");
-    sb.writeln('  });');
-    sb.writeln('}');
-    sb.writeln();
-    sb.writeln('// Generic tool invocation function');
-    sb.writeln('async function call_tool(name, params) {');
-    sb.writeln('  return __externalCall(name, params || {});');
-    sb.writeln('}');
-    sb.writeln();
-    sb.writeln('// External Tool Functions (convenience wrappers)');
-    sb.writeln(
-      "async function external_yt_channels_list(args) { return call_tool('yt_channels_list', args); }",
-    );
-    sb.writeln(
-      "async function external_yt_search_list(args) { return call_tool('yt_search_list', args); }",
-    );
-    sb.writeln(
-      "async function external_yt_videos_list(args) { return call_tool('yt_videos_list', args); }",
-    );
-    sb.writeln(
-      "async function external_yt_playlists_list(args) { return call_tool('yt_playlists_list', args); }",
-    );
-    sb.writeln(
-      "async function external_yt_comments_list(args) { return call_tool('yt_comments_list', args); }",
-    );
-    sb.writeln(
-      "async function external_yt_comment_threads_list(args) { return call_tool('yt_comment_threads_list', args); }",
-    );
-    sb.writeln(
-      "async function external_yt_members_list(args) { return call_tool('yt_members_list', args); }",
-    );
-    sb.writeln(
-      "async function external_yt_memberships_levels_list(args) { return call_tool('yt_memberships_levels_list', args); }",
-    );
-    sb.writeln(
-      "async function external_yt_video_abuse_report_reasons_list(args) { return call_tool('yt_video_abuse_report_reasons_list', args); }",
-    );
-    sb.writeln();
-    sb.writeln('// Execute user code');
-    sb.writeln('(async () => {');
-    sb.writeln('  try {');
-    sb.writeln('    const __result = await (async () => {');
-    // Auto-return expression-like code (IIFE or bare await) so the LLM
-    // doesn't need to remember an explicit return for single-expression snippets.
-    final trimmedCode = userCode.trim();
-    final isExpressionLike =
-        trimmedCode.startsWith('(') || trimmedCode.startsWith('await ');
-    final alreadyHasReturn = trimmedCode.startsWith('return ');
-    final codeToRun = (isExpressionLike && !alreadyHasReturn)
-        ? 'return ' + userCode
-        : userCode;
-    sb.writeln(codeToRun);
-    sb.writeln('    })();');
-    sb.writeln("    __send({ type: 'done', result: __result });");
-    sb.writeln('  } catch (e) {');
-    sb.writeln(
-      "    __send({ type: 'error', message: e.message || String(e) });",
-    );
-    sb.writeln('  }');
-    sb.writeln('})();');
-    return sb.toString();
-  }
-
-  dynamic _dispatchCodeModeToolCall(
-    String toolName,
-    Map<String, dynamic> args,
-  ) async {
-    final request = CallToolRequest(name: toolName, arguments: args);
-    CallToolResult result;
-    switch (toolName) {
-      case 'search':
-        result = await _search(request);
-        break;
-      case 'yt_channels_list':
-        result = await _yt_channels_list(request);
-        break;
-      case 'yt_search_list':
-        result = await _yt_search_list(request);
-        break;
-      case 'yt_videos_list':
-        result = await _yt_videos_list(request);
-        break;
-      case 'yt_playlists_list':
-        result = await _yt_playlists_list(request);
-        break;
-      case 'yt_comments_list':
-        result = await _yt_comments_list(request);
-        break;
-      case 'yt_comment_threads_list':
-        result = await _yt_comment_threads_list(request);
-        break;
-      case 'yt_members_list':
-        result = await _yt_members_list(request);
-        break;
-      case 'yt_memberships_levels_list':
-        result = await _yt_memberships_levels_list(request);
-        break;
-      case 'yt_video_abuse_report_reasons_list':
-        result = await _yt_video_abuse_report_reasons_list(request);
-        break;
-      default:
-        throw StateError('Unknown tool: $toolName');
-    }
-
-    final textContent = result.content.whereType<TextContent>().firstOrNull;
-    if (textContent != null) {
-      final text = textContent.text;
-      try {
-        return jsonDecode(text);
-      } catch (_) {
-        return text;
-      }
-    }
-    return result.content.map((c) => c.toString()).join('\n');
-  }
 
   String _serializeResult(dynamic result) {
     if (result == null) return 'null';
     try {
       if (result is List) {
-        final items = result
-            .map((e) {
-              if (e == null) return null;
-              final toJson = e.toJson;
-              if (toJson != null && toJson is Function) return toJson();
-              return e.toString();
-            })
-            .where((e) => e != null)
-            .toList();
+        final items = result.map((e) {
+          if (e == null) return null;
+          final toJson = e.toJson;
+          if (toJson != null && toJson is Function) return toJson();
+          return e.toString();
+        }).where((e) => e != null).toList();
         return jsonEncode(items);
       }
       final toJson = result.toJson;

@@ -1,0 +1,10 @@
+# Build artifacts
+.dart_tool/
+build/
+
+# IDE files
+*.iml
+
+# Generated files (included in source, but exclude any temp files)
+*.dart.js
+*.js.map

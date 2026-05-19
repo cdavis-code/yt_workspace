@@ -20,7 +20,7 @@ executables:
   yt_mcp: yt_mcp_server
 
 dependencies:
-  yt: ^3.0.0
+  yt: ^3.0.2
   easy_api_annotations: ^1.0.0
   dart_mcp: ^0.5.1
 
