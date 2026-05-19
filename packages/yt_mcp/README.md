@@ -69,12 +69,12 @@ export YT_ACCESS_TOKENS_FILE="path/to/access_tokens.json"
 brew tap cdavis-code/yt
 
 # Install yt_mcp
-brew install yt-mcp
+brew install yt_mcp
 
-# Verify installation
-yt_mcp --help
+# Verify installation (binary is installed at /opt/homebrew/bin/yt_mcp or /usr/local/bin/yt_mcp)
+which yt_mcp
 
-# Configure credentials (same as Option 1)
+# Configure credentials
 export YT_API_KEY="your-api-key-here"
 # OR for OAuth:
 export YT_CLIENT_SECRETS_FILE="path/to/client_secrets.json"

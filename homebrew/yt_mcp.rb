@@ -10,8 +10,9 @@ class YtMcp < Formula
   license "MIT"
 
   # Stable release: downloaded as a source tarball from a GitHub Release
-  url "https://github.com/cdavis-code/yt_workspace/archive/refs/tags/yt_mcp-v2.2.6.tar.gz"
-  sha256 "PLACEHOLDER_SHA256"
+  # Note: Update this URL and SHA256 when tagging a release
+  url "https://github.com/cdavis-code/yt_workspace/archive/refs/heads/main.tar.gz"
+  sha256 "86227898d419b674c17c2fd570d15a9cb027b01cd5a2ea5756b5dd3ec8f35a8a"
 
   # Development / HEAD install: brew install --head yt-mcp
   head "https://github.com/cdavis-code/yt_workspace.git", branch: "main"
