@@ -1,6 +1,6 @@
 name: yt_cli_js
 description: YouTube CLI tool compiled to JavaScript via dart2js. Distributed as an npm package for Node.js.
-version: 1.1.0
+version: 1.2.0
 publish_to: none
 repository: https://github.com/cdavis-code/yt_workspace/tree/main/packages/yt_cli_js
 
@@ -10,7 +10,7 @@ environment:
   sdk: ^3.8.0
 
 dependencies:
-  yt: ^3.0.2
+  yt: ^3.2.0
   loggy: ^2.0.3
   universal_io: ^2.3.1
 

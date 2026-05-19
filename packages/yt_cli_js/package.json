@@ -1,6 +1,6 @@
 {
   "name": "@unngh/youtube-cli",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "YouTube Data API CLI tool for Node.js — full parity with the Dart yt_cli: search, channels, videos, playlists, comments, comment-threads, subscriptions, broadcast, stream, analytics, members, thumbnails, watermarks, activities, and more.",
   "license": "MIT",
   "author": "Chris Davis",
@@ -31,7 +31,7 @@
     "typescript": "^5.6.0"
   },
   "scripts": {
-    "build:dart": "bash scripts/build.sh",
+    "build:dart": "bash scripts/build-npm.sh",
     "build:ts": "tsup",
     "build": "npm run build:dart && npm run build:ts",
     "prepublishOnly": "npm run build"

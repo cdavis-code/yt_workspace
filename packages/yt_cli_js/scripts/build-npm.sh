@@ -17,8 +17,14 @@ dart pub get
 mkdir -p build/dart
 
 echo "==> Compiling Dart -> JavaScript (dart2js -O4)"
+
+# Extract version from package.json so Dart code can embed it.
+VERSION=$(node -p "require('./package.json').version")
+echo "   Version: $VERSION"
+
 dart compile js \
   -O4 \
+  -DYT_CLI_JS_VERSION="$VERSION" \
   -o build/dart/yt_cli_js.js \
   lib/yt_cli_js.dart
 

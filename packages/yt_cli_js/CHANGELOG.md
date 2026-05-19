@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.0] - 2026-05-18
+
+### Added — 8 new commands for full parity with `yt_cli`
+
+- **`playlist-items`** — list, insert, update, and delete playlist items (OAuth for write ops).
+- **`captions`** — list, download, insert, update, and delete captions (OAuth for write ops).
+- **`channel-banners`** — insert a channel banner image (OAuth).
+- **`channel-sections`** — list, insert, update, and delete channel sections (OAuth for write ops).
+- **`i18n-languages`** — list supported languages.
+- **`i18n-regions`** — list supported regions.
+- **`playlist-images`** — list, insert, update, and delete playlist images (OAuth for write ops).
+- **`third-party-links`** — list, insert, update, and delete third-party links (OAuth for write ops).
+
+### Changed
+
+- **Bumped** underlying `yt` dependency to `^3.2.0` (adds `Yt.captions` getter).
+- **Bumped** Commander program version + runtime namespace version to `1.2.0`.
+
 ## [1.1.0] - 2026-05-20
 
 ### Added — full command parity with Dart `yt_cli`

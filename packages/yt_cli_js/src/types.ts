@@ -395,6 +395,121 @@ export interface YtCliJsHandle {
   ): Promise<Record<string, any>>;
 
   close(): void;
+
+  // ChannelBanners
+  channelBannersInsert(
+    filePath: string,
+    channelId?: string,
+  ): Promise<Record<string, any>>;
+
+  // ChannelSections
+  channelSectionsList(
+    part?: string,
+    channelId?: string,
+    id?: string,
+    mine?: boolean,
+    hl?: string,
+  ): Promise<Record<string, any>>;
+
+  channelSectionsInsert(
+    part?: string,
+    body?: Record<string, any>,
+  ): Promise<Record<string, any>>;
+
+  channelSectionsUpdate(
+    part?: string,
+    body?: Record<string, any>,
+  ): Promise<Record<string, any>>;
+
+  channelSectionsDelete(id: string): Promise<Record<string, any>>;
+
+  // Captions
+  captionsList(
+    part?: string,
+    videoId?: string,
+    id?: string,
+  ): Promise<Record<string, any>>;
+
+  captionsInsert(
+    part?: string,
+    body?: Record<string, any>,
+    captionFilePath?: string,
+  ): Promise<Record<string, any>>;
+
+  captionsUpdate(
+    part?: string,
+    body?: Record<string, any>,
+    captionFilePath?: string,
+  ): Promise<Record<string, any>>;
+
+  captionsDelete(id: string): Promise<Record<string, any>>;
+
+  captionsDownload(
+    id: string,
+    tfmt?: string,
+    tlang?: string,
+    outPath?: string,
+  ): Promise<Record<string, any>>;
+
+  // I18nLanguages
+  i18nLanguagesList(
+    part?: string,
+    hl?: string,
+  ): Promise<Record<string, any>>;
+
+  // I18nRegions
+  i18nRegionsList(
+    part?: string,
+    hl?: string,
+  ): Promise<Record<string, any>>;
+
+  // PlaylistImages
+  playlistImagesList(
+    part?: string,
+    parent?: string,
+    maxResults?: number,
+    pageToken?: string,
+  ): Promise<Record<string, any>>;
+
+  playlistImagesInsert(
+    part?: string,
+    parent?: string,
+    filePath?: string,
+  ): Promise<Record<string, any>>;
+
+  playlistImagesUpdate(
+    part?: string,
+    filePath?: string,
+  ): Promise<Record<string, any>>;
+
+  playlistImagesDelete(id: string): Promise<Record<string, any>>;
+
+  // ThirdPartyLinks
+  thirdPartyLinksList(
+    part?: string,
+    externalChannelId?: string,
+    linkingToken?: string,
+    type?: string,
+  ): Promise<Record<string, any>>;
+
+  thirdPartyLinksInsert(
+    part?: string,
+    body?: Record<string, any>,
+    externalChannelId?: string,
+  ): Promise<Record<string, any>>;
+
+  thirdPartyLinksUpdate(
+    part?: string,
+    body?: Record<string, any>,
+    externalChannelId?: string,
+  ): Promise<Record<string, any>>;
+
+  thirdPartyLinksDelete(
+    linkingToken: string,
+    type: string,
+    part?: string,
+    externalChannelId?: string,
+  ): Promise<Record<string, any>>;
 }
 
 /** The namespace installed on `globalThis.YtCliJs` by the dart2js runtime. */
