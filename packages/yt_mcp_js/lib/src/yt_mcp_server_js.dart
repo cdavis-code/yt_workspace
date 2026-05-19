@@ -55,7 +55,7 @@ class YtMcpServer {
 
       if (apiKey != null && apiKey.isNotEmpty) {
         _debugLog('Initializing with API key');
-        _client = Yt.withApiKey(apiKey);
+        _client = Yt.withApiKey(apiKey: apiKey);
       } else if (oAuthToken != null && oAuthToken.isNotEmpty) {
         _debugLog('Initializing with OAuth');
         _client = Yt.withOAuth();

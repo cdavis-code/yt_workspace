@@ -22,12 +22,7 @@ import 'package:yt/yt.dart';
 /// Callers rely on [bootstrapFromEnv] to initialize automatically from
 /// `YT_API_KEY` or `YT_OAUTH_TOKEN` environment variables, then use any
 /// of the grouped tools (`yt_search_list`, `yt_videos_list`, etc.).
-@Server(
-  transport: McpTransport.stdio,
-  codeMode: true,
-  toolPrefix: 'yt_',
-  logErrors: true,
-)
+@Server(transport: McpTransport.stdio, toolPrefix: 'yt_', logErrors: true)
 class YtMcpServer {
   /// Environment variable holding the YouTube API key.
   static const String envApiKey = 'YT_API_KEY';
@@ -46,6 +41,12 @@ class YtMcpServer {
   /// return value.
   // ignore: unused_field
   static const Map<String, dynamic> _ok = <String, dynamic>{'ok': true};
+
+  /// Whether to log detailed errors with stack traces to stderr.
+  ///
+  /// Set via compile-time flag: `dart compile exe -D YT_MCP_DEBUG=true`
+  /// In production, keep this false to avoid information leakage.
+  static const bool debugMode = bool.fromEnvironment('YT_MCP_DEBUG');
 
   /// Returns the active client or throws a descriptive [StateError] when the
   /// caller forgot to set credentials.
@@ -73,8 +74,14 @@ class YtMcpServer {
       final oAuthToken = Platform.environment[envOAuthToken];
 
       if (apiKey != null && apiKey.isNotEmpty) {
-        _client = Yt.withApiKey(apiKey);
+        _client = Yt.withApiKey(apiKey: apiKey);
       } else if (oAuthToken != null && oAuthToken.isNotEmpty) {
+        // Basic validation: OAuth tokens are typically long strings
+        if (oAuthToken.length < 10) {
+          _bootstrapError =
+              '$envOAuthToken appears to be invalid (too short, expected >= 10 characters).';
+          return;
+        }
         _client = Yt.withOAuth();
       } else {
         _bootstrapError =
