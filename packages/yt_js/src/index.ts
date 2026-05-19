@@ -93,6 +93,14 @@ export class Yt {
     );
   }
 
+  /** Update a channel. */
+  async channelsUpdate(opts: {
+    part?: string;
+    body: Record<string, any>;
+  }): Promise<Record<string, any>> {
+    return this.handle.channelsUpdate(opts.part ?? 'contentDetails,id,localizations,player,snippet,status', opts.body);
+  }
+
   // ---------------------------------------------------------------------------
   // Videos
   // ---------------------------------------------------------------------------
@@ -112,6 +120,50 @@ export class Yt {
     );
   }
 
+  /** Upload a video. */
+  async videosInsert(opts: {
+    part?: string;
+    body: Record<string, any>;
+    filePath: string;
+  }): Promise<Record<string, any>> {
+    return this.handle.videosInsert(opts.part ?? 'snippet,status,contentDetails', opts.body, opts.filePath);
+  }
+
+  /** Update a video's metadata. */
+  async videosUpdate(opts: {
+    part?: string;
+    body: Record<string, any>;
+  }): Promise<Record<string, any>> {
+    return this.handle.videosUpdate(opts.part ?? 'snippet,status,contentDetails', opts.body);
+  }
+
+  /** Rate a video (like/dislike/none). */
+  async videosRate(opts: {
+    id: string;
+    rating: string;
+  }): Promise<void> {
+    return this.handle.videosRate(opts.id, opts.rating);
+  }
+
+  /** Get the rating the authorized user gave to a video. */
+  async videosGetRating(opts: {
+    id: string;
+  }): Promise<Record<string, any>> {
+    return this.handle.videosGetRating(opts.id);
+  }
+
+  /** Report a video for abusive content. */
+  async videosReportAbuse(opts: {
+    body: Record<string, any>;
+  }): Promise<void> {
+    return this.handle.videosReportAbuse(opts.body);
+  }
+
+  /** Delete a video. */
+  async videosDelete(opts: { id: string }): Promise<void> {
+    return this.handle.videosDelete(opts.id);
+  }
+
   // ---------------------------------------------------------------------------
   // Playlists
   // ---------------------------------------------------------------------------
@@ -129,6 +181,33 @@ export class Yt {
       params.part,
       params.maxResults,
     );
+  }
+
+  /** Create a playlist. */
+  async playlistsInsert(opts: {
+    part?: string;
+    body: Record<string, any>;
+  }): Promise<Record<string, any>> {
+    return this.handle.playlistsInsert(
+      opts.part ?? 'contentDetails,id,localizations,player,snippet,status',
+      opts.body,
+    );
+  }
+
+  /** Update a playlist. */
+  async playlistsUpdate(opts: {
+    part?: string;
+    body: Record<string, any>;
+  }): Promise<Record<string, any>> {
+    return this.handle.playlistsUpdate(
+      opts.part ?? 'contentDetails,id,localizations,player,snippet,status',
+      opts.body,
+    );
+  }
+
+  /** Delete a playlist. */
+  async playlistsDelete(opts: { id: string }): Promise<void> {
+    return this.handle.playlistsDelete(opts.id);
   }
 
   // ---------------------------------------------------------------------------
@@ -193,6 +272,14 @@ export class Yt {
     streamId?: string;
   }): Promise<Record<string, any>> {
     return this.handle.broadcastBind(opts.id, opts.part, opts.streamId);
+  }
+
+  /** Insert a cuepoint into a live broadcast. */
+  async broadcastCuepoint(opts: {
+    id: string;
+    body: Record<string, any>;
+  }): Promise<Record<string, any>> {
+    return this.handle.broadcastCuepoint(opts.id, opts.body);
   }
 
   // ---------------------------------------------------------------------------
@@ -265,6 +352,11 @@ export class Yt {
       opts.part ?? 'snippet',
       opts.body,
     );
+  }
+
+  /** Delete a chat message. */
+  async chatDeleteMessage(opts: { id: string }): Promise<void> {
+    return this.handle.chatDeleteMessage(opts.id);
   }
 
   // ---------------------------------------------------------------------------
@@ -699,6 +791,232 @@ export class Yt {
       opts.publishedBefore,
       opts.regionCode,
     );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Captions
+  // ---------------------------------------------------------------------------
+
+  /** List caption tracks for a video. */
+  async captionsList(opts: {
+    videoId: string;
+    part?: string;
+    id?: string;
+  }): Promise<Record<string, any>> {
+    return this.handle.captionsList(opts.videoId, opts.part, opts.id);
+  }
+
+  /** Upload a caption track. */
+  async captionsInsert(opts: {
+    part?: string;
+    body: Record<string, any>;
+    filePath: string;
+  }): Promise<Record<string, any>> {
+    return this.handle.captionsInsert(opts.part ?? 'snippet', opts.body, opts.filePath);
+  }
+
+  /** Update a caption track. */
+  async captionsUpdate(opts: {
+    part?: string;
+    body: Record<string, any>;
+    filePath: string;
+  }): Promise<Record<string, any>> {
+    return this.handle.captionsUpdate(opts.part ?? 'snippet', opts.body, opts.filePath);
+  }
+
+  /** Delete a caption track. */
+  async captionsDelete(opts: { id: string }): Promise<void> {
+    return this.handle.captionsDelete(opts.id);
+  }
+
+  /** Download a caption track. */
+  async captionsDownload(opts: {
+    id: string;
+    tfmt?: string;
+    tlang?: string;
+  }): Promise<string> {
+    return this.handle.captionsDownload(opts.id, opts.tfmt, opts.tlang);
+  }
+
+  // ---------------------------------------------------------------------------
+  // ChannelBanners
+  // ---------------------------------------------------------------------------
+
+  /** Upload a channel banner image. */
+  async channelBannersInsert(opts: {
+    filePath: string;
+  }): Promise<Record<string, any>> {
+    return this.handle.channelBannersInsert(opts.filePath);
+  }
+
+  // ---------------------------------------------------------------------------
+  // ChannelSections
+  // ---------------------------------------------------------------------------
+
+  /** List channel sections. */
+  async channelSectionsList(opts: {
+    part?: string;
+    channelId?: string;
+    id?: string;
+    mine?: boolean;
+    hl?: string;
+  } = {}): Promise<Record<string, any>> {
+    return this.handle.channelSectionsList(
+      opts.part,
+      opts.channelId,
+      opts.id,
+      opts.mine,
+      opts.hl,
+    );
+  }
+
+  /** Insert a channel section. */
+  async channelSectionsInsert(opts: {
+    part?: string;
+    body: Record<string, any>;
+  }): Promise<Record<string, any>> {
+    return this.handle.channelSectionsInsert(
+      opts.part ?? 'contentDetails,id,localizations,snippet',
+      opts.body,
+    );
+  }
+
+  /** Update a channel section. */
+  async channelSectionsUpdate(opts: {
+    part?: string;
+    body: Record<string, any>;
+  }): Promise<Record<string, any>> {
+    return this.handle.channelSectionsUpdate(
+      opts.part ?? 'contentDetails,id,localizations,snippet',
+      opts.body,
+    );
+  }
+
+  /** Delete a channel section. */
+  async channelSectionsDelete(opts: { id: string }): Promise<void> {
+    return this.handle.channelSectionsDelete(opts.id);
+  }
+
+  // ---------------------------------------------------------------------------
+  // I18nLanguages
+  // ---------------------------------------------------------------------------
+
+  /** List supported application languages. */
+  async i18nLanguagesList(opts: {
+    part?: string;
+    hl?: string;
+  } = {}): Promise<Record<string, any>> {
+    return this.handle.i18nLanguagesList(opts.part, opts.hl);
+  }
+
+  // ---------------------------------------------------------------------------
+  // I18nRegions
+  // ---------------------------------------------------------------------------
+
+  /** List supported content regions. */
+  async i18nRegionsList(opts: {
+    part?: string;
+    hl?: string;
+  } = {}): Promise<Record<string, any>> {
+    return this.handle.i18nRegionsList(opts.part, opts.hl);
+  }
+
+  // ---------------------------------------------------------------------------
+  // PlaylistImages
+  // ---------------------------------------------------------------------------
+
+  /** List playlist images. */
+  async playlistImagesList(opts: {
+    parent: string;
+    part?: string;
+    maxResults?: number;
+    pageToken?: string;
+  }): Promise<Record<string, any>> {
+    return this.handle.playlistImagesList(
+      opts.parent,
+      opts.part,
+      opts.maxResults,
+      opts.pageToken,
+    );
+  }
+
+  /** Upload a playlist image. */
+  async playlistImagesInsert(opts: {
+    parent: string;
+    filePath: string;
+    part?: string;
+  }): Promise<Record<string, any>> {
+    return this.handle.playlistImagesInsert(
+      opts.parent,
+      opts.filePath,
+      opts.part,
+    );
+  }
+
+  /** Update a playlist image. */
+  async playlistImagesUpdate(opts: {
+    filePath: string;
+    part?: string;
+  }): Promise<Record<string, any>> {
+    return this.handle.playlistImagesUpdate(opts.filePath, opts.part);
+  }
+
+  /** Delete a playlist image. */
+  async playlistImagesDelete(opts: { id: string }): Promise<void> {
+    return this.handle.playlistImagesDelete(opts.id);
+  }
+
+  // ---------------------------------------------------------------------------
+  // ThirdPartyLinks
+  // ---------------------------------------------------------------------------
+
+  /** List third-party links. */
+  async thirdPartyLinksList(opts: {
+    part?: string;
+    linkingToken?: string;
+    type?: string;
+    externalChannelId?: string;
+  } = {}): Promise<Record<string, any>> {
+    return this.handle.thirdPartyLinksList(
+      opts.part,
+      opts.linkingToken,
+      opts.type,
+      opts.externalChannelId,
+    );
+  }
+
+  /** Insert a third-party link. */
+  async thirdPartyLinksInsert(opts: {
+    part?: string;
+    body: Record<string, any>;
+    externalChannelId?: string;
+  }): Promise<Record<string, any>> {
+    return this.handle.thirdPartyLinksInsert(
+      opts.part ?? 'snippet,status',
+      opts.body,
+      opts.externalChannelId,
+    );
+  }
+
+  /** Update a third-party link. */
+  async thirdPartyLinksUpdate(opts: {
+    part?: string;
+    body: Record<string, any>;
+    externalChannelId?: string;
+  }): Promise<Record<string, any>> {
+    return this.handle.thirdPartyLinksUpdate(
+      opts.part ?? 'snippet,status',
+      opts.body,
+      opts.externalChannelId,
+    );
+  }
+
+  /** Delete a third-party link. */
+  async thirdPartyLinksDelete(opts: {
+    linkingToken: string;
+    type: string;
+  }): Promise<void> {
+    return this.handle.thirdPartyLinksDelete(opts.linkingToken, opts.type);
   }
 
   // ---------------------------------------------------------------------------

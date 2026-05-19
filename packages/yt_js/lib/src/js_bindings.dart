@@ -38,7 +38,7 @@ JSPromise<JSObject> _withApiKey(JSString apiKey, JSString? logLevel) {
       logOptions: logOpts,
     );
 
-    final yt = Yt.withApiKey(apiKey.toDart);
+    final yt = Yt.withApiKey(apiKey: apiKey.toDart);
     return _wrap(yt);
   }();
 
@@ -93,17 +93,32 @@ JSObject _wrap(Yt yt) {
   handle.setProperty(
     'channelsList'.toJS,
     ((
-      JSString? part,
-      JSString? id,
-      JSString? forUsername,
-      JSNumber? maxResults,
-    ) {
+          JSString? part,
+          JSString? id,
+          JSString? forUsername,
+          JSNumber? maxResults,
+        ) {
+          final future = () async {
+            final response = await yt.channels.list(
+              part: part?.toDart ?? 'snippet',
+              id: id?.toDart,
+              forUsername: forUsername?.toDart,
+              maxResults: maxResults?.toDartInt ?? 5,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
+  );
+
+  handle.setProperty(
+    'channelsUpdate'.toJS,
+    ((JSString part, JSAny body) {
       final future = () async {
-        final response = await yt.channels.list(
-          part: part?.toDart ?? 'snippet',
-          id: id?.toDart,
-          forUsername: forUsername?.toDart,
-          maxResults: maxResults?.toDartInt ?? 5,
+        final response = await yt.channels.update(
+          part: part.toDart,
+          body: _jsToDartMap(body),
         );
         return _dartToJs(response.toJson()) ?? JSObject();
       }();
@@ -149,17 +164,86 @@ JSObject _wrap(Yt yt) {
     }).toJS,
   );
 
+  handle.setProperty(
+    'videosInsert'.toJS,
+    ((JSString part, JSAny body, JSString filePath) {
+      final future = () async {
+        final response = await yt.videos.insert(
+          part: part.toDart,
+          body: _jsToDartMap(body),
+          videoFile: File(filePath.toDart),
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'videosUpdate'.toJS,
+    ((JSString part, JSAny body) {
+      final future = () async {
+        final response = await yt.videos.update(
+          part: part.toDart,
+          body: _jsToDartMap(body),
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'videosRate'.toJS,
+    ((JSString id, JSString rating) {
+      final future = () async {
+        await yt.videos.rate(id: id.toDart, rating: rating.toDart);
+        return JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'videosGetRating'.toJS,
+    ((JSString id) {
+      final future = () async {
+        final response = await yt.videos.getRating(id: id.toDart);
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'videosReportAbuse'.toJS,
+    ((JSAny body) {
+      final future = () async {
+        final reportAbuse = ReportAbuse.fromJson(_jsToDartMap(body));
+        await yt.videos.reportAbuse(body: reportAbuse);
+        return JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'videosDelete'.toJS,
+    ((JSString id) {
+      final future = () async {
+        await yt.videos.delete(id: id.toDart);
+        return JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
   // -----------------------------------------------------------------------
   // Playlists
   // -----------------------------------------------------------------------
   handle.setProperty(
     'playlistsList'.toJS,
-    ((
-      JSString? channelId,
-      JSString? id,
-      JSString? part,
-      JSNumber? maxResults,
-    ) {
+    ((JSString? channelId, JSString? id, JSString? part, JSNumber? maxResults) {
       final future = () async {
         final response = await yt.playlists.list(
           channelId: channelId?.toDart,
@@ -173,30 +257,70 @@ JSObject _wrap(Yt yt) {
     }).toJS,
   );
 
+  handle.setProperty(
+    'playlistsInsert'.toJS,
+    ((JSString part, JSAny body) {
+      final future = () async {
+        final response = await yt.playlists.insert(
+          part: part.toDart,
+          body: _jsToDartMap(body),
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'playlistsUpdate'.toJS,
+    ((JSString part, JSAny body) {
+      final future = () async {
+        final response = await yt.playlists.update(
+          part: part.toDart,
+          body: _jsToDartMap(body),
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'playlistsDelete'.toJS,
+    ((JSString id) {
+      final future = () async {
+        await yt.playlists.delete(id: id.toDart);
+        return JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
   // -----------------------------------------------------------------------
   // Broadcast (Live Streaming)
   // -----------------------------------------------------------------------
   handle.setProperty(
     'broadcastList'.toJS,
     ((
-      JSString? part,
-      JSString? broadcastStatus,
-      JSString? broadcastType,
-      JSString? id,
-      JSNumber? maxResults,
-    ) {
-      final future = () async {
-        final response = await yt.broadcast.list(
-          part: part?.toDart ?? 'snippet',
-          broadcastStatus: broadcastStatus?.toDart,
-          broadcastType: broadcastType?.toDart,
-          id: id?.toDart,
-          maxResults: maxResults?.toDartInt,
-        );
-        return _dartToJs(response.toJson()) ?? JSObject();
-      }();
-      return future.toJS;
-    }).toJS,
+          JSString? part,
+          JSString? broadcastStatus,
+          JSString? broadcastType,
+          JSString? id,
+          JSNumber? maxResults,
+        ) {
+          final future = () async {
+            final response = await yt.broadcast.list(
+              part: part?.toDart ?? 'snippet',
+              broadcastStatus: broadcastStatus?.toDart,
+              broadcastType: broadcastType?.toDart,
+              id: id?.toDart,
+              maxResults: maxResults?.toDartInt,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
   );
 
   handle.setProperty(
@@ -268,30 +392,47 @@ JSObject _wrap(Yt yt) {
     }).toJS,
   );
 
+  handle.setProperty(
+    'broadcastCuepoint'.toJS,
+    ((JSString id, JSAny body) {
+      final future = () async {
+        final map = _jsToDartMap(body);
+        final cuepoint = Cuepoint.fromJson(map);
+        final response = await yt.broadcast.cuepoint(
+          id: id.toDart,
+          body: cuepoint,
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
   // -----------------------------------------------------------------------
   // LiveStream
   // -----------------------------------------------------------------------
   handle.setProperty(
     'streamList'.toJS,
     ((
-      JSString? part,
-      JSString? id,
-      JSBoolean? mine,
-      JSNumber? maxResults,
-      JSString? pageToken,
-    ) {
-      final future = () async {
-        final response = await yt.liveStream.list(
-          part: part?.toDart ?? 'snippet',
-          id: id?.toDart,
-          mine: mine?.toDart,
-          maxResults: maxResults?.toDartInt,
-          pageToken: pageToken?.toDart,
-        );
-        return _dartToJs(response.toJson()) ?? JSObject();
-      }();
-      return future.toJS;
-    }).toJS,
+          JSString? part,
+          JSString? id,
+          JSBoolean? mine,
+          JSNumber? maxResults,
+          JSString? pageToken,
+        ) {
+          final future = () async {
+            final response = await yt.liveStream.list(
+              part: part?.toDart ?? 'snippet',
+              id: id?.toDart,
+              mine: mine?.toDart,
+              maxResults: maxResults?.toDartInt,
+              pageToken: pageToken?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
   );
 
   handle.setProperty(
@@ -339,22 +480,23 @@ JSObject _wrap(Yt yt) {
   handle.setProperty(
     'chatListMessages'.toJS,
     ((
-      JSString liveChatId,
-      JSString? part,
-      JSNumber? maxResults,
-      JSString? pageToken,
-    ) {
-      final future = () async {
-        final response = await yt.chat.list(
-          liveChatId: liveChatId.toDart,
-          part: part?.toDart ?? 'snippet,authorDetails',
-          maxResults: maxResults?.toDartInt,
-          pageToken: pageToken?.toDart,
-        );
-        return _dartToJs(response.toJson()) ?? JSObject();
-      }();
-      return future.toJS;
-    }).toJS,
+          JSString liveChatId,
+          JSString? part,
+          JSNumber? maxResults,
+          JSString? pageToken,
+        ) {
+          final future = () async {
+            final response = await yt.chat.list(
+              liveChatId: liveChatId.toDart,
+              part: part?.toDart ?? 'snippet,authorDetails',
+              maxResults: maxResults?.toDartInt,
+              pageToken: pageToken?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
   );
 
   handle.setProperty(
@@ -366,6 +508,17 @@ JSObject _wrap(Yt yt) {
           body: _jsToDartMap(body),
         );
         return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'chatDeleteMessage'.toJS,
+    ((JSString id) {
+      final future = () async {
+        await yt.chat.delete(id: id.toDart);
+        return JSObject();
       }();
       return future.toJS;
     }).toJS,
@@ -392,23 +545,25 @@ JSObject _wrap(Yt yt) {
   handle.setProperty(
     'commentsListByIds'.toJS,
     ((
-      JSString? ids,
-      JSNumber? maxResults,
-      JSString? pageToken,
-      JSString? textFormat,
-    ) {
-      final future = () async {
-        final idList =
-            ids?.toDart.split(',').where((s) => s.isNotEmpty).toList() ?? [];
-        final response = await yt.comments.listByIds(
-          ids: idList,
-          maxResults: maxResults?.toDartInt,
-          pageToken: pageToken?.toDart,
-        );
-        return _dartToJs(response.toJson()) ?? JSObject();
-      }();
-      return future.toJS;
-    }).toJS,
+          JSString? ids,
+          JSNumber? maxResults,
+          JSString? pageToken,
+          JSString? textFormat,
+        ) {
+          final future = () async {
+            final idList =
+                ids?.toDart.split(',').where((s) => s.isNotEmpty).toList() ??
+                [];
+            final response = await yt.comments.listByIds(
+              ids: idList,
+              maxResults: maxResults?.toDartInt,
+              pageToken: pageToken?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
   );
 
   handle.setProperty(
@@ -486,37 +641,36 @@ JSObject _wrap(Yt yt) {
   handle.setProperty(
     'commentThreadsList'.toJS,
     ((
-      JSString? part,
-      JSString? videoId,
-      JSString? channelId,
-      JSString? id,
-      JSNumber? maxResults,
-      JSString? pageToken,
-      JSString? order,
-    ) {
-      final future = () async {
-        final response = await yt.commentThreads.list(
-          part: part?.toDart ?? 'snippet',
-          videoId: videoId?.toDart,
-          channelId: channelId?.toDart,
-          id: id?.toDart,
-          maxResults: maxResults?.toDartInt,
-          pageToken: pageToken?.toDart,
-          order: order?.toDart,
-        );
-        return _dartToJs(response.toJson()) ?? JSObject();
-      }();
-      return future.toJS;
-    }).toJS,
+          JSString? part,
+          JSString? videoId,
+          JSString? channelId,
+          JSString? id,
+          JSNumber? maxResults,
+          JSString? pageToken,
+          JSString? order,
+        ) {
+          final future = () async {
+            final response = await yt.commentThreads.list(
+              part: part?.toDart ?? 'snippet',
+              videoId: videoId?.toDart,
+              channelId: channelId?.toDart,
+              id: id?.toDart,
+              maxResults: maxResults?.toDartInt,
+              pageToken: pageToken?.toDart,
+              order: order?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
   );
 
   handle.setProperty(
     'commentThreadsListById'.toJS,
     ((JSString? id, JSString? part) {
       final future = () async {
-        final response = await yt.commentThreads.listById(
-          id: id?.toDart ?? '',
-        );
+        final response = await yt.commentThreads.listById(id: id?.toDart ?? '');
         return _dartToJs(response.toJson()) ?? JSObject();
       }();
       return future.toJS;
@@ -543,24 +697,25 @@ JSObject _wrap(Yt yt) {
   handle.setProperty(
     'subscriptionsList'.toJS,
     ((
-      JSString? part,
-      JSString? channelId,
-      JSBoolean? mine,
-      JSNumber? maxResults,
-      JSString? pageToken,
-    ) {
-      final future = () async {
-        final response = await yt.subscriptions.list(
-          part: part?.toDart ?? 'snippet',
-          channelId: channelId?.toDart,
-          mine: mine?.toDart,
-          maxResults: maxResults?.toDartInt,
-          pageToken: pageToken?.toDart,
-        );
-        return _dartToJs(response.toJson()) ?? JSObject();
-      }();
-      return future.toJS;
-    }).toJS,
+          JSString? part,
+          JSString? channelId,
+          JSBoolean? mine,
+          JSNumber? maxResults,
+          JSString? pageToken,
+        ) {
+          final future = () async {
+            final response = await yt.subscriptions.list(
+              part: part?.toDart ?? 'snippet',
+              channelId: channelId?.toDart,
+              mine: mine?.toDart,
+              maxResults: maxResults?.toDartInt,
+              pageToken: pageToken?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
   );
 
   handle.setProperty(
@@ -594,24 +749,25 @@ JSObject _wrap(Yt yt) {
   handle.setProperty(
     'playlistItemsList'.toJS,
     ((
-      JSString? part,
-      JSString? playlistId,
-      JSString? id,
-      JSNumber? maxResults,
-      JSString? pageToken,
-    ) {
-      final future = () async {
-        final response = await yt.playlistItems.list(
-          part: part?.toDart ?? 'snippet',
-          playlistId: playlistId?.toDart,
-          id: id?.toDart,
-          maxResults: maxResults?.toDartInt,
-          pageToken: pageToken?.toDart,
-        );
-        return _dartToJs(response.toJson()) ?? JSObject();
-      }();
-      return future.toJS;
-    }).toJS,
+          JSString? part,
+          JSString? playlistId,
+          JSString? id,
+          JSNumber? maxResults,
+          JSString? pageToken,
+        ) {
+          final future = () async {
+            final response = await yt.playlistItems.list(
+              part: part?.toDart ?? 'snippet',
+              playlistId: playlistId?.toDart,
+              id: id?.toDart,
+              maxResults: maxResults?.toDartInt,
+              pageToken: pageToken?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
   );
 
   handle.setProperty(
@@ -724,18 +880,24 @@ JSObject _wrap(Yt yt) {
   // -----------------------------------------------------------------------
   handle.setProperty(
     'membersList'.toJS,
-    ((JSString? part, JSString? mode, JSNumber? maxResults, JSString? pageToken) {
-      final future = () async {
-        final response = await yt.members.list(
-          part: part?.toDart ?? 'snippet',
-          mode: mode?.toDart,
-          maxResults: maxResults?.toDartInt,
-          pageToken: pageToken?.toDart,
-        );
-        return _dartToJs(response.toJson()) ?? JSObject();
-      }();
-      return future.toJS;
-    }).toJS,
+    ((
+          JSString? part,
+          JSString? mode,
+          JSNumber? maxResults,
+          JSString? pageToken,
+        ) {
+          final future = () async {
+            final response = await yt.members.list(
+              part: part?.toDart ?? 'snippet',
+              mode: mode?.toDart,
+              maxResults: maxResults?.toDartInt,
+              pageToken: pageToken?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
   );
 
   // -----------------------------------------------------------------------
@@ -777,57 +939,60 @@ JSObject _wrap(Yt yt) {
   handle.setProperty(
     'analyticsQuery'.toJS,
     ((
-      JSString ids,
-      JSString startDate,
-      JSString endDate,
-      JSString metrics,
-      JSString? dimensions,
-      JSString? filters,
-      JSString? sort,
-      JSNumber? maxResults,
-      JSNumber? startIndex,
-      JSString? currency,
-      JSBoolean? includeHistoricalChannelData,
-    ) {
-      final future = () async {
-        final response = await yt.analytics.query(
-          ids: ids.toDart,
-          startDate: startDate.toDart,
-          endDate: endDate.toDart,
-          metrics: metrics.toDart,
-          dimensions: dimensions?.toDart,
-          filters: filters?.toDart,
-          sort: sort?.toDart,
-          maxResults: maxResults?.toDartInt,
-          startIndex: startIndex?.toDartInt,
-          currency: currency?.toDart,
-          includeHistoricalChannelData: includeHistoricalChannelData?.toDart,
-        );
-        return _dartToJs(response.toJson()) ?? JSObject();
-      }();
-      return future.toJS;
-    }).toJS,
+          JSString ids,
+          JSString startDate,
+          JSString endDate,
+          JSString metrics,
+          JSString? dimensions,
+          JSString? filters,
+          JSString? sort,
+          JSNumber? maxResults,
+          JSNumber? startIndex,
+          JSString? currency,
+          JSBoolean? includeHistoricalChannelData,
+        ) {
+          final future = () async {
+            final response = await yt.analytics.query(
+              ids: ids.toDart,
+              startDate: startDate.toDart,
+              endDate: endDate.toDart,
+              metrics: metrics.toDart,
+              dimensions: dimensions?.toDart,
+              filters: filters?.toDart,
+              sort: sort?.toDart,
+              maxResults: maxResults?.toDartInt,
+              startIndex: startIndex?.toDartInt,
+              currency: currency?.toDart,
+              includeHistoricalChannelData:
+                  includeHistoricalChannelData?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
   );
 
   handle.setProperty(
     'analyticsGroupsList'.toJS,
     ((
-      JSString? id,
-      JSBoolean? mine,
-      JSString? pageToken,
-      JSString? onBehalfOfContentOwner,
-    ) {
-      final future = () async {
-        final response = await yt.analytics.groupsList(
-          id: id?.toDart,
-          mine: mine?.toDart,
-          pageToken: pageToken?.toDart,
-          onBehalfOfContentOwner: onBehalfOfContentOwner?.toDart,
-        );
-        return _dartToJs(response.toJson()) ?? JSObject();
-      }();
-      return future.toJS;
-    }).toJS,
+          JSString? id,
+          JSBoolean? mine,
+          JSString? pageToken,
+          JSString? onBehalfOfContentOwner,
+        ) {
+          final future = () async {
+            final response = await yt.analytics.groupsList(
+              id: id?.toDart,
+              mine: mine?.toDart,
+              pageToken: pageToken?.toDart,
+              onBehalfOfContentOwner: onBehalfOfContentOwner?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
   );
 
   handle.setProperty(
@@ -875,22 +1040,23 @@ JSObject _wrap(Yt yt) {
   handle.setProperty(
     'analyticsGroupItemsList'.toJS,
     ((
-      JSString? groupId,
-      JSString? id,
-      JSString? pageToken,
-      JSString? onBehalfOfContentOwner,
-    ) {
-      final future = () async {
-        final response = await yt.analytics.groupItemsList(
-          groupId: groupId?.toDart,
-          id: id?.toDart,
-          pageToken: pageToken?.toDart,
-          onBehalfOfContentOwner: onBehalfOfContentOwner?.toDart,
-        );
-        return _dartToJs(response.toJson()) ?? JSObject();
-      }();
-      return future.toJS;
-    }).toJS,
+          JSString? groupId,
+          JSString? id,
+          JSString? pageToken,
+          JSString? onBehalfOfContentOwner,
+        ) {
+          final future = () async {
+            final response = await yt.analytics.groupItemsList(
+              groupId: groupId?.toDart,
+              id: id?.toDart,
+              pageToken: pageToken?.toDart,
+              onBehalfOfContentOwner: onBehalfOfContentOwner?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
   );
 
   handle.setProperty(
@@ -927,27 +1093,352 @@ JSObject _wrap(Yt yt) {
   handle.setProperty(
     'activitiesList'.toJS,
     ((
-      JSString? channelId,
-      JSBoolean? mine,
-      JSString? part,
-      JSNumber? maxResults,
-      JSString? pageToken,
-      JSString? publishedAfter,
-      JSString? publishedBefore,
-      JSString? regionCode,
-    ) {
+          JSString? channelId,
+          JSBoolean? mine,
+          JSString? part,
+          JSNumber? maxResults,
+          JSString? pageToken,
+          JSString? publishedAfter,
+          JSString? publishedBefore,
+          JSString? regionCode,
+        ) {
+          final future = () async {
+            final response = await yt.activities.list(
+              channelId: channelId?.toDart,
+              mine: mine?.toDart,
+              part: part?.toDart ?? 'snippet,contentDetails',
+              maxResults: maxResults?.toDartInt,
+              pageToken: pageToken?.toDart,
+              publishedAfter: publishedAfter?.toDart,
+              publishedBefore: publishedBefore?.toDart,
+              regionCode: regionCode?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
+  );
+
+  // -----------------------------------------------------------------------
+  // Captions
+  // -----------------------------------------------------------------------
+  handle.setProperty(
+    'captionsList'.toJS,
+    ((JSString videoId, JSString? part, JSString? id) {
       final future = () async {
-        final response = await yt.activities.list(
-          channelId: channelId?.toDart,
-          mine: mine?.toDart,
-          part: part?.toDart ?? 'snippet,contentDetails',
-          maxResults: maxResults?.toDartInt,
-          pageToken: pageToken?.toDart,
-          publishedAfter: publishedAfter?.toDart,
-          publishedBefore: publishedBefore?.toDart,
-          regionCode: regionCode?.toDart,
+        final response = await yt.captions.list(
+          videoId: videoId.toDart,
+          part: part?.toDart ?? 'id,snippet',
+          id: id?.toDart,
         );
         return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'captionsInsert'.toJS,
+    ((JSString part, JSAny body, JSString filePath) {
+      final future = () async {
+        final response = await yt.captions.insert(
+          part: part.toDart,
+          body: _jsToDartMap(body),
+          captionFile: File(filePath.toDart),
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'captionsUpdate'.toJS,
+    ((JSString part, JSAny body, JSString filePath) {
+      final future = () async {
+        final response = await yt.captions.update(
+          part: part.toDart,
+          body: _jsToDartMap(body),
+          captionFile: File(filePath.toDart),
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'captionsDelete'.toJS,
+    ((JSString id) {
+      final future = () async {
+        await yt.captions.delete(id: id.toDart);
+        return JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'captionsDownload'.toJS,
+    ((JSString id, JSString? tfmt, JSString? tlang) {
+      final future = () async {
+        final result = await yt.captions.download(
+          id: id.toDart,
+          tfmt: tfmt?.toDart,
+          tlang: tlang?.toDart,
+        );
+        return result.toJS;
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  // -----------------------------------------------------------------------
+  // ChannelBanners
+  // -----------------------------------------------------------------------
+  handle.setProperty(
+    'channelBannersInsert'.toJS,
+    ((JSString filePath) {
+      final future = () async {
+        final response = await yt.channelBanners.insert(
+          image: File(filePath.toDart),
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  // -----------------------------------------------------------------------
+  // ChannelSections
+  // -----------------------------------------------------------------------
+  handle.setProperty(
+    'channelSectionsList'.toJS,
+    ((
+          JSString? part,
+          JSString? channelId,
+          JSString? id,
+          JSBoolean? mine,
+          JSString? hl,
+        ) {
+          final future = () async {
+            final response = await yt.channelSections.list(
+              part: part?.toDart ?? 'contentDetails,id,localizations,snippet',
+              channelId: channelId?.toDart,
+              id: id?.toDart,
+              mine: mine?.toDart,
+              hl: hl?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
+  );
+
+  handle.setProperty(
+    'channelSectionsInsert'.toJS,
+    ((JSString part, JSAny body) {
+      final future = () async {
+        final response = await yt.channelSections.insert(
+          part: part.toDart,
+          body: _jsToDartMap(body),
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'channelSectionsUpdate'.toJS,
+    ((JSString part, JSAny body) {
+      final future = () async {
+        final response = await yt.channelSections.update(
+          part: part.toDart,
+          body: _jsToDartMap(body),
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'channelSectionsDelete'.toJS,
+    ((JSString id) {
+      final future = () async {
+        await yt.channelSections.delete(id: id.toDart);
+        return JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  // -----------------------------------------------------------------------
+  // I18nLanguages
+  // -----------------------------------------------------------------------
+  handle.setProperty(
+    'i18nLanguagesList'.toJS,
+    ((JSString? part, JSString? hl) {
+      final future = () async {
+        final response = await yt.i18nLanguages.list(
+          part: part?.toDart ?? 'snippet',
+          hl: hl?.toDart,
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  // -----------------------------------------------------------------------
+  // I18nRegions
+  // -----------------------------------------------------------------------
+  handle.setProperty(
+    'i18nRegionsList'.toJS,
+    ((JSString? part, JSString? hl) {
+      final future = () async {
+        final response = await yt.i18nRegions.list(
+          part: part?.toDart ?? 'snippet',
+          hl: hl?.toDart,
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  // -----------------------------------------------------------------------
+  // PlaylistImages
+  // -----------------------------------------------------------------------
+  handle.setProperty(
+    'playlistImagesList'.toJS,
+    ((
+          JSString parent,
+          JSString? part,
+          JSNumber? maxResults,
+          JSString? pageToken,
+        ) {
+          final future = () async {
+            final response = await yt.playlistImages.list(
+              parent: parent.toDart,
+              part: part?.toDart ?? 'snippet',
+              maxResults: maxResults?.toDartInt,
+              pageToken: pageToken?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
+  );
+
+  handle.setProperty(
+    'playlistImagesInsert'.toJS,
+    ((JSString parent, JSString filePath, JSString? part) {
+      final future = () async {
+        final response = await yt.playlistImages.insert(
+          parent: parent.toDart,
+          image: File(filePath.toDart),
+          part: part?.toDart ?? 'snippet',
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'playlistImagesUpdate'.toJS,
+    ((JSString filePath, JSString? part) {
+      final future = () async {
+        final response = await yt.playlistImages.update(
+          image: File(filePath.toDart),
+          part: part?.toDart ?? 'id,snippet',
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'playlistImagesDelete'.toJS,
+    ((JSString id) {
+      final future = () async {
+        await yt.playlistImages.delete(id: id.toDart);
+        return JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  // -----------------------------------------------------------------------
+  // ThirdPartyLinks
+  // -----------------------------------------------------------------------
+  handle.setProperty(
+    'thirdPartyLinksList'.toJS,
+    ((
+          JSString? part,
+          JSString? linkingToken,
+          JSString? type,
+          JSString? externalChannelId,
+        ) {
+          final future = () async {
+            final response = await yt.thirdPartyLinks.list(
+              part: part?.toDart ?? 'snippet,status',
+              linkingToken: linkingToken?.toDart,
+              type: type?.toDart,
+              externalChannelId: externalChannelId?.toDart,
+            );
+            return _dartToJs(response.toJson()) ?? JSObject();
+          }();
+          return future.toJS;
+        })
+        .toJS,
+  );
+
+  handle.setProperty(
+    'thirdPartyLinksInsert'.toJS,
+    ((JSString part, JSAny body, JSString? externalChannelId) {
+      final future = () async {
+        final response = await yt.thirdPartyLinks.insert(
+          part: part.toDart,
+          body: _jsToDartMap(body),
+          externalChannelId: externalChannelId?.toDart,
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'thirdPartyLinksUpdate'.toJS,
+    ((JSString part, JSAny body, JSString? externalChannelId) {
+      final future = () async {
+        final response = await yt.thirdPartyLinks.update(
+          part: part.toDart,
+          body: _jsToDartMap(body),
+          externalChannelId: externalChannelId?.toDart,
+        );
+        return _dartToJs(response.toJson()) ?? JSObject();
+      }();
+      return future.toJS;
+    }).toJS,
+  );
+
+  handle.setProperty(
+    'thirdPartyLinksDelete'.toJS,
+    ((JSString linkingToken, JSString type) {
+      final future = () async {
+        await yt.thirdPartyLinks.delete(
+          linkingToken: linkingToken.toDart,
+          type: type.toDart,
+        );
+        return JSObject();
       }();
       return future.toJS;
     }).toJS,

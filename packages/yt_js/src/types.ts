@@ -106,6 +106,7 @@ export interface YtJsHandle {
     forUsername?: string,
     maxResults?: number,
   ): Promise<Record<string, any>>;
+  channelsUpdate(part: string, body: any): Promise<Record<string, any>>;
 
   // Search
   searchList(
@@ -122,6 +123,16 @@ export interface YtJsHandle {
     part?: string,
     maxResults?: number,
   ): Promise<Record<string, any>>;
+  videosInsert(
+    part: string,
+    body: any,
+    filePath: string,
+  ): Promise<Record<string, any>>;
+  videosUpdate(part: string, body: any): Promise<Record<string, any>>;
+  videosRate(id: string, rating: string): Promise<void>;
+  videosGetRating(id: string): Promise<Record<string, any>>;
+  videosReportAbuse(body: any): Promise<void>;
+  videosDelete(id: string): Promise<void>;
 
   // Playlists
   playlistsList(
@@ -130,6 +141,9 @@ export interface YtJsHandle {
     part?: string,
     maxResults?: number,
   ): Promise<Record<string, any>>;
+  playlistsInsert(part: string, body: any): Promise<Record<string, any>>;
+  playlistsUpdate(part: string, body: any): Promise<Record<string, any>>;
+  playlistsDelete(id: string): Promise<void>;
 
   // Broadcast (Live Streaming)
   broadcastList(
@@ -152,6 +166,7 @@ export interface YtJsHandle {
     part?: string,
     streamId?: string,
   ): Promise<Record<string, any>>;
+  broadcastCuepoint(id: string, body: any): Promise<Record<string, any>>;
 
   // LiveStream
   streamList(
@@ -173,6 +188,7 @@ export interface YtJsHandle {
     pageToken?: string,
   ): Promise<Record<string, any>>;
   chatInsertMessage(part: string, body: any): Promise<Record<string, any>>;
+  chatDeleteMessage(id: string): Promise<void>;
 
   // Comments
   commentsList(
@@ -331,6 +347,102 @@ export interface YtJsHandle {
     publishedBefore?: string,
     regionCode?: string,
   ): Promise<Record<string, any>>;
+
+  // Captions
+  captionsList(
+    videoId: string,
+    part?: string,
+    id?: string,
+  ): Promise<Record<string, any>>;
+  captionsInsert(
+    part: string,
+    body: any,
+    filePath: string,
+  ): Promise<Record<string, any>>;
+  captionsUpdate(
+    part: string,
+    body: any,
+    filePath: string,
+  ): Promise<Record<string, any>>;
+  captionsDelete(id: string): Promise<void>;
+  captionsDownload(
+    id: string,
+    tfmt?: string,
+    tlang?: string,
+  ): Promise<string>;
+
+  // ChannelBanners
+  channelBannersInsert(filePath: string): Promise<Record<string, any>>;
+
+  // ChannelSections
+  channelSectionsList(
+    part?: string,
+    channelId?: string,
+    id?: string,
+    mine?: boolean,
+    hl?: string,
+  ): Promise<Record<string, any>>;
+  channelSectionsInsert(
+    part: string,
+    body: any,
+  ): Promise<Record<string, any>>;
+  channelSectionsUpdate(
+    part: string,
+    body: any,
+  ): Promise<Record<string, any>>;
+  channelSectionsDelete(id: string): Promise<void>;
+
+  // I18nLanguages
+  i18nLanguagesList(
+    part?: string,
+    hl?: string,
+  ): Promise<Record<string, any>>;
+
+  // I18nRegions
+  i18nRegionsList(
+    part?: string,
+    hl?: string,
+  ): Promise<Record<string, any>>;
+
+  // PlaylistImages
+  playlistImagesList(
+    parent: string,
+    part?: string,
+    maxResults?: number,
+    pageToken?: string,
+  ): Promise<Record<string, any>>;
+  playlistImagesInsert(
+    parent: string,
+    filePath: string,
+    part?: string,
+  ): Promise<Record<string, any>>;
+  playlistImagesUpdate(
+    filePath: string,
+    part?: string,
+  ): Promise<Record<string, any>>;
+  playlistImagesDelete(id: string): Promise<void>;
+
+  // ThirdPartyLinks
+  thirdPartyLinksList(
+    part?: string,
+    linkingToken?: string,
+    type?: string,
+    externalChannelId?: string,
+  ): Promise<Record<string, any>>;
+  thirdPartyLinksInsert(
+    part: string,
+    body: any,
+    externalChannelId?: string,
+  ): Promise<Record<string, any>>;
+  thirdPartyLinksUpdate(
+    part: string,
+    body: any,
+    externalChannelId?: string,
+  ): Promise<Record<string, any>>;
+  thirdPartyLinksDelete(
+    linkingToken: string,
+    type: string,
+  ): Promise<void>;
 
   // Close
   close(): void;
