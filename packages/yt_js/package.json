@@ -1,6 +1,6 @@
 {
   "name": "@unngh/youtube-api",
-  "version": "2.3.0",
+  "version": "1.2.0",
   "description": "JavaScript/TypeScript bindings for the yt Dart package. Universal (browser + Node.js) client for YouTube Data and Live Streaming APIs.",
   "license": "MIT",
   "author": "Chris Davis",
