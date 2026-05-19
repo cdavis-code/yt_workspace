@@ -25,7 +25,7 @@ import 'package:yt/yt.dart';
 
 void main() async {
   // Use an API key for read-only access
-  final yt = Yt.withKey('[your youtube api key]');
+  final yt = Yt.withApiKey(apiKey: '[your youtube api key]');
 
   // Search for videos
   final results = await yt.search.list(q: 'flutter tutorial', maxResults: 5);
@@ -120,7 +120,7 @@ YouTube API access requires either an API key (read-only) or OAuth 2.0 credentia
 Create an API key in the [Google API Console](https://developers.google.com/youtube/v3/live/registering_an_application), then:
 
 ```dart
-final yt = Yt.withKey('[your api key]');
+final yt = Yt.withApiKey(apiKey: '[your api key]');
 ```
 
 ### OAuth 2.0
@@ -301,7 +301,7 @@ for (final group in groups.items) {
 ### Activities
 
 ```dart
-final yt = Yt.withKey('[your api key]');
+final yt = Yt.withApiKey(apiKey: '[your api key]');
 
 // List recent channel activities
 final activities = await yt.activities.list(

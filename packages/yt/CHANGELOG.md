@@ -1,3 +1,14 @@
+## 3.2.0 (2026-05-18)
+
+### Added
+
+- **`Yt.captions` getter** — the existing `Captions` service is now exposed
+  on the `Yt` facade alongside the other resource getters. Previously
+  `Captions` was exported by `package:yt/yt.dart` but had to be constructed
+  manually; consumers can now call `yt.captions.list(...)`,
+  `yt.captions.insert(...)`, etc., consistent with `yt.videos`,
+  `yt.playlists`, and friends.
+
 ## 3.1.0 (2026-05-18)
 
 ### Added

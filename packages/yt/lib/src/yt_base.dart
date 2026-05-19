@@ -41,6 +41,7 @@ class Yt with UiLoggy {
   I18nRegions? _i18nRegions;
   PlaylistImages? _playlistImages;
   ThirdPartyLinks? _thirdPartyLinks;
+  Captions? _captions;
 
   Broadcast get broadcast => _broadcast == null
       ? throw Exception(_moduleUnavailableMessage)
@@ -119,6 +120,8 @@ class Yt with UiLoggy {
   ThirdPartyLinks get thirdPartyLinks => _thirdPartyLinks == null
       ? throw Exception(_moduleUnavailableMessage)
       : _thirdPartyLinks!;
+
+  Captions get captions => _captions!;
 
   Yt({
     LogOptions logOptions = const LogOptions(
@@ -374,6 +377,10 @@ class Yt with UiLoggy {
     /// An [I18nRegion] resource identifies a geographic area that a YouTube
     /// user can select as the preferred content region.
     _i18nRegions = I18nRegions(apiKey: apiKey, dio: dio);
+
+    /// A caption resource contains information about a YouTube video caption
+    /// track. Captions are available in many different languages.
+    _captions = Captions(apiKey: apiKey, dio: dio);
   }
 
   void close() => dio.close();
