@@ -224,12 +224,6 @@ The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) (`@modelc
    npx @modelcontextprotocol/inspector yt_mcp
    ```
 
-   Or if you installed via Homebrew:
-
-   ```bash
-   npx @modelcontextprotocol/inspector yt_mcp
-   ```
-
 3. **Browse and invoke tools** in the web UI that opens automatically. You can inspect request/response payloads for each tool call.
 
 4. **Provide authentication credentials** by placing a `.env` file in the `packages/yt_mcp/` or `packages/yt_mcp/bin/` directory with your `YT_API_KEY` or OAuth credential file paths.

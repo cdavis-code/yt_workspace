@@ -55,7 +55,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     registerTool(
       Tool(
         name: 'yt_channels_update',
-        description: 'Update a channel's metadata (requires OAuth).',
+        description: 'Update channel metadata (requires OAuth).',
         inputSchema: Schema.object(
     properties: {
       'part': Schema.string(
@@ -149,7 +149,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     registerTool(
       Tool(
         name: 'yt_videos_update',
-        description: 'Update a video's metadata (requires OAuth).',
+        description: 'Update video metadata (requires OAuth).',
         inputSchema: Schema.object(
     properties: {
       'body': Schema.object(),
@@ -280,7 +280,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     registerTool(
       Tool(
         name: 'yt_playlists_update',
-        description: 'Update a playlist's metadata (requires OAuth).',
+        description: 'Update playlist metadata (requires OAuth).',
         inputSchema: Schema.object(
     properties: {
       'body': Schema.object(),
@@ -465,7 +465,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     registerTool(
       Tool(
         name: 'yt_comments_change',
-        description: 'Change a comment's text (requires OAuth). Helper method.',
+        description: 'Change comment text (requires OAuth). Helper method.',
         inputSchema: Schema.object(
     properties: {
       'commentId': Schema.string(
@@ -2012,6 +2012,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     );
   }
 
+  /// Guards against duplicate initialization requests (e.g. from MCP Inspector
+  /// which may send `initialize` more than once for HTTP endpoints).
+  bool _isInitialized = false;
+  InitializeResult? _initializeResult;
+
+  @override
+  FutureOr<InitializeResult> initialize(InitializeRequest request) async {
+    if (_isInitialized) return _initializeResult!;
+    _isInitialized = true;
+    final result = await super.initialize(request);
+    _initializeResult = result;
+    return result;
+  }
+
   FutureOr<CallToolResult> _yt_channels_list(CallToolRequest request) async {
     try {
     final part = request.arguments?['part'] as String?;
@@ -2037,7 +2051,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_channels_update(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
     final body = request.arguments!['body'] as dynamic;
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
@@ -2060,9 +2074,9 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_search_list(CallToolRequest request) async {
     try {
     final q = request.arguments!['q'] as String;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
     final type = request.arguments?['type'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
+    final maxResults = (request.arguments?['maxResults'] as int?) ?? 5;
 
       final result = await yt_mcp_server.YtMcpServer().searchList(q: q, part: part, type: type, maxResults: maxResults);
       return CallToolResult(
@@ -2084,8 +2098,8 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     try {
     final id = request.arguments?['id'] as String?;
     final chart = request.arguments?['chart'] as String?;
-    final part = request.arguments?['part'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
+    final maxResults = (request.arguments?['maxResults'] as int?) ?? 5;
 
       final result = await yt_mcp_server.YtMcpServer().videosList(id: id, chart: chart, part: part, maxResults: maxResults);
       return CallToolResult(
@@ -2107,7 +2121,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     try {
     final body = request.arguments!['body'] as dynamic;
     final videoFilePath = request.arguments!['videoFilePath'] as String;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
     final notifySubscribers = request.arguments?['notifySubscribers'] as bool?;
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
@@ -2131,7 +2145,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_videos_update(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
 
       final result = await yt_mcp_server.YtMcpServer().videosUpdate(body: body, part: part);
       return CallToolResult(
@@ -2237,8 +2251,8 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     try {
     final channelId = request.arguments?['channelId'] as String?;
     final id = request.arguments?['id'] as String?;
-    final part = request.arguments?['part'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
+    final maxResults = (request.arguments?['maxResults'] as int?) ?? 5;
 
       final result = await yt_mcp_server.YtMcpServer().playlistsList(channelId: channelId, id: id, part: part, maxResults: maxResults);
       return CallToolResult(
@@ -2259,7 +2273,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_playlists_insert(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails,status';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -2282,7 +2296,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_playlists_update(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails,status';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -2326,9 +2340,9 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_comments_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
     final parentId = request.arguments?['parentId'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
+    final maxResults = (request.arguments?['maxResults'] as int?) ?? 20;
 
       final result = await yt_mcp_server.YtMcpServer().commentsList(part: part, parentId: parentId, maxResults: maxResults);
       return CallToolResult(
@@ -2416,7 +2430,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_comments_insert(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
       final result = await yt_mcp_server.YtMcpServer().commentsInsert(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
@@ -2459,7 +2473,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_comments_update(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
       final result = await yt_mcp_server.YtMcpServer().commentsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
@@ -2543,9 +2557,9 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_comment_threads_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
     final videoId = request.arguments?['videoId'] as String?;
-    final maxResults = request.arguments?['maxResults'] as int?;
+    final maxResults = (request.arguments?['maxResults'] as int?) ?? 20;
 
       final result = await yt_mcp_server.YtMcpServer().commentThreadsList(part: part, videoId: videoId, maxResults: maxResults);
       return CallToolResult(
@@ -2667,7 +2681,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_comment_threads_insert(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
 
       final result = await yt_mcp_server.YtMcpServer().commentThreadsInsert(body: body, part: part);
       return CallToolResult(
@@ -2708,7 +2722,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_members_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
     final mode = request.arguments?['mode'] as String?;
     final maxResults = request.arguments?['maxResults'] as int?;
     final pageToken = request.arguments?['pageToken'] as String?;
@@ -2731,7 +2745,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_memberships_levels_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
 
       final result = await yt_mcp_server.YtMcpServer().membershipsLevelsList(part: part);
       return CallToolResult(
@@ -2751,7 +2765,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_video_abuse_report_reasons_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
     final hl = request.arguments?['hl'] as String?;
 
       final result = await yt_mcp_server.YtMcpServer().videoAbuseReportReasonsList(part: part, hl: hl);
@@ -2773,7 +2787,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_playlist_items_list(CallToolRequest request) async {
     try {
     final playlistId = request.arguments!['playlistId'] as String;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
     final id = request.arguments?['id'] as String?;
     final maxResults = request.arguments?['maxResults'] as int?;
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
@@ -2799,7 +2813,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_playlist_items_insert(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -2822,7 +2836,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_playlist_items_update(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -2866,7 +2880,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_subscriptions_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
     final channelId = request.arguments?['channelId'] as String?;
     final id = request.arguments?['id'] as String?;
     final mine = request.arguments?['mine'] as bool?;
@@ -2898,7 +2912,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_subscriptions_insert(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -2942,7 +2956,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_activities_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
     final channelId = request.arguments?['channelId'] as String?;
     final mine = request.arguments?['mine'] as bool?;
     final maxResults = request.arguments?['maxResults'] as int?;
@@ -2972,7 +2986,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     final id = request.arguments?['id'] as String?;
     final regionCode = request.arguments?['regionCode'] as String?;
     final hl = request.arguments?['hl'] as String?;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
 
       final result = await yt_mcp_server.YtMcpServer().videoCategoriesList(id: id, regionCode: regionCode, hl: hl, part: part);
       return CallToolResult(
@@ -2995,7 +3009,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     final videoId = request.arguments!['videoId'] as String;
     final id = request.arguments?['id'] as String?;
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
 
       final result = await yt_mcp_server.YtMcpServer().captionsList(videoId: videoId, id: id, onBehalfOfContentOwner: onBehalfOfContentOwner, part: part);
       return CallToolResult(
@@ -3017,7 +3031,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     try {
     final body = request.arguments!['body'] as dynamic;
     final captionFilePath = request.arguments!['captionFilePath'] as String;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
       final result = await yt_mcp_server.YtMcpServer().captionsInsert(body: body, captionFilePath: captionFilePath, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
@@ -3040,7 +3054,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     try {
     final body = request.arguments!['body'] as dynamic;
     final captionFilePath = request.arguments!['captionFilePath'] as String;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
       final result = await yt_mcp_server.YtMcpServer().captionsUpdate(body: body, captionFilePath: captionFilePath, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
@@ -3190,7 +3204,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_channel_sections_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'contentDetails,id,snippet';
     final channelId = request.arguments?['channelId'] as String?;
     final id = request.arguments?['id'] as String?;
     final mine = request.arguments?['mine'] as bool?;
@@ -3216,7 +3230,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_channel_sections_insert(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'contentDetails,id,snippet';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -3239,7 +3253,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_channel_sections_update(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'contentDetails,id,snippet';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
 
       final result = await yt_mcp_server.YtMcpServer().channelSectionsUpdate(body: body, part: part, onBehalfOfContentOwner: onBehalfOfContentOwner);
@@ -3282,7 +3296,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_i18n_languages_list(CallToolRequest request) async {
     try {
     final hl = request.arguments?['hl'] as String?;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
 
       final result = await yt_mcp_server.YtMcpServer().i18nLanguagesList(hl: hl, part: part);
       return CallToolResult(
@@ -3303,7 +3317,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_i18n_regions_list(CallToolRequest request) async {
     try {
     final hl = request.arguments?['hl'] as String?;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
 
       final result = await yt_mcp_server.YtMcpServer().i18nRegionsList(hl: hl, part: part);
       return CallToolResult(
@@ -3324,7 +3338,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_playlist_images_list(CallToolRequest request) async {
     try {
     final parent = request.arguments!['parent'] as String;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
     final maxResults = request.arguments?['maxResults'] as int?;
     final pageToken = request.arguments?['pageToken'] as String?;
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
@@ -3350,7 +3364,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     try {
     final parent = request.arguments!['parent'] as String;
     final imageFilePath = request.arguments!['imageFilePath'] as String;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -3373,7 +3387,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_playlist_images_update(CallToolRequest request) async {
     try {
     final imageFilePath = request.arguments!['imageFilePath'] as String;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -3416,7 +3430,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_third_party_links_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status';
     final externalChannelId = request.arguments?['externalChannelId'] as String?;
     final linkingToken = request.arguments?['linkingToken'] as String?;
     final type = request.arguments?['type'] as String?;
@@ -3440,7 +3454,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_third_party_links_insert(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status';
     final externalChannelId = request.arguments?['externalChannelId'] as String?;
 
       final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksInsert(body: body, part: part, externalChannelId: externalChannelId);
@@ -3462,7 +3476,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_third_party_links_update(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status';
     final externalChannelId = request.arguments?['externalChannelId'] as String?;
 
       final result = await yt_mcp_server.YtMcpServer().thirdPartyLinksUpdate(body: body, part: part, externalChannelId: externalChannelId);
@@ -3506,7 +3520,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_broadcasts_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
     final broadcastStatus = request.arguments?['broadcastStatus'] as String?;
     final broadcastType = request.arguments?['broadcastType'] as String?;
     final id = request.arguments?['id'] as String?;
@@ -3535,7 +3549,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_broadcasts_insert(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -3558,7 +3572,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_broadcasts_update(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -3582,7 +3596,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     try {
     final id = request.arguments!['id'] as String;
     final broadcastStatus = request.arguments!['broadcastStatus'] as String;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -3605,7 +3619,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_broadcasts_bind(CallToolRequest request) async {
     try {
     final id = request.arguments!['id'] as String;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
     final streamId = request.arguments?['streamId'] as String?;
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
@@ -3713,7 +3727,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   }
   FutureOr<CallToolResult> _yt_live_streams_list(CallToolRequest request) async {
     try {
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
     final id = request.arguments?['id'] as String?;
     final mine = request.arguments?['mine'] as bool?;
     final maxResults = request.arguments?['maxResults'] as int?;
@@ -3740,7 +3754,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_live_streams_insert(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -3763,7 +3777,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_live_streams_update(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,status,contentDetails';
     final onBehalfOfContentOwner = request.arguments?['onBehalfOfContentOwner'] as String?;
     final onBehalfOfContentOwnerChannel = request.arguments?['onBehalfOfContentOwnerChannel'] as String?;
 
@@ -3808,7 +3822,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_live_chat_list(CallToolRequest request) async {
     try {
     final liveChatId = request.arguments!['liveChatId'] as String;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet,authorDetails';
     final hl = request.arguments?['hl'] as String?;
     final maxResults = request.arguments?['maxResults'] as int?;
     final pageToken = request.arguments?['pageToken'] as String?;
@@ -3833,7 +3847,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
   FutureOr<CallToolResult> _yt_live_chat_insert(CallToolRequest request) async {
     try {
     final body = request.arguments!['body'] as dynamic;
-    final part = request.arguments?['part'] as String?;
+    final part = (request.arguments?['part'] as String?) ?? 'snippet';
 
       final result = await yt_mcp_server.YtMcpServer().liveChatInsert(body: body, part: part);
       return CallToolResult(

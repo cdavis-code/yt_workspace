@@ -102,24 +102,23 @@ class YtMcpServer {
   )
   Future<Map<String, dynamic>> channelsList({
     @Parameter(description: 'Comma-separated channel property names')
-    String part = 'snippet',
+    String? part,
     @Parameter(description: 'Comma-separated channel IDs') String? id,
     @Parameter(description: 'YouTube username') String? forUsername,
-    @Parameter(description: 'Maximum items to return (1-50)')
-    int maxResults = 5,
+    @Parameter(description: 'Maximum items to return (1-50)') int? maxResults,
   }) async {
     final response = await _yt.channels.list(
-      part: part,
+      part: part ?? 'snippet',
       id: id,
       forUsername: forUsername,
-      maxResults: maxResults,
+      maxResults: maxResults ?? 5,
     );
     return response.toJson();
   }
 
   @Tool(
     name: 'channels_update',
-    description: 'Update a channel\'s metadata (requires OAuth).',
+    description: 'Update channel metadata (requires OAuth).',
   )
   Future<Map<String, dynamic>> channelsUpdate({
     @Parameter(description: 'Comma-separated channel property names')
@@ -220,7 +219,7 @@ class YtMcpServer {
 
   @Tool(
     name: 'videos_update',
-    description: 'Update a video\'s metadata (requires OAuth).',
+    description: 'Update video metadata (requires OAuth).',
   )
   Future<Map<String, dynamic>> videosUpdate({
     @Parameter(
@@ -349,7 +348,7 @@ class YtMcpServer {
 
   @Tool(
     name: 'playlists_update',
-    description: 'Update a playlist\'s metadata (requires OAuth).',
+    description: 'Update playlist metadata (requires OAuth).',
   )
   Future<Map<String, dynamic>> playlistsUpdate({
     @Parameter(
@@ -531,7 +530,7 @@ class YtMcpServer {
 
   @Tool(
     name: 'comments_change',
-    description: 'Change a comment\'s text (requires OAuth). Helper method.',
+    description: 'Change comment text (requires OAuth). Helper method.',
   )
   Future<Map<String, dynamic>> commentsChange({
     @Parameter(description: 'Comment ID') required String commentId,

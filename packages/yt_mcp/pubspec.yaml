@@ -26,5 +26,5 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.15.0
-  easy_api_generator: ^1.0.0
+  easy_api_generator: ^1.0.1
   lints: ^6.1.0
