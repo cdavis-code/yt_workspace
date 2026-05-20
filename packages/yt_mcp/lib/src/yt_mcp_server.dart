@@ -30,6 +30,12 @@ class YtMcpServer {
   /// Environment variable holding the YouTube OAuth token.
   static const String envOAuthToken = 'YT_OAUTH_TOKEN';
 
+  /// Environment variable holding the path to OAuth client secrets file.
+  static const String envClientSecretsFile = 'YT_CLIENT_SECRETS_FILE';
+
+  /// Environment variable holding the path to OAuth access tokens file.
+  static const String envAccessTokensFile = 'YT_ACCESS_TOKENS_FILE';
+
   /// Static so the client persists across per-tool-call instances
   /// created by the generated dispatcher.
   static Yt? _client;
@@ -66,16 +72,25 @@ class YtMcpServer {
 
   /// Bootstraps the YouTube client from environment variables.
   ///
-  /// Reads `YT_API_KEY` for API key authentication (read-only public data)
-  /// or `YT_OAUTH_TOKEN` for OAuth token authentication (full access).
+  /// Reads `YT_API_KEY` for API key authentication (read-only public data),
+  /// `YT_OAUTH_TOKEN` for raw OAuth token authentication, or
+  /// `YT_CLIENT_SECRETS_FILE` + `YT_ACCESS_TOKENS_FILE` for file-based OAuth
+  /// authentication (full access).
   static Future<void> bootstrapFromEnv() async {
     try {
       final apiKey = Platform.environment[envApiKey];
       final oAuthToken = Platform.environment[envOAuthToken];
+      final clientSecretsFile = Platform.environment[envClientSecretsFile];
+      final accessTokensFile = Platform.environment[envAccessTokensFile];
 
+      // Priority 1: API key (read-only)
       if (apiKey != null && apiKey.isNotEmpty) {
         _client = Yt.withApiKey(apiKey: apiKey);
-      } else if (oAuthToken != null && oAuthToken.isNotEmpty) {
+        return;
+      }
+
+      // Priority 2: Raw OAuth token
+      if (oAuthToken != null && oAuthToken.isNotEmpty) {
         // Basic validation: OAuth tokens are typically long strings
         if (oAuthToken.length < 10) {
           _bootstrapError =
@@ -83,10 +98,43 @@ class YtMcpServer {
           return;
         }
         _client = Yt.withOAuth();
-      } else {
-        _bootstrapError =
-            'Neither $envApiKey nor $envOAuthToken is set in the environment.';
+        return;
       }
+
+      // Priority 3: File-based OAuth (client_secrets.json + access_tokens.json)
+      if (clientSecretsFile != null && clientSecretsFile.isNotEmpty) {
+        // Validate that the client secrets file exists
+        final secretsFile = File(clientSecretsFile);
+        if (!secretsFile.existsSync()) {
+          _bootstrapError =
+              '$envClientSecretsFile points to "$clientSecretsFile" but the file does not exist.';
+          return;
+        }
+
+        // If access tokens file is also set, validate it exists too
+        if (accessTokensFile != null && accessTokensFile.isNotEmpty) {
+          final tokensFile = File(accessTokensFile);
+          if (!tokensFile.existsSync()) {
+            _bootstrapError =
+                '$envAccessTokensFile points to "$accessTokensFile" but the file does not exist. '
+                'Run "yt authorize" to generate it, or delete the variable to trigger interactive OAuth flow.';
+            return;
+          }
+        }
+
+        // Initialize with file-based OAuth
+        // Yt.withOAuth() will read YT_CLIENT_SECRETS_FILE and YT_ACCESS_TOKENS_FILE
+        // from the environment automatically
+        _client = Yt.withOAuth();
+        return;
+      }
+
+      // No credentials found
+      _bootstrapError =
+          'No YouTube credentials found. Set one of:\n'
+          '- $envApiKey (for read-only access)\n'
+          '- $envOAuthToken (for OAuth token)\n'
+          '- $envClientSecretsFile + $envAccessTokensFile (for file-based OAuth)';
     } catch (e) {
       _bootstrapError = e.toString();
     }
