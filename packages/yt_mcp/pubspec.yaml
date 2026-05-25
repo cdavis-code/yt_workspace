@@ -1,5 +1,5 @@
 name: yt_mcp
-version: 2.2.6
+version: 2.3.2
 description: MCP server for YouTube Data and Live Streaming APIs.
 homepage: https://github.com/faithoflifedev/yt
 repository: https://github.com/faithoflifedev/yt/tree/main/packages/yt_mcp
@@ -17,14 +17,14 @@ environment:
   sdk: ^3.8.0
 
 executables:
-  yt_mcp: yt_mcp_server
+  yt-mcp: yt_mcp_server
 
 dependencies:
-  yt: ^3.0.2
-  easy_api_annotations: ^1.0.0
+  yt: ^3.2.0
+  easy_api_annotations: ^1.2.2
   dart_mcp: ^0.5.1
 
 dev_dependencies:
   build_runner: ^2.15.0
-  easy_api_generator: ^1.0.1
+  easy_api_generator: ^1.2.2
   lints: ^6.1.0

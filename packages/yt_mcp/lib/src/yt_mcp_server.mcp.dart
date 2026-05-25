@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
+import 'dart:math' as math;
 
 import 'package:dart_mcp/server.dart';
 import 'package:dart_mcp/stdio.dart';
@@ -28,7 +29,8 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     registerTool(
       Tool(
         name: 'yt_channels_list',
-        description: 'List YouTube channels by ID or username.',
+        description:
+            'List YouTube channels by ID or username. Use id for channel IDs, forUsername for usernames, or mine=true for your channel. Use part=snippet,statistics for full details.',
         inputSchema: Schema.object(
           properties: {
             'part': Schema.string(
@@ -41,32 +43,15 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
             ),
           },
         ),
+        annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
       ),
-      _yt_channels_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_channels_update',
-        description: 'Update channel metadata (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'part': Schema.string(
-              description: 'Comma-separated channel property names',
-            ),
-            'body': Schema.object(),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_channels_update,
+      _ytChannelsList,
     );
     registerTool(
       Tool(
         name: 'yt_search_list',
-        description: 'Search YouTube for videos, channels, and playlists.',
+        description:
+            'Search YouTube for videos, channels, and playlists. Use type parameter to filter by video, channel, or playlist. Set maxResults 1-50. Example: q=Dart programming, type=video, maxResults=10',
         inputSchema: Schema.object(
           properties: {
             'q': Schema.string(description: 'Search query term'),
@@ -82,13 +67,15 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
           },
           required: ['q'],
         ),
+        annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
       ),
-      _yt_search_list,
+      _ytSearchList,
     );
     registerTool(
       Tool(
         name: 'yt_videos_list',
-        description: 'List YouTube videos by ID or chart.',
+        description:
+            'List YouTube videos by ID or get trending videos. Use id parameter for specific videos or chart=mostPopular for trending. Use part=snippet,statistics for full details.',
         inputSchema: Schema.object(
           properties: {
             'id': Schema.string(description: 'Comma-separated video IDs'),
@@ -101,8 +88,9 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
             ),
           },
         ),
+        annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
       ),
-      _yt_videos_list,
+      _ytVideosList,
     );
     registerTool(
       Tool(
@@ -130,350 +118,20 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
           },
           required: ['body', 'videoFilePath'],
         ),
-      ),
-      _yt_videos_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_videos_update',
-        description: 'Update video metadata (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated video property names',
-            ),
-          },
-          required: ['body'],
+        annotations: ToolAnnotations(
+          readOnlyHint: false,
+          destructiveHint: false,
+          idempotentHint: false,
+          openWorldHint: true,
         ),
       ),
-      _yt_videos_update,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_videos_rate',
-        description:
-            'Like, dislike, or remove rating for a video (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Video ID'),
-            'rating': Schema.string(
-              description: 'Rating: "like", "dislike", or "none"',
-            ),
-          },
-          required: ['id', 'rating'],
-        ),
-      ),
-      _yt_videos_rate,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_videos_get_rating',
-        description:
-            'Get the rating that the authorized user gave to a video (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Comma-separated video IDs'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_videos_get_rating,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_videos_report_abuse',
-        description: 'Report a video for abusive content (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_videos_report_abuse,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_videos_delete',
-        description: 'Delete a video (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Video ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_videos_delete,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_playlists_list',
-        description: 'List YouTube playlists.',
-        inputSchema: Schema.object(
-          properties: {
-            'channelId': Schema.string(
-              description: 'Channel ID to list playlists for',
-            ),
-            'id': Schema.string(description: 'Comma-separated playlist IDs'),
-            'part': Schema.string(
-              description: 'Comma-separated playlist property names',
-            ),
-            'maxResults': Schema.int(
-              description: 'Maximum items to return (1-50)',
-            ),
-          },
-        ),
-      ),
-      _yt_playlists_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_playlists_insert',
-        description: 'Create a playlist (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated playlist property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_playlists_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_playlists_update',
-        description: 'Update playlist metadata (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated playlist property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_playlists_update,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_playlists_delete',
-        description: 'Delete a playlist (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Playlist ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_playlists_delete,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comments_list',
-        description: 'List YouTube comments.',
-        inputSchema: Schema.object(
-          properties: {
-            'part': Schema.string(
-              description: 'Comma-separated comment property names',
-            ),
-            'parentId': Schema.string(description: 'Parent comment ID'),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-          },
-        ),
-      ),
-      _yt_comments_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comments_list_by_ids',
-        description: 'List comments by their IDs.',
-        inputSchema: Schema.object(
-          properties: {
-            'ids': Schema.string(description: 'Comma-separated comment IDs'),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-            'textFormat': Schema.string(
-              description: 'Text format: "html" or "plainText"',
-            ),
-          },
-          required: ['ids'],
-        ),
-      ),
-      _yt_comments_list_by_ids,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comments_list_by_id',
-        description: 'Get a single comment by ID.',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Comment ID'),
-            'textFormat': Schema.string(
-              description: 'Text format: "html" or "plainText"',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_comments_list_by_id,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comments_list_by_parent_id',
-        description: 'List replies to a comment.',
-        inputSchema: Schema.object(
-          properties: {
-            'parentId': Schema.string(description: 'Parent comment ID'),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-            'textFormat': Schema.string(
-              description: 'Text format: "html" or "plainText"',
-            ),
-          },
-          required: ['parentId'],
-        ),
-      ),
-      _yt_comments_list_by_parent_id,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comments_insert',
-        description: 'Create a comment reply (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated comment property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_comments_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comments_add',
-        description:
-            'Add a reply to a comment (requires OAuth). Helper method.',
-        inputSchema: Schema.object(
-          properties: {
-            'parentId': Schema.string(description: 'Parent comment ID'),
-            'textOriginal': Schema.string(description: 'Comment text'),
-          },
-          required: ['parentId', 'textOriginal'],
-        ),
-      ),
-      _yt_comments_add,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comments_update',
-        description: 'Update a comment (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated comment property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_comments_update,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comments_change',
-        description: 'Change comment text (requires OAuth). Helper method.',
-        inputSchema: Schema.object(
-          properties: {
-            'commentId': Schema.string(description: 'Comment ID'),
-            'textOriginal': Schema.string(description: 'New comment text'),
-          },
-          required: ['commentId', 'textOriginal'],
-        ),
-      ),
-      _yt_comments_change,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comments_set_moderation_status',
-        description: 'Set moderation status for comments (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Comma-separated comment IDs'),
-            'moderationStatus': Schema.string(
-              description:
-                  'Moderation status: "heldForReview", "likelySpam", "published", or "rejected"',
-            ),
-            'banAuthor': Schema.bool(
-              description:
-                  'Ban the author (only valid when moderationStatus is "rejected")',
-            ),
-          },
-          required: ['id', 'moderationStatus'],
-        ),
-      ),
-      _yt_comments_set_moderation_status,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comments_delete',
-        description: 'Delete a comment (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {'id': Schema.string(description: 'Comment ID')},
-          required: ['id'],
-        ),
-      ),
-      _yt_comments_delete,
+      _ytVideosInsert,
     );
     registerTool(
       Tool(
         name: 'yt_comment_threads_list',
-        description: 'List YouTube comment threads for a video.',
+        description:
+            'List comment threads for a video. Requires videoId parameter. Set maxResults 1-100. Use part=snippet,replies to include replies.',
         inputSchema: Schema.object(
           properties: {
             'part': Schema.string(
@@ -483,193 +141,15 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
             'maxResults': Schema.int(description: 'Maximum items to return'),
           },
         ),
+        annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
       ),
-      _yt_comment_threads_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comment_threads_list_by_video_id',
-        description: 'List comment threads for a specific video.',
-        inputSchema: Schema.object(
-          properties: {
-            'videoId': Schema.string(description: 'Video ID'),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-            'moderationStatus': Schema.string(
-              description: 'Moderation status filter',
-            ),
-            'order': Schema.string(
-              description: 'Sort order: "time" or "relevance"',
-            ),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-            'searchTerms': Schema.string(
-              description: 'Search terms to filter by',
-            ),
-            'textFormat': Schema.string(
-              description: 'Text format: "html" or "plainText"',
-            ),
-          },
-          required: ['videoId'],
-        ),
-      ),
-      _yt_comment_threads_list_by_video_id,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comment_threads_list_by_ids',
-        description: 'List comment threads by their IDs.',
-        inputSchema: Schema.object(
-          properties: {
-            'ids': Schema.string(
-              description: 'Comma-separated comment thread IDs',
-            ),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-            'moderationStatus': Schema.string(
-              description: 'Moderation status filter',
-            ),
-            'order': Schema.string(description: 'Sort order'),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-            'searchTerms': Schema.string(description: 'Search terms'),
-            'textFormat': Schema.string(description: 'Text format'),
-          },
-          required: ['ids'],
-        ),
-      ),
-      _yt_comment_threads_list_by_ids,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comment_threads_list_by_id',
-        description: 'Get a single comment thread by ID.',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Comment thread ID'),
-            'moderationStatus': Schema.string(
-              description: 'Moderation status filter',
-            ),
-            'searchTerms': Schema.string(description: 'Search terms'),
-            'textFormat': Schema.string(description: 'Text format'),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_comment_threads_list_by_id,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comment_threads_list_by_channel_id',
-        description: 'List all comment threads related to a channel.',
-        inputSchema: Schema.object(
-          properties: {
-            'channelId': Schema.string(description: 'Channel ID'),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-            'moderationStatus': Schema.string(
-              description: 'Moderation status filter',
-            ),
-            'order': Schema.string(description: 'Sort order'),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-            'searchTerms': Schema.string(description: 'Search terms'),
-            'textFormat': Schema.string(description: 'Text format'),
-          },
-          required: ['channelId'],
-        ),
-      ),
-      _yt_comment_threads_list_by_channel_id,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comment_threads_insert',
-        description: 'Create a new top-level comment thread (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_comment_threads_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_comment_threads_add',
-        description:
-            'Add a top-level comment to a video (requires OAuth). Helper method.',
-        inputSchema: Schema.object(
-          properties: {
-            'videoId': Schema.string(description: 'Video ID'),
-            'textOriginal': Schema.string(description: 'Comment text'),
-          },
-          required: ['videoId', 'textOriginal'],
-        ),
-      ),
-      _yt_comment_threads_add,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_members_list',
-        description: 'Lists channel members (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'part': Schema.string(
-              description: 'Comma-separated member property names',
-            ),
-            'mode': Schema.string(
-              description: 'Mode: allCurrentMembers or updatesSince',
-            ),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-          },
-        ),
-      ),
-      _yt_members_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_memberships_levels_list',
-        description:
-            'Lists membership levels for the channel (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'part': Schema.string(
-              description: 'Comma-separated level property names',
-            ),
-          },
-        ),
-      ),
-      _yt_memberships_levels_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_video_abuse_report_reasons_list',
-        description:
-            'Retrieves reasons for reporting abusive videos (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'part': Schema.string(
-              description: 'Comma-separated resource property names',
-            ),
-            'hl': Schema.string(
-              description: 'Language code for localized labels',
-            ),
-          },
-        ),
-      ),
-      _yt_video_abuse_report_reasons_list,
+      _ytCommentThreadsList,
     );
     registerTool(
       Tool(
         name: 'yt_playlist_items_list',
-        description: 'List items in a playlist.',
+        description:
+            'List items in a playlist. Requires playlistId parameter. Standard playlists start with PL, channel uploads start with UU. Use maxResults 1-50.',
         inputSchema: Schema.object(
           properties: {
             'playlistId': Schema.string(description: 'Playlist ID'),
@@ -690,76 +170,15 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
           },
           required: ['playlistId'],
         ),
+        annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
       ),
-      _yt_playlist_items_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_playlist_items_insert',
-        description: 'Add an item to a playlist (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_playlist_items_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_playlist_items_update',
-        description: 'Update a playlist item (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_playlist_items_update,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_playlist_items_delete',
-        description: 'Remove an item from a playlist (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Playlist item ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_playlist_items_delete,
+      _ytPlaylistItemsList,
     );
     registerTool(
       Tool(
         name: 'yt_subscriptions_list',
-        description: 'List subscriptions.',
+        description:
+            'List your YouTube subscriptions. Use mine=true for your subscriptions. Set maxResults 1-50. Use part=snippet for channel names or snippet,contentDetails for full details. Requires OAuth.',
         inputSchema: Schema.object(
           properties: {
             'part': Schema.string(
@@ -790,765 +209,15 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
             ),
           },
         ),
+        annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
       ),
-      _yt_subscriptions_list,
+      _ytSubscriptionsList,
     );
     registerTool(
       Tool(
         name: 'yt_subscriptions_insert',
-        description: 'Subscribe to a channel (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_subscriptions_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_subscriptions_delete',
-        description: 'Unsubscribe from a channel (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Subscription ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_subscriptions_delete,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_activities_list',
-        description: 'List channel activities.',
-        inputSchema: Schema.object(
-          properties: {
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'channelId': Schema.string(description: 'Channel ID'),
-            'mine': Schema.bool(
-              description: 'Return authenticated user\'s activities',
-            ),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-            'publishedAfter': Schema.string(
-              description: 'Published after (RFC 3339)',
-            ),
-            'publishedBefore': Schema.string(
-              description: 'Published before (RFC 3339)',
-            ),
-            'regionCode': Schema.string(description: 'Region code'),
-          },
-        ),
-      ),
-      _yt_activities_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_video_categories_list',
-        description: 'List video categories.',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Comma-separated category IDs'),
-            'regionCode': Schema.string(
-              description: 'Region code (e.g., "US")',
-            ),
-            'hl': Schema.string(description: 'Language code for labels'),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-          },
-        ),
-      ),
-      _yt_video_categories_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_captions_list',
-        description: 'List caption tracks for a video.',
-        inputSchema: Schema.object(
-          properties: {
-            'videoId': Schema.string(description: 'Video ID'),
-            'id': Schema.string(description: 'Comma-separated caption IDs'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-          },
-          required: ['videoId'],
-        ),
-      ),
-      _yt_captions_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_captions_insert',
-        description: 'Upload a caption track (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'captionFilePath': Schema.string(
-              description: 'Absolute or relative path to the caption file',
-            ),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['body', 'captionFilePath'],
-        ),
-      ),
-      _yt_captions_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_captions_update',
-        description: 'Update a caption track (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'captionFilePath': Schema.string(
-              description: 'Absolute or relative path to the caption file',
-            ),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['body', 'captionFilePath'],
-        ),
-      ),
-      _yt_captions_update,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_captions_delete',
-        description: 'Delete a caption track (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Caption ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_captions_delete,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_captions_download',
-        description: 'Download a caption track.',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Caption ID'),
-            'tfmt': Schema.string(
-              description: 'Caption format: "srt", "vtt", "sbv"',
-            ),
-            'tlang': Schema.string(
-              description: 'Target language for auto-translate',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_captions_download,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_thumbnails_set',
-        description: 'Set a custom thumbnail for a video (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'videoId': Schema.string(description: 'Video ID'),
-            'thumbnailFilePath': Schema.string(
-              description:
-                  'Absolute or relative path to the thumbnail image file',
-            ),
-          },
-          required: ['videoId', 'thumbnailFilePath'],
-        ),
-      ),
-      _yt_thumbnails_set,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_watermarks_set',
-        description: 'Set a channel watermark image (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'channelId': Schema.string(description: 'Channel ID'),
-            'watermarksResource': Schema.object(),
-          },
-          required: ['channelId', 'watermarksResource'],
-        ),
-      ),
-      _yt_watermarks_set,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_watermarks_unset',
-        description: 'Remove a channel watermark (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {'channelId': Schema.string(description: 'Channel ID')},
-          required: ['channelId'],
-        ),
-      ),
-      _yt_watermarks_unset,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_channel_banners_insert',
-        description: 'Upload a channel banner image (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'imageFilePath': Schema.string(
-              description: 'Absolute or relative path to the banner image file',
-            ),
-            'channelId': Schema.string(description: 'Channel ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['imageFilePath'],
-        ),
-      ),
-      _yt_channel_banners_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_channel_sections_list',
-        description: 'List channel sections.',
-        inputSchema: Schema.object(
-          properties: {
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'channelId': Schema.string(description: 'Channel ID'),
-            'id': Schema.string(description: 'Comma-separated section IDs'),
-            'mine': Schema.bool(
-              description: 'Return authenticated user\'s sections',
-            ),
-            'hl': Schema.string(description: 'Language for localization'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-        ),
-      ),
-      _yt_channel_sections_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_channel_sections_insert',
-        description: 'Add a channel section (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_channel_sections_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_channel_sections_update',
-        description: 'Update a channel section (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_channel_sections_update,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_channel_sections_delete',
-        description: 'Delete a channel section (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Channel section ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_channel_sections_delete,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_i18n_languages_list',
-        description: 'List supported UI languages.',
-        inputSchema: Schema.object(
-          properties: {
-            'hl': Schema.string(
-              description: 'Language code for localized names',
-            ),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-          },
-        ),
-      ),
-      _yt_i18n_languages_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_i18n_regions_list',
-        description: 'List supported content regions.',
-        inputSchema: Schema.object(
-          properties: {
-            'hl': Schema.string(
-              description: 'Language code for localized names',
-            ),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-          },
-        ),
-      ),
-      _yt_i18n_regions_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_playlist_images_list',
-        description: 'List custom images for a playlist.',
-        inputSchema: Schema.object(
-          properties: {
-            'parent': Schema.string(
-              description: 'Playlist parent (e.g., "playlists/PLAYLIST_ID")',
-            ),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['parent'],
-        ),
-      ),
-      _yt_playlist_images_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_playlist_images_insert',
-        description: 'Upload a custom playlist image (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'parent': Schema.string(description: 'Playlist parent'),
-            'imageFilePath': Schema.string(
-              description: 'Absolute or relative path to the image file',
-            ),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['parent', 'imageFilePath'],
-        ),
-      ),
-      _yt_playlist_images_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_playlist_images_update',
-        description: 'Replace a playlist image (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'imageFilePath': Schema.string(
-              description: 'Absolute or relative path to the new image file',
-            ),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['imageFilePath'],
-        ),
-      ),
-      _yt_playlist_images_update,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_playlist_images_delete',
-        description: 'Delete a playlist image (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Playlist image ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_playlist_images_delete,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_third_party_links_list',
-        description: 'List third-party links.',
-        inputSchema: Schema.object(
-          properties: {
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'externalChannelId': Schema.string(
-              description: 'External channel ID',
-            ),
-            'linkingToken': Schema.string(description: 'Linking token'),
-            'type': Schema.string(description: 'Link type'),
-          },
-        ),
-      ),
-      _yt_third_party_links_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_third_party_links_insert',
-        description: 'Create a third-party link (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'externalChannelId': Schema.string(
-              description: 'External channel ID',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_third_party_links_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_third_party_links_update',
-        description: 'Update a third-party link (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'externalChannelId': Schema.string(
-              description: 'External channel ID',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_third_party_links_update,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_third_party_links_delete',
-        description: 'Delete a third-party link (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'linkingToken': Schema.string(description: 'Linking token'),
-            'type': Schema.string(description: 'Link type'),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'externalChannelId': Schema.string(
-              description: 'External channel ID',
-            ),
-          },
-          required: ['linkingToken', 'type'],
-        ),
-      ),
-      _yt_third_party_links_delete,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_broadcasts_list',
-        description: 'List live broadcasts.',
-        inputSchema: Schema.object(
-          properties: {
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'broadcastStatus': Schema.string(
-              description:
-                  'Broadcast status: "all", "active", "completed", "upcoming"',
-            ),
-            'broadcastType': Schema.string(
-              description: 'Broadcast type: "all", "event", "persistent"',
-            ),
-            'id': Schema.string(description: 'Comma-separated broadcast IDs'),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-            'mine': Schema.bool(
-              description: 'Return authenticated user\'s broadcasts',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-          },
-        ),
-      ),
-      _yt_broadcasts_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_broadcasts_insert',
-        description: 'Create a live broadcast (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_broadcasts_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_broadcasts_update',
-        description: 'Update a live broadcast (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_broadcasts_update,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_broadcasts_transition',
-        description: 'Transition a broadcast to a new status (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Broadcast ID'),
-            'broadcastStatus': Schema.string(
-              description: 'Target status: "testing", "live", "complete"',
-            ),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['id', 'broadcastStatus'],
-        ),
-      ),
-      _yt_broadcasts_transition,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_broadcasts_bind',
-        description: 'Bind a broadcast to a stream (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Broadcast ID'),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'streamId': Schema.string(
-              description: 'Stream ID (omit to unbind)',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_broadcasts_bind,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_broadcasts_delete',
-        description: 'Delete a live broadcast (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Broadcast ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_broadcasts_delete,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_broadcasts_cuepoint',
         description:
-            'Insert a cuepoint into a live broadcast (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Broadcast ID'),
-            'body': Schema.object(),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['id', 'body'],
-        ),
-      ),
-      _yt_broadcasts_cuepoint,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_broadcasts_get_active',
-        description: 'Get the currently active broadcast.',
-        inputSchema: Schema.object(),
-      ),
-      _yt_broadcasts_get_active,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_broadcasts_get_upcoming_and_active',
-        description: 'Get upcoming and active broadcasts.',
-        inputSchema: Schema.object(),
-      ),
-      _yt_broadcasts_get_upcoming_and_active,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_live_streams_list',
-        description: 'List live streams.',
-        inputSchema: Schema.object(
-          properties: {
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'id': Schema.string(description: 'Comma-separated stream IDs'),
-            'mine': Schema.bool(
-              description: 'Return authenticated user\'s streams',
-            ),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-          },
-        ),
-      ),
-      _yt_live_streams_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_live_streams_insert',
-        description: 'Create a live stream (requires OAuth).',
+            'Subscribe to a YouTube channel. Requires OAuth. Provide body JSON with snippet.resourceId.channelId. Idempotent - safe to call multiple times for same channel.',
         inputSchema: Schema.object(
           properties: {
             'body': Schema.object(),
@@ -1564,257 +233,50 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
           },
           required: ['body'],
         ),
-      ),
-      _yt_live_streams_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_live_streams_update',
-        description: 'Update a live stream (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['body'],
+        annotations: ToolAnnotations(
+          readOnlyHint: false,
+          destructiveHint: false,
+          idempotentHint: true,
+          openWorldHint: true,
         ),
       ),
-      _yt_live_streams_update,
+      _ytSubscriptionsInsert,
     );
     registerTool(
       Tool(
-        name: 'yt_live_streams_delete',
-        description: 'Delete a live stream (requires OAuth).',
+        name: 'search',
+        description:
+            'Search for available tools by name or description. Returns matching tools with their parameter information. Use this to discover available tools before calling execute.',
         inputSchema: Schema.object(
           properties: {
-            'id': Schema.string(description: 'Stream ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-            'onBehalfOfContentOwnerChannel': Schema.string(
-              description: 'On behalf of content owner channel',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_live_streams_delete,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_live_chat_list',
-        description: 'List live chat messages.',
-        inputSchema: Schema.object(
-          properties: {
-            'liveChatId': Schema.string(description: 'Live chat ID'),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-            'hl': Schema.string(description: 'Language code for localization'),
-            'maxResults': Schema.int(description: 'Maximum items to return'),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-            'profileImageSize': Schema.int(
-              description: 'Profile image size in pixels',
-            ),
-          },
-          required: ['liveChatId'],
-        ),
-      ),
-      _yt_live_chat_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_live_chat_insert',
-        description: 'Send a live chat message (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'part': Schema.string(
-              description: 'Comma-separated property names',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_live_chat_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_live_chat_delete',
-        description: 'Delete a live chat message (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {'id': Schema.string(description: 'Chat message ID')},
-          required: ['id'],
-        ),
-      ),
-      _yt_live_chat_delete,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_analytics_query',
-        description: 'Query YouTube Analytics reports.',
-        inputSchema: Schema.object(
-          properties: {
-            'ids': Schema.string(
+            'query': Schema.string(
               description:
-                  'Analytics ID (e.g., "channel==CHANNEL_ID" or "contentOwner==OWNER")',
+                  'Search terms. Space-separated terms are AND-matched against tool names and descriptions (case-insensitive).',
             ),
-            'startDate': Schema.string(description: 'Start date (YYYY-MM-DD)'),
-            'endDate': Schema.string(description: 'End date (YYYY-MM-DD)'),
-            'metrics': Schema.string(
+            'detail_level': UntitledSingleSelectEnumSchema(
               description:
-                  'Comma-separated metrics (e.g., "views,likes,subscribersGained")',
-            ),
-            'dimensions': Schema.string(
-              description: 'Comma-separated dimensions (e.g., "day,country")',
-            ),
-            'filters': Schema.string(
-              description: 'Filters (e.g., "country==US")',
-            ),
-            'maxResults': Schema.int(description: 'Maximum results'),
-            'sort': Schema.string(description: 'Comma-separated sort fields'),
-            'startIndex': Schema.int(description: 'Start index'),
-            'currency': Schema.string(
-              description: 'Currency code (e.g., "USD")',
-            ),
-            'includeHistoricalChannelData': Schema.bool(
-              description: 'Include historical channel data',
+                  'Level of detail: "brief" (name + description), "detailed" (+ parameter names/types/required), "full" (+ complete parameter schemas).',
+              values: ['brief', 'detailed', 'full'],
             ),
           },
-          required: ['ids', 'startDate', 'endDate', 'metrics'],
+          required: ['query'],
         ),
       ),
-      _yt_analytics_query,
+      _search,
     );
     registerTool(
       Tool(
-        name: 'yt_analytics_groups_list',
-        description: 'List analytics groups.',
+        name: 'execute',
+        description:
+            'Execute JavaScript code with access to MCP tool functions. Use call_tool(name, params) to call any tool by name, or use external_<toolName>(args) convenience wrappers. Use the search tool first to discover available tools and their signatures. All calls are async - use await for sequential calls and Promise.all() for parallel calls. Return a value to include it in the result.',
         inputSchema: Schema.object(
           properties: {
-            'id': Schema.string(description: 'Group ID'),
-            'mine': Schema.bool(
-              description: 'Return authenticated user\'s groups',
-            ),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
+            'code': Schema.string(description: 'JavaScript code to execute.'),
           },
+          required: ['code'],
         ),
       ),
-      _yt_analytics_groups_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_analytics_groups_insert',
-        description: 'Create an analytics group (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_analytics_groups_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_analytics_groups_update',
-        description: 'Update an analytics group (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_analytics_groups_update,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_analytics_groups_delete',
-        description: 'Delete an analytics group (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Group ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_analytics_groups_delete,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_analytics_group_items_list',
-        description: 'List items in an analytics group.',
-        inputSchema: Schema.object(
-          properties: {
-            'groupId': Schema.string(description: 'Group ID'),
-            'id': Schema.string(description: 'Group item ID'),
-            'pageToken': Schema.string(
-              description: 'Page token for pagination',
-            ),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-        ),
-      ),
-      _yt_analytics_group_items_list,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_analytics_group_items_insert',
-        description: 'Add an item to an analytics group (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'body': Schema.object(),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['body'],
-        ),
-      ),
-      _yt_analytics_group_items_insert,
-    );
-    registerTool(
-      Tool(
-        name: 'yt_analytics_group_items_delete',
-        description: 'Remove an item from an analytics group (requires OAuth).',
-        inputSchema: Schema.object(
-          properties: {
-            'id': Schema.string(description: 'Group item ID'),
-            'onBehalfOfContentOwner': Schema.string(
-              description: 'On behalf of content owner',
-            ),
-          },
-          required: ['id'],
-        ),
-      ),
-      _yt_analytics_group_items_delete,
+      _execute,
     );
   }
 
@@ -1832,7 +294,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     return result;
   }
 
-  FutureOr<CallToolResult> _yt_channels_list(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytChannelsList(CallToolRequest request) async {
     try {
       final part = request.arguments?['part'] as String?;
       final id = request.arguments?['id'] as String?;
@@ -1863,7 +325,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_channels_update(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytChannelsUpdate(CallToolRequest request) async {
     try {
       final part = (request.arguments?['part'] as String?) ?? 'snippet';
       final body = request.arguments!['body'] as dynamic;
@@ -1893,7 +355,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_search_list(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytSearchList(CallToolRequest request) async {
     try {
       final q = request.arguments!['q'] as String;
       final part = (request.arguments?['part'] as String?) ?? 'snippet';
@@ -1924,7 +386,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_videos_list(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytVideosList(CallToolRequest request) async {
     try {
       final id = request.arguments?['id'] as String?;
       final chart = request.arguments?['chart'] as String?;
@@ -1955,7 +417,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_videos_insert(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytVideosInsert(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final videoFilePath = request.arguments!['videoFilePath'] as String;
@@ -1995,7 +457,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_videos_update(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytVideosUpdate(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final part =
@@ -2024,7 +486,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_videos_rate(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytVideosRate(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
       final rating = request.arguments!['rating'] as String;
@@ -2051,9 +513,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_videos_get_rating(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytVideosGetRating(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
       final onBehalfOfContentOwner =
@@ -2081,9 +541,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_videos_report_abuse(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytVideosReportAbuse(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final onBehalfOfContentOwner =
@@ -2111,7 +569,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_videos_delete(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytVideosDelete(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
       final onBehalfOfContentOwner =
@@ -2139,7 +597,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlists_list(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytPlaylistsList(CallToolRequest request) async {
     try {
       final channelId = request.arguments?['channelId'] as String?;
       final id = request.arguments?['id'] as String?;
@@ -2170,7 +628,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlists_insert(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytPlaylistsInsert(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final part =
@@ -2205,7 +663,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlists_update(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytPlaylistsUpdate(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final part =
@@ -2240,7 +698,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlists_delete(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytPlaylistsDelete(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
       final onBehalfOfContentOwner =
@@ -2271,7 +729,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comments_list(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytCommentsList(CallToolRequest request) async {
     try {
       final part = (request.arguments?['part'] as String?) ?? 'snippet';
       final parentId = request.arguments?['parentId'] as String?;
@@ -2300,9 +758,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comments_list_by_ids(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytCommentsListByIds(CallToolRequest request) async {
     try {
       final ids = request.arguments!['ids'] as String;
       final maxResults = request.arguments?['maxResults'] as int?;
@@ -2333,9 +789,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comments_list_by_id(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytCommentsListById(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
       final textFormat = request.arguments?['textFormat'] as String?;
@@ -2362,7 +816,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comments_list_by_parent_id(
+  FutureOr<CallToolResult> _ytCommentsListByParentId(
     CallToolRequest request,
   ) async {
     try {
@@ -2395,7 +849,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comments_insert(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytCommentsInsert(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final part = (request.arguments?['part'] as String?) ?? 'snippet';
@@ -2425,7 +879,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comments_add(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytCommentsAdd(CallToolRequest request) async {
     try {
       final parentId = request.arguments!['parentId'] as String;
       final textOriginal = request.arguments!['textOriginal'] as String;
@@ -2452,7 +906,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comments_update(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytCommentsUpdate(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final part = (request.arguments?['part'] as String?) ?? 'id,snippet';
@@ -2482,7 +936,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comments_change(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytCommentsChange(CallToolRequest request) async {
     try {
       final commentId = request.arguments!['commentId'] as String;
       final textOriginal = request.arguments!['textOriginal'] as String;
@@ -2509,7 +963,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comments_set_moderation_status(
+  FutureOr<CallToolResult> _ytCommentsSetModerationStatus(
     CallToolRequest request,
   ) async {
     try {
@@ -2541,7 +995,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comments_delete(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytCommentsDelete(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
 
@@ -2564,7 +1018,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comment_threads_list(
+  FutureOr<CallToolResult> _ytCommentThreadsList(
     CallToolRequest request,
   ) async {
     try {
@@ -2595,7 +1049,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comment_threads_list_by_video_id(
+  FutureOr<CallToolResult> _ytCommentThreadsListByVideoId(
     CallToolRequest request,
   ) async {
     try {
@@ -2636,7 +1090,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comment_threads_list_by_ids(
+  FutureOr<CallToolResult> _ytCommentThreadsListByIds(
     CallToolRequest request,
   ) async {
     try {
@@ -2676,7 +1130,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comment_threads_list_by_id(
+  FutureOr<CallToolResult> _ytCommentThreadsListById(
     CallToolRequest request,
   ) async {
     try {
@@ -2710,7 +1164,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comment_threads_list_by_channel_id(
+  FutureOr<CallToolResult> _ytCommentThreadsListByChannelId(
     CallToolRequest request,
   ) async {
     try {
@@ -2753,7 +1207,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comment_threads_insert(
+  FutureOr<CallToolResult> _ytCommentThreadsInsert(
     CallToolRequest request,
   ) async {
     try {
@@ -2782,9 +1236,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_comment_threads_add(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytCommentThreadsAdd(CallToolRequest request) async {
     try {
       final videoId = request.arguments!['videoId'] as String;
       final textOriginal = request.arguments!['textOriginal'] as String;
@@ -2811,7 +1263,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_members_list(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytMembersList(CallToolRequest request) async {
     try {
       final part = (request.arguments?['part'] as String?) ?? 'snippet';
       final mode = request.arguments?['mode'] as String?;
@@ -2842,7 +1294,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_memberships_levels_list(
+  FutureOr<CallToolResult> _ytMembershipsLevelsList(
     CallToolRequest request,
   ) async {
     try {
@@ -2869,7 +1321,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_video_abuse_report_reasons_list(
+  FutureOr<CallToolResult> _ytVideoAbuseReportReasonsList(
     CallToolRequest request,
   ) async {
     try {
@@ -2896,9 +1348,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlist_items_list(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytPlaylistItemsList(CallToolRequest request) async {
     try {
       final playlistId = request.arguments!['playlistId'] as String;
       final part =
@@ -2937,7 +1387,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlist_items_insert(
+  FutureOr<CallToolResult> _ytPlaylistItemsInsert(
     CallToolRequest request,
   ) async {
     try {
@@ -2973,7 +1423,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlist_items_update(
+  FutureOr<CallToolResult> _ytPlaylistItemsUpdate(
     CallToolRequest request,
   ) async {
     try {
@@ -3009,7 +1459,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlist_items_delete(
+  FutureOr<CallToolResult> _ytPlaylistItemsDelete(
     CallToolRequest request,
   ) async {
     try {
@@ -3042,9 +1492,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_subscriptions_list(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytSubscriptionsList(CallToolRequest request) async {
     try {
       final part =
           (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
@@ -3095,7 +1543,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_subscriptions_insert(
+  FutureOr<CallToolResult> _ytSubscriptionsInsert(
     CallToolRequest request,
   ) async {
     try {
@@ -3131,7 +1579,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_subscriptions_delete(
+  FutureOr<CallToolResult> _ytSubscriptionsDelete(
     CallToolRequest request,
   ) async {
     try {
@@ -3164,7 +1612,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_activities_list(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytActivitiesList(CallToolRequest request) async {
     try {
       final part =
           (request.arguments?['part'] as String?) ?? 'snippet,contentDetails';
@@ -3204,7 +1652,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_video_categories_list(
+  FutureOr<CallToolResult> _ytVideoCategoriesList(
     CallToolRequest request,
   ) async {
     try {
@@ -3237,7 +1685,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_captions_list(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytCaptionsList(CallToolRequest request) async {
     try {
       final videoId = request.arguments!['videoId'] as String;
       final id = request.arguments?['id'] as String?;
@@ -3269,7 +1717,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_captions_insert(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytCaptionsInsert(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final captionFilePath = request.arguments!['captionFilePath'] as String;
@@ -3301,7 +1749,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_captions_update(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytCaptionsUpdate(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final captionFilePath = request.arguments!['captionFilePath'] as String;
@@ -3333,7 +1781,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_captions_delete(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytCaptionsDelete(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
       final onBehalfOfContentOwner =
@@ -3361,9 +1809,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_captions_download(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytCaptionsDownload(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
       final tfmt = request.arguments?['tfmt'] as String?;
@@ -3395,7 +1841,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_thumbnails_set(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytThumbnailsSet(CallToolRequest request) async {
     try {
       final videoId = request.arguments!['videoId'] as String;
       final thumbnailFilePath =
@@ -3423,7 +1869,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_watermarks_set(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytWatermarksSet(CallToolRequest request) async {
     try {
       final channelId = request.arguments!['channelId'] as String;
       final watermarksResource =
@@ -3451,7 +1897,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_watermarks_unset(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytWatermarksUnset(CallToolRequest request) async {
     try {
       final channelId = request.arguments!['channelId'] as String;
 
@@ -3476,7 +1922,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_channel_banners_insert(
+  FutureOr<CallToolResult> _ytChannelBannersInsert(
     CallToolRequest request,
   ) async {
     try {
@@ -3511,7 +1957,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_channel_sections_list(
+  FutureOr<CallToolResult> _ytChannelSectionsList(
     CallToolRequest request,
   ) async {
     try {
@@ -3551,7 +1997,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_channel_sections_insert(
+  FutureOr<CallToolResult> _ytChannelSectionsInsert(
     CallToolRequest request,
   ) async {
     try {
@@ -3588,7 +2034,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_channel_sections_update(
+  FutureOr<CallToolResult> _ytChannelSectionsUpdate(
     CallToolRequest request,
   ) async {
     try {
@@ -3622,7 +2068,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_channel_sections_delete(
+  FutureOr<CallToolResult> _ytChannelSectionsDelete(
     CallToolRequest request,
   ) async {
     try {
@@ -3652,9 +2098,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_i18n_languages_list(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytI18nLanguagesList(CallToolRequest request) async {
     try {
       final hl = request.arguments?['hl'] as String?;
       final part = (request.arguments?['part'] as String?) ?? 'snippet';
@@ -3681,9 +2125,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_i18n_regions_list(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytI18nRegionsList(CallToolRequest request) async {
     try {
       final hl = request.arguments?['hl'] as String?;
       final part = (request.arguments?['part'] as String?) ?? 'snippet';
@@ -3710,7 +2152,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlist_images_list(
+  FutureOr<CallToolResult> _ytPlaylistImagesList(
     CallToolRequest request,
   ) async {
     try {
@@ -3749,7 +2191,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlist_images_insert(
+  FutureOr<CallToolResult> _ytPlaylistImagesInsert(
     CallToolRequest request,
   ) async {
     try {
@@ -3786,7 +2228,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlist_images_update(
+  FutureOr<CallToolResult> _ytPlaylistImagesUpdate(
     CallToolRequest request,
   ) async {
     try {
@@ -3821,7 +2263,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_playlist_images_delete(
+  FutureOr<CallToolResult> _ytPlaylistImagesDelete(
     CallToolRequest request,
   ) async {
     try {
@@ -3851,7 +2293,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_third_party_links_list(
+  FutureOr<CallToolResult> _ytThirdPartyLinksList(
     CallToolRequest request,
   ) async {
     try {
@@ -3885,7 +2327,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_third_party_links_insert(
+  FutureOr<CallToolResult> _ytThirdPartyLinksInsert(
     CallToolRequest request,
   ) async {
     try {
@@ -3917,7 +2359,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_third_party_links_update(
+  FutureOr<CallToolResult> _ytThirdPartyLinksUpdate(
     CallToolRequest request,
   ) async {
     try {
@@ -3949,7 +2391,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_third_party_links_delete(
+  FutureOr<CallToolResult> _ytThirdPartyLinksDelete(
     CallToolRequest request,
   ) async {
     try {
@@ -3983,7 +2425,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_broadcasts_list(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytBroadcastsList(CallToolRequest request) async {
     try {
       final part =
           (request.arguments?['part'] as String?) ??
@@ -4028,9 +2470,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_broadcasts_insert(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytBroadcastsInsert(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final part =
@@ -4065,9 +2505,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_broadcasts_update(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytBroadcastsUpdate(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final part =
@@ -4102,7 +2540,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_broadcasts_transition(
+  FutureOr<CallToolResult> _ytBroadcastsTransition(
     CallToolRequest request,
   ) async {
     try {
@@ -4141,7 +2579,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_broadcasts_bind(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytBroadcastsBind(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
       final part =
@@ -4178,9 +2616,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_broadcasts_delete(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytBroadcastsDelete(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
       final onBehalfOfContentOwner =
@@ -4211,7 +2647,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_broadcasts_cuepoint(
+  FutureOr<CallToolResult> _ytBroadcastsCuepoint(
     CallToolRequest request,
   ) async {
     try {
@@ -4246,7 +2682,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_broadcasts_get_active(
+  FutureOr<CallToolResult> _ytBroadcastsGetActive(
     CallToolRequest request,
   ) async {
     try {
@@ -4269,7 +2705,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_broadcasts_get_upcoming_and_active(
+  FutureOr<CallToolResult> _ytBroadcastsGetUpcomingAndActive(
     CallToolRequest request,
   ) async {
     try {
@@ -4295,9 +2731,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_live_streams_list(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytLiveStreamsList(CallToolRequest request) async {
     try {
       final part =
           (request.arguments?['part'] as String?) ??
@@ -4338,9 +2772,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_live_streams_insert(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytLiveStreamsInsert(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final part =
@@ -4375,9 +2807,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_live_streams_update(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytLiveStreamsUpdate(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final part =
@@ -4412,9 +2842,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_live_streams_delete(
-    CallToolRequest request,
-  ) async {
+  FutureOr<CallToolResult> _ytLiveStreamsDelete(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
       final onBehalfOfContentOwner =
@@ -4445,7 +2873,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_live_chat_list(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytLiveChatList(CallToolRequest request) async {
     try {
       final liveChatId = request.arguments!['liveChatId'] as String;
       final part =
@@ -4481,7 +2909,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_live_chat_insert(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytLiveChatInsert(CallToolRequest request) async {
     try {
       final body = request.arguments!['body'] as dynamic;
       final part = (request.arguments?['part'] as String?) ?? 'snippet';
@@ -4508,7 +2936,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_live_chat_delete(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytLiveChatDelete(CallToolRequest request) async {
     try {
       final id = request.arguments!['id'] as String;
 
@@ -4531,7 +2959,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_analytics_query(CallToolRequest request) async {
+  FutureOr<CallToolResult> _ytAnalyticsQuery(CallToolRequest request) async {
     try {
       final ids = request.arguments!['ids'] as String;
       final startDate = request.arguments!['startDate'] as String;
@@ -4577,7 +3005,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_analytics_groups_list(
+  FutureOr<CallToolResult> _ytAnalyticsGroupsList(
     CallToolRequest request,
   ) async {
     try {
@@ -4611,7 +3039,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_analytics_groups_insert(
+  FutureOr<CallToolResult> _ytAnalyticsGroupsInsert(
     CallToolRequest request,
   ) async {
     try {
@@ -4641,7 +3069,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_analytics_groups_update(
+  FutureOr<CallToolResult> _ytAnalyticsGroupsUpdate(
     CallToolRequest request,
   ) async {
     try {
@@ -4671,7 +3099,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_analytics_groups_delete(
+  FutureOr<CallToolResult> _ytAnalyticsGroupsDelete(
     CallToolRequest request,
   ) async {
     try {
@@ -4701,7 +3129,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_analytics_group_items_list(
+  FutureOr<CallToolResult> _ytAnalyticsGroupItemsList(
     CallToolRequest request,
   ) async {
     try {
@@ -4735,7 +3163,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_analytics_group_items_insert(
+  FutureOr<CallToolResult> _ytAnalyticsGroupItemsInsert(
     CallToolRequest request,
   ) async {
     try {
@@ -4766,7 +3194,7 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
-  FutureOr<CallToolResult> _yt_analytics_group_items_delete(
+  FutureOr<CallToolResult> _ytAnalyticsGroupItemsDelete(
     CallToolRequest request,
   ) async {
     try {
@@ -4797,13 +3225,2587 @@ base class MCPServerWithTools extends MCPServer with ToolsSupport {
     }
   }
 
+  static const _codeModeToolSpecs = <Map<String, dynamic>>[
+    <String, dynamic>{
+      'name': 'yt_channels_list',
+      'description':
+          'List YouTube channels by ID or username. Use id for channel IDs, forUsername for usernames, or mine=true for your channel. Use part=snippet,statistics for full details.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'forUsername',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_channels_update',
+      'description': 'Update channel metadata (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_search_list',
+      'description':
+          'Search YouTube for videos, channels, and playlists. Use type parameter to filter by video, channel, or playlist. Set maxResults 1-50. Example: q=Dart programming, type=video, maxResults=10',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'q', 'type': 'string', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'type', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_videos_list',
+      'description':
+          'List YouTube videos by ID or get trending videos. Use id parameter for specific videos or chart=mostPopular for trending. Use part=snippet,statistics for full details.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'chart', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_videos_insert',
+      'description':
+          'Upload a video to YouTube (requires OAuth). Provide the video file path.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{
+          'name': 'videoFilePath',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'notifySubscribers',
+          'type': 'boolean',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_videos_update',
+      'description': 'Update video metadata (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_videos_rate',
+      'description':
+          'Like, dislike, or remove rating for a video (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{'name': 'rating', 'type': 'string', 'required': true},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_videos_get_rating',
+      'description':
+          'Get the rating that the authorized user gave to a video (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_videos_report_abuse',
+      'description': 'Report a video for abusive content (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_videos_delete',
+      'description': 'Delete a video (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlists_list',
+      'description': 'List YouTube playlists.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'channelId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlists_insert',
+      'description': 'Create a playlist (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlists_update',
+      'description': 'Update playlist metadata (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlists_delete',
+      'description': 'Delete a playlist (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comments_list',
+      'description': 'List YouTube comments.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'parentId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comments_list_by_ids',
+      'description': 'List comments by their IDs.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'ids', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'textFormat',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comments_list_by_id',
+      'description': 'Get a single comment by ID.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'textFormat',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comments_list_by_parent_id',
+      'description': 'List replies to a comment.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'parentId',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'textFormat',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comments_insert',
+      'description': 'Create a comment reply (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comments_add',
+      'description':
+          'Add a reply to a comment (requires OAuth). Helper method.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'parentId',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'textOriginal',
+          'type': 'string',
+          'required': true,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comments_update',
+      'description': 'Update a comment (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comments_change',
+      'description': 'Change comment text (requires OAuth). Helper method.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'commentId',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'textOriginal',
+          'type': 'string',
+          'required': true,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comments_set_moderation_status',
+      'description': 'Set moderation status for comments (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'moderationStatus',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'banAuthor',
+          'type': 'boolean',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comments_delete',
+      'description': 'Delete a comment (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comment_threads_list',
+      'description':
+          'List comment threads for a video. Requires videoId parameter. Set maxResults 1-100. Use part=snippet,replies to include replies.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'videoId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comment_threads_list_by_video_id',
+      'description': 'List comment threads for a specific video.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'videoId',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'moderationStatus',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'order', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'searchTerms',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'textFormat',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comment_threads_list_by_ids',
+      'description': 'List comment threads by their IDs.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'ids', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'moderationStatus',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'order', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'searchTerms',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'textFormat',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comment_threads_list_by_id',
+      'description': 'Get a single comment thread by ID.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'moderationStatus',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'searchTerms',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'textFormat',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comment_threads_list_by_channel_id',
+      'description': 'List all comment threads related to a channel.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'channelId',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'moderationStatus',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'order', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'searchTerms',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'textFormat',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comment_threads_insert',
+      'description': 'Create a new top-level comment thread (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_comment_threads_add',
+      'description':
+          'Add a top-level comment to a video (requires OAuth). Helper method.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'videoId',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'textOriginal',
+          'type': 'string',
+          'required': true,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_members_list',
+      'description': 'Lists channel members (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'mode', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_memberships_levels_list',
+      'description':
+          'Lists membership levels for the channel (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_video_abuse_report_reasons_list',
+      'description':
+          'Retrieves reasons for reporting abusive videos (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'hl', 'type': 'string', 'required': false},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlist_items_list',
+      'description':
+          'List items in a playlist. Requires playlistId parameter. Standard playlists start with PL, channel uploads start with UU. Use maxResults 1-50.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'playlistId',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'videoId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlist_items_insert',
+      'description': 'Add an item to a playlist (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlist_items_update',
+      'description': 'Update a playlist item (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlist_items_delete',
+      'description': 'Remove an item from a playlist (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_subscriptions_list',
+      'description':
+          'List your YouTube subscriptions. Use mine=true for your subscriptions. Set maxResults 1-50. Use part=snippet for channel names or snippet,contentDetails for full details. Requires OAuth.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'channelId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'mine', 'type': 'boolean', 'required': false},
+        <String, dynamic>{
+          'name': 'myRecentSubscribers',
+          'type': 'boolean',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'mySubscribers',
+          'type': 'boolean',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'forChannelId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'order', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_subscriptions_insert',
+      'description':
+          'Subscribe to a YouTube channel. Requires OAuth. Provide body JSON with snippet.resourceId.channelId. Idempotent - safe to call multiple times for same channel.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_subscriptions_delete',
+      'description': 'Unsubscribe from a channel (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_activities_list',
+      'description': 'List channel activities.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'channelId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'mine', 'type': 'boolean', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'publishedAfter',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'publishedBefore',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'regionCode',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_video_categories_list',
+      'description': 'List video categories.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'regionCode',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'hl', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_captions_list',
+      'description': 'List caption tracks for a video.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'videoId',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_captions_insert',
+      'description': 'Upload a caption track (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{
+          'name': 'captionFilePath',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_captions_update',
+      'description': 'Update a caption track (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{
+          'name': 'captionFilePath',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_captions_delete',
+      'description': 'Delete a caption track (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_captions_download',
+      'description': 'Download a caption track.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{'name': 'tfmt', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'tlang', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_thumbnails_set',
+      'description': 'Set a custom thumbnail for a video (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'videoId',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'thumbnailFilePath',
+          'type': 'string',
+          'required': true,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_watermarks_set',
+      'description': 'Set a channel watermark image (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'channelId',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'watermarksResource',
+          'type': 'object',
+          'required': true,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_watermarks_unset',
+      'description': 'Remove a channel watermark (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'channelId',
+          'type': 'string',
+          'required': true,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_channel_banners_insert',
+      'description': 'Upload a channel banner image (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'imageFilePath',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'channelId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_channel_sections_list',
+      'description': 'List channel sections.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'channelId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'mine', 'type': 'boolean', 'required': false},
+        <String, dynamic>{'name': 'hl', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_channel_sections_insert',
+      'description': 'Add a channel section (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_channel_sections_update',
+      'description': 'Update a channel section (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_channel_sections_delete',
+      'description': 'Delete a channel section (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_i18n_languages_list',
+      'description': 'List supported UI languages.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'hl', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_i18n_regions_list',
+      'description': 'List supported content regions.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'hl', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlist_images_list',
+      'description': 'List custom images for a playlist.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'parent', 'type': 'string', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlist_images_insert',
+      'description': 'Upload a custom playlist image (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'parent', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'imageFilePath',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlist_images_update',
+      'description': 'Replace a playlist image (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'imageFilePath',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_playlist_images_delete',
+      'description': 'Delete a playlist image (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_third_party_links_list',
+      'description': 'List third-party links.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'externalChannelId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'linkingToken',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'type', 'type': 'string', 'required': false},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_third_party_links_insert',
+      'description': 'Create a third-party link (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'externalChannelId',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_third_party_links_update',
+      'description': 'Update a third-party link (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'externalChannelId',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_third_party_links_delete',
+      'description': 'Delete a third-party link (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'linkingToken',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{'name': 'type', 'type': 'string', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'externalChannelId',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_broadcasts_list',
+      'description': 'List live broadcasts.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'broadcastStatus',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'broadcastType',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'mine', 'type': 'boolean', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_broadcasts_insert',
+      'description': 'Create a live broadcast (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_broadcasts_update',
+      'description': 'Update a live broadcast (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_broadcasts_transition',
+      'description': 'Transition a broadcast to a new status (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'broadcastStatus',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_broadcasts_bind',
+      'description': 'Bind a broadcast to a stream (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'streamId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_broadcasts_delete',
+      'description': 'Delete a live broadcast (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_broadcasts_cuepoint',
+      'description':
+          'Insert a cuepoint into a live broadcast (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_broadcasts_get_active',
+      'description': 'Get the currently active broadcast.',
+      'parameters': <Map<String, dynamic>>[],
+    },
+    <String, dynamic>{
+      'name': 'yt_broadcasts_get_upcoming_and_active',
+      'description': 'Get upcoming and active broadcasts.',
+      'parameters': <Map<String, dynamic>>[],
+    },
+    <String, dynamic>{
+      'name': 'yt_live_streams_list',
+      'description': 'List live streams.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'mine', 'type': 'boolean', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_live_streams_insert',
+      'description': 'Create a live stream (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_live_streams_update',
+      'description': 'Update a live stream (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_live_streams_delete',
+      'description': 'Delete a live stream (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwnerChannel',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_live_chat_list',
+      'description': 'List live chat messages.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'liveChatId',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'hl', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'profileImageSize',
+          'type': 'number',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_live_chat_insert',
+      'description': 'Send a live chat message (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{'name': 'part', 'type': 'string', 'required': false},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_live_chat_delete',
+      'description': 'Delete a live chat message (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_analytics_query',
+      'description': 'Query YouTube Analytics reports.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'ids', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'startDate',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'endDate',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'metrics',
+          'type': 'string',
+          'required': true,
+        },
+        <String, dynamic>{
+          'name': 'dimensions',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'filters',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'maxResults',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'sort', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'startIndex',
+          'type': 'number',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'currency',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'includeHistoricalChannelData',
+          'type': 'boolean',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_analytics_groups_list',
+      'description': 'List analytics groups.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{'name': 'mine', 'type': 'boolean', 'required': false},
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_analytics_groups_insert',
+      'description': 'Create an analytics group (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_analytics_groups_update',
+      'description': 'Update an analytics group (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_analytics_groups_delete',
+      'description': 'Delete an analytics group (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_analytics_group_items_list',
+      'description': 'List items in an analytics group.',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'name': 'groupId',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': false},
+        <String, dynamic>{
+          'name': 'pageToken',
+          'type': 'string',
+          'required': false,
+        },
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_analytics_group_items_insert',
+      'description': 'Add an item to an analytics group (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'body', 'type': 'object', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+    <String, dynamic>{
+      'name': 'yt_analytics_group_items_delete',
+      'description': 'Remove an item from an analytics group (requires OAuth).',
+      'parameters': <Map<String, dynamic>>[
+        <String, dynamic>{'name': 'id', 'type': 'string', 'required': true},
+        <String, dynamic>{
+          'name': 'onBehalfOfContentOwner',
+          'type': 'string',
+          'required': false,
+        },
+      ],
+    },
+  ];
+  FutureOr<CallToolResult> _search(CallToolRequest request) async {
+    try {
+      final query = (request.arguments?['query'] as String?) ?? '';
+      final detailLevel =
+          (request.arguments?['detail_level'] as String?) ?? 'brief';
+
+      // Validate query length
+      if (query.length > 500) {
+        return CallToolResult(
+          content: [
+            TextContent(
+              text: 'Search query exceeds maximum length of 500 characters.',
+            ),
+          ],
+          isError: true,
+        );
+      }
+
+      final terms = query
+          .toLowerCase()
+          .split(' ')
+          .where((t) => t.isNotEmpty)
+          .toList();
+
+      if (terms.isEmpty) {
+        final results = _codeModeToolSpecs
+            .map((tool) => _formatSearchResult(tool, detailLevel))
+            .toList();
+        return CallToolResult(
+          content: [TextContent(text: jsonEncode(results))],
+        );
+      }
+
+      // Phase 1: strict AND match — all terms must appear in name or description
+      final andMatches = _codeModeToolSpecs.where((tool) {
+        final name = (tool['name'] as String).toLowerCase();
+        final desc = (tool['description'] as String).toLowerCase();
+        return terms.every(
+          (term) => name.contains(term) || desc.contains(term),
+        );
+      }).toList();
+
+      List<Map<String, dynamic>> matches;
+      if (andMatches.isNotEmpty) {
+        matches = andMatches;
+      } else {
+        // Phase 2: ranked OR match — score each tool by how many terms it matches
+        final scored = _codeModeToolSpecs
+            .map((tool) {
+              final name = (tool['name'] as String).toLowerCase();
+              final desc = (tool['description'] as String).toLowerCase();
+              int score = 0;
+              for (final term in terms) {
+                if (name.contains(term) || desc.contains(term)) score++;
+              }
+              return MapEntry(tool, score);
+            })
+            .where((e) => e.value > 0)
+            .toList();
+
+        scored.sort((a, b) => b.value.compareTo(a.value));
+        matches = scored.map((e) => e.key).toList();
+      }
+
+      final results = matches
+          .map((tool) => _formatSearchResult(tool, detailLevel))
+          .toList();
+
+      return CallToolResult(content: [TextContent(text: jsonEncode(results))]);
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] _search: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
+        isError: true,
+      );
+    }
+  }
+
+  Map<String, dynamic> _formatSearchResult(
+    Map<String, dynamic> tool,
+    String detailLevel,
+  ) {
+    final name = tool['name'] as String;
+    final desc = tool['description'] as String;
+    final params = tool['parameters'] as List<Map<String, dynamic>>;
+
+    if (detailLevel == 'brief') {
+      return {'name': name, 'description': desc};
+    } else if (detailLevel == 'detailed') {
+      final paramInfo = params
+          .map(
+            (p) => {
+              'name': p['name'],
+              'type': p['type'],
+              'required': p['required'],
+            },
+          )
+          .toList();
+      return {'name': name, 'description': desc, 'parameters': paramInfo};
+    } else {
+      final paramInfo = params.map((p) {
+        final map = <String, dynamic>{
+          'name': p['name'],
+          'type': p['type'],
+          'required': p['required'],
+        };
+        return map;
+      }).toList();
+      return {'name': name, 'description': desc, 'parameters': paramInfo};
+    }
+  }
+  // ignore: prefer_adjacent_string_concatenation
+
+  FutureOr<CallToolResult> _execute(CallToolRequest request) async {
+    try {
+      final code = request.arguments!['code'] as String;
+
+      // Validate code length to prevent abuse
+      if (code.length > 10000) {
+        return CallToolResult(
+          content: [
+            TextContent(
+              text: 'Code exceeds maximum length of 10000 characters.',
+            ),
+          ],
+          isError: true,
+        );
+      }
+
+      final result = await _runCodeSandbox(code, 30);
+      return CallToolResult(content: [TextContent(text: result ?? 'null')]);
+    } catch (e, st) {
+      if (_logErrors) {
+        io.stderr.writeln('[easy_api] _execute: $e');
+        io.stderr.writeln(st);
+        await io.stderr.flush();
+      }
+      return CallToolResult(
+        content: [
+          TextContent(text: 'An error occurred while processing the request.'),
+        ],
+        isError: true,
+      );
+    }
+  }
+
+  Future<String?> _runCodeSandbox(String userCode, int timeoutSeconds) async {
+    io.Process? process;
+    io.Directory? tempDir;
+    try {
+      final wrapper = _buildJsWrapper(userCode);
+
+      // Security: Use unpredictable directory name with timestamp + random suffix
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final random = math.Random.secure();
+      final suffix = List.generate(
+        8,
+        (_) => random.nextInt(16).toRadixString(16),
+      ).join();
+      tempDir = await io.Directory.systemTemp.createTemp(
+        'mcp_sandbox_${timestamp}_${suffix}_',
+      );
+      final scriptFile = io.File('${tempDir.path}/sandbox.js');
+
+      // Set restrictive permissions (owner read/write only)
+      if (io.Platform.isLinux || io.Platform.isMacOS) {
+        await scriptFile.create(recursive: true);
+        await io.Process.run('chmod', ['700', tempDir.path]);
+        await io.Process.run('chmod', ['600', scriptFile.path]);
+      }
+
+      await scriptFile.writeAsString(wrapper);
+
+      process = await io.Process.start('node', [
+        '--max-old-space-size=64',
+        '--no-addons',
+        '--frozen-intrinsics',
+        scriptFile.path,
+      ]);
+    } catch (e) {
+      await tempDir?.delete(recursive: true);
+      throw StateError('Code mode requires Node.js to be installed');
+    }
+
+    try {
+      final resultCompleter = Completer<String?>();
+      final errorCompleter = Completer<String>();
+
+      process.stdout
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .listen((line) {
+            if (line.trim().isEmpty) return;
+
+            try {
+              final msg = jsonDecode(line) as Map<String, dynamic>;
+              final type = msg['type'] as String?;
+
+              if (type == 'call') {
+                final callId = msg['callId'] as String;
+                final toolName = msg['tool'] as String;
+                final args =
+                    (msg['args'] as Map<String, dynamic>?) ??
+                    <String, dynamic>{};
+
+                _dispatchCodeModeToolCall(toolName, args)
+                    .then((resultJson) {
+                      process?.stdin.writeln(
+                        jsonEncode({
+                          'type': 'result',
+                          'callId': callId,
+                          'data': resultJson,
+                        }),
+                      );
+                    })
+                    .catchError((e, st) {
+                      if (_logErrors) {
+                        io.stderr.writeln(
+                          '[easy_api] _dispatchCodeModeToolCall($toolName): $e',
+                        );
+                        io.stderr.writeln(st);
+                        io.stderr
+                            .flush(); // fire-and-forget; callback is not async
+                      }
+                      process?.stdin.writeln(
+                        jsonEncode({
+                          'type': 'result',
+                          'callId': callId,
+                          'data': null,
+                          'error':
+                              'An error occurred while processing the request.',
+                        }),
+                      );
+                    });
+              } else if (type == 'done') {
+                final result = msg['result'];
+                if (result == null) {
+                  resultCompleter.complete(null);
+                } else if (result is String) {
+                  resultCompleter.complete(result);
+                } else {
+                  resultCompleter.complete(jsonEncode(result));
+                }
+              } else if (type == 'error') {
+                errorCompleter.complete(
+                  msg['message'] as String? ?? 'Unknown error',
+                );
+              }
+            } catch (_) {
+              // Ignore non-JSON lines
+            }
+          });
+
+      // Wait for result, error, or timeout
+      final timeoutFuture = Future.delayed(
+        Duration(seconds: timeoutSeconds),
+        () => throw StateError(
+          'Code execution timed out after $timeoutSeconds seconds',
+        ),
+      );
+
+      final result = await Future.any<String?>([
+        resultCompleter.future,
+        errorCompleter.future.then(
+          (e) => throw StateError('Code execution error: $e'),
+        ),
+        timeoutFuture,
+      ]);
+
+      return result;
+    } finally {
+      // Graceful shutdown: process is guaranteed to be non-null here
+      // (otherwise process.stdout would have thrown earlier)
+      final proc = process;
+      final dir = tempDir;
+      try {
+        // First, check if process already exited naturally
+        await proc.exitCode.timeout(const Duration(milliseconds: 100));
+      } catch (_) {
+        // Process still running, begin graceful shutdown
+        proc.kill(io.ProcessSignal.sigterm);
+        try {
+          // Wait up to 2 seconds for graceful shutdown
+          await proc.exitCode.timeout(
+            const Duration(seconds: 2),
+            onTimeout: () {
+              // Process didn't exit, force kill
+              proc.kill(io.ProcessSignal.sigkill);
+              return -1;
+            },
+          );
+        } catch (_) {
+          // Error during exit code wait - attempt force kill as fallback
+          proc.kill(io.ProcessSignal.sigkill);
+        }
+      }
+      await dir.delete(recursive: true);
+    }
+  }
+
+  String _buildJsWrapper(String userCode) {
+    final sb = StringBuffer();
+    sb.writeln('// Code Mode Sandbox - IPC Layer');
+    sb.writeln('const __pending = {};');
+    sb.writeln('let __callId = 0;');
+    sb.writeln("let __buffer = '';");
+    sb.writeln();
+    sb.writeln("process.stdin.on('data', (chunk) => {");
+    sb.writeln('  __buffer += chunk.toString();');
+    sb.writeln("  const lines = __buffer.split('\\n');");
+    sb.writeln('  __buffer = lines.pop();');
+    sb.writeln('  for (const line of lines) {');
+    sb.writeln("    if (!line.trim()) continue;");
+    sb.writeln('    try {');
+    sb.writeln('      const msg = JSON.parse(line);');
+    sb.writeln("      if (msg.type === 'result' && __pending[msg.callId]) {");
+    sb.writeln('        const { resolve, reject } = __pending[msg.callId];');
+    sb.writeln('        if (msg.error) { reject(new Error(msg.error)); }');
+    sb.writeln('        else { resolve(msg.data); }');
+    sb.writeln('        delete __pending[msg.callId];');
+    sb.writeln('      }');
+    sb.writeln('    } catch (e) {}');
+    sb.writeln('  }');
+    sb.writeln('});');
+    sb.writeln();
+    sb.writeln('function __send(msg) {');
+    sb.writeln("  process.stdout.write(JSON.stringify(msg) + '\\n');");
+    sb.writeln('}');
+    sb.writeln();
+    sb.writeln('async function __externalCall(tool, args) {');
+    sb.writeln('  const callId = String(++__callId);');
+    sb.writeln('  return new Promise((resolve, reject) => {');
+    sb.writeln('    __pending[callId] = { resolve, reject };');
+    sb.writeln("    __send({ type: 'call', callId, tool, args: args || {} });");
+    sb.writeln('  });');
+    sb.writeln('}');
+    sb.writeln();
+    sb.writeln('// Generic tool invocation function');
+    sb.writeln('async function call_tool(name, params) {');
+    sb.writeln('  return __externalCall(name, params || {});');
+    sb.writeln('}');
+    sb.writeln();
+    sb.writeln('// External Tool Functions (convenience wrappers)');
+    sb.writeln(
+      "async function external_yt_channels_list(args) { return call_tool('yt_channels_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_channels_update(args) { return call_tool('yt_channels_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_search_list(args) { return call_tool('yt_search_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_videos_list(args) { return call_tool('yt_videos_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_videos_insert(args) { return call_tool('yt_videos_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_videos_update(args) { return call_tool('yt_videos_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_videos_rate(args) { return call_tool('yt_videos_rate', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_videos_get_rating(args) { return call_tool('yt_videos_get_rating', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_videos_report_abuse(args) { return call_tool('yt_videos_report_abuse', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_videos_delete(args) { return call_tool('yt_videos_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlists_list(args) { return call_tool('yt_playlists_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlists_insert(args) { return call_tool('yt_playlists_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlists_update(args) { return call_tool('yt_playlists_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlists_delete(args) { return call_tool('yt_playlists_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comments_list(args) { return call_tool('yt_comments_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comments_list_by_ids(args) { return call_tool('yt_comments_list_by_ids', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comments_list_by_id(args) { return call_tool('yt_comments_list_by_id', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comments_list_by_parent_id(args) { return call_tool('yt_comments_list_by_parent_id', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comments_insert(args) { return call_tool('yt_comments_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comments_add(args) { return call_tool('yt_comments_add', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comments_update(args) { return call_tool('yt_comments_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comments_change(args) { return call_tool('yt_comments_change', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comments_set_moderation_status(args) { return call_tool('yt_comments_set_moderation_status', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comments_delete(args) { return call_tool('yt_comments_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comment_threads_list(args) { return call_tool('yt_comment_threads_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comment_threads_list_by_video_id(args) { return call_tool('yt_comment_threads_list_by_video_id', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comment_threads_list_by_ids(args) { return call_tool('yt_comment_threads_list_by_ids', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comment_threads_list_by_id(args) { return call_tool('yt_comment_threads_list_by_id', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comment_threads_list_by_channel_id(args) { return call_tool('yt_comment_threads_list_by_channel_id', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comment_threads_insert(args) { return call_tool('yt_comment_threads_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_comment_threads_add(args) { return call_tool('yt_comment_threads_add', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_members_list(args) { return call_tool('yt_members_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_memberships_levels_list(args) { return call_tool('yt_memberships_levels_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_video_abuse_report_reasons_list(args) { return call_tool('yt_video_abuse_report_reasons_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlist_items_list(args) { return call_tool('yt_playlist_items_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlist_items_insert(args) { return call_tool('yt_playlist_items_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlist_items_update(args) { return call_tool('yt_playlist_items_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlist_items_delete(args) { return call_tool('yt_playlist_items_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_subscriptions_list(args) { return call_tool('yt_subscriptions_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_subscriptions_insert(args) { return call_tool('yt_subscriptions_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_subscriptions_delete(args) { return call_tool('yt_subscriptions_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_activities_list(args) { return call_tool('yt_activities_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_video_categories_list(args) { return call_tool('yt_video_categories_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_captions_list(args) { return call_tool('yt_captions_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_captions_insert(args) { return call_tool('yt_captions_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_captions_update(args) { return call_tool('yt_captions_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_captions_delete(args) { return call_tool('yt_captions_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_captions_download(args) { return call_tool('yt_captions_download', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_thumbnails_set(args) { return call_tool('yt_thumbnails_set', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_watermarks_set(args) { return call_tool('yt_watermarks_set', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_watermarks_unset(args) { return call_tool('yt_watermarks_unset', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_channel_banners_insert(args) { return call_tool('yt_channel_banners_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_channel_sections_list(args) { return call_tool('yt_channel_sections_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_channel_sections_insert(args) { return call_tool('yt_channel_sections_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_channel_sections_update(args) { return call_tool('yt_channel_sections_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_channel_sections_delete(args) { return call_tool('yt_channel_sections_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_i18n_languages_list(args) { return call_tool('yt_i18n_languages_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_i18n_regions_list(args) { return call_tool('yt_i18n_regions_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlist_images_list(args) { return call_tool('yt_playlist_images_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlist_images_insert(args) { return call_tool('yt_playlist_images_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlist_images_update(args) { return call_tool('yt_playlist_images_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_playlist_images_delete(args) { return call_tool('yt_playlist_images_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_third_party_links_list(args) { return call_tool('yt_third_party_links_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_third_party_links_insert(args) { return call_tool('yt_third_party_links_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_third_party_links_update(args) { return call_tool('yt_third_party_links_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_third_party_links_delete(args) { return call_tool('yt_third_party_links_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_broadcasts_list(args) { return call_tool('yt_broadcasts_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_broadcasts_insert(args) { return call_tool('yt_broadcasts_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_broadcasts_update(args) { return call_tool('yt_broadcasts_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_broadcasts_transition(args) { return call_tool('yt_broadcasts_transition', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_broadcasts_bind(args) { return call_tool('yt_broadcasts_bind', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_broadcasts_delete(args) { return call_tool('yt_broadcasts_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_broadcasts_cuepoint(args) { return call_tool('yt_broadcasts_cuepoint', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_broadcasts_get_active(args) { return call_tool('yt_broadcasts_get_active', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_broadcasts_get_upcoming_and_active(args) { return call_tool('yt_broadcasts_get_upcoming_and_active', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_live_streams_list(args) { return call_tool('yt_live_streams_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_live_streams_insert(args) { return call_tool('yt_live_streams_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_live_streams_update(args) { return call_tool('yt_live_streams_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_live_streams_delete(args) { return call_tool('yt_live_streams_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_live_chat_list(args) { return call_tool('yt_live_chat_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_live_chat_insert(args) { return call_tool('yt_live_chat_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_live_chat_delete(args) { return call_tool('yt_live_chat_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_analytics_query(args) { return call_tool('yt_analytics_query', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_analytics_groups_list(args) { return call_tool('yt_analytics_groups_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_analytics_groups_insert(args) { return call_tool('yt_analytics_groups_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_analytics_groups_update(args) { return call_tool('yt_analytics_groups_update', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_analytics_groups_delete(args) { return call_tool('yt_analytics_groups_delete', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_analytics_group_items_list(args) { return call_tool('yt_analytics_group_items_list', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_analytics_group_items_insert(args) { return call_tool('yt_analytics_group_items_insert', args); }",
+    );
+    sb.writeln(
+      "async function external_yt_analytics_group_items_delete(args) { return call_tool('yt_analytics_group_items_delete', args); }",
+    );
+    sb.writeln();
+    sb.writeln('// Execute user code');
+    sb.writeln('(async () => {');
+    sb.writeln('  try {');
+    sb.writeln('    const __result = await (async () => {');
+    // Auto-return expression-like code (IIFE or bare await) so the LLM
+    // doesn't need to remember an explicit return for single-expression snippets.
+    final trimmedCode = userCode.trim();
+    final isExpressionLike =
+        trimmedCode.startsWith('(') || trimmedCode.startsWith('await ');
+    final alreadyHasReturn = trimmedCode.startsWith('return ');
+    final codeToRun = (isExpressionLike && !alreadyHasReturn)
+        ? 'return ' + userCode
+        : userCode;
+    sb.writeln(codeToRun);
+    sb.writeln('    })();');
+    sb.writeln("    __send({ type: 'done', result: __result });");
+    sb.writeln('  } catch (e) {');
+    sb.writeln(
+      "    __send({ type: 'error', message: e.message || String(e) });",
+    );
+    sb.writeln('  }');
+    sb.writeln('})();');
+    return sb.toString();
+  }
+
+  dynamic _dispatchCodeModeToolCall(
+    String toolName,
+    Map<String, dynamic> args,
+  ) async {
+    final request = CallToolRequest(name: toolName, arguments: args);
+    CallToolResult result;
+    switch (toolName) {
+      case 'search':
+        result = await _search(request);
+        break;
+      case 'yt_channels_list':
+        result = await _ytChannelsList(request);
+        break;
+      case 'yt_channels_update':
+        result = await _ytChannelsUpdate(request);
+        break;
+      case 'yt_search_list':
+        result = await _ytSearchList(request);
+        break;
+      case 'yt_videos_list':
+        result = await _ytVideosList(request);
+        break;
+      case 'yt_videos_insert':
+        result = await _ytVideosInsert(request);
+        break;
+      case 'yt_videos_update':
+        result = await _ytVideosUpdate(request);
+        break;
+      case 'yt_videos_rate':
+        result = await _ytVideosRate(request);
+        break;
+      case 'yt_videos_get_rating':
+        result = await _ytVideosGetRating(request);
+        break;
+      case 'yt_videos_report_abuse':
+        result = await _ytVideosReportAbuse(request);
+        break;
+      case 'yt_videos_delete':
+        result = await _ytVideosDelete(request);
+        break;
+      case 'yt_playlists_list':
+        result = await _ytPlaylistsList(request);
+        break;
+      case 'yt_playlists_insert':
+        result = await _ytPlaylistsInsert(request);
+        break;
+      case 'yt_playlists_update':
+        result = await _ytPlaylistsUpdate(request);
+        break;
+      case 'yt_playlists_delete':
+        result = await _ytPlaylistsDelete(request);
+        break;
+      case 'yt_comments_list':
+        result = await _ytCommentsList(request);
+        break;
+      case 'yt_comments_list_by_ids':
+        result = await _ytCommentsListByIds(request);
+        break;
+      case 'yt_comments_list_by_id':
+        result = await _ytCommentsListById(request);
+        break;
+      case 'yt_comments_list_by_parent_id':
+        result = await _ytCommentsListByParentId(request);
+        break;
+      case 'yt_comments_insert':
+        result = await _ytCommentsInsert(request);
+        break;
+      case 'yt_comments_add':
+        result = await _ytCommentsAdd(request);
+        break;
+      case 'yt_comments_update':
+        result = await _ytCommentsUpdate(request);
+        break;
+      case 'yt_comments_change':
+        result = await _ytCommentsChange(request);
+        break;
+      case 'yt_comments_set_moderation_status':
+        result = await _ytCommentsSetModerationStatus(request);
+        break;
+      case 'yt_comments_delete':
+        result = await _ytCommentsDelete(request);
+        break;
+      case 'yt_comment_threads_list':
+        result = await _ytCommentThreadsList(request);
+        break;
+      case 'yt_comment_threads_list_by_video_id':
+        result = await _ytCommentThreadsListByVideoId(request);
+        break;
+      case 'yt_comment_threads_list_by_ids':
+        result = await _ytCommentThreadsListByIds(request);
+        break;
+      case 'yt_comment_threads_list_by_id':
+        result = await _ytCommentThreadsListById(request);
+        break;
+      case 'yt_comment_threads_list_by_channel_id':
+        result = await _ytCommentThreadsListByChannelId(request);
+        break;
+      case 'yt_comment_threads_insert':
+        result = await _ytCommentThreadsInsert(request);
+        break;
+      case 'yt_comment_threads_add':
+        result = await _ytCommentThreadsAdd(request);
+        break;
+      case 'yt_members_list':
+        result = await _ytMembersList(request);
+        break;
+      case 'yt_memberships_levels_list':
+        result = await _ytMembershipsLevelsList(request);
+        break;
+      case 'yt_video_abuse_report_reasons_list':
+        result = await _ytVideoAbuseReportReasonsList(request);
+        break;
+      case 'yt_playlist_items_list':
+        result = await _ytPlaylistItemsList(request);
+        break;
+      case 'yt_playlist_items_insert':
+        result = await _ytPlaylistItemsInsert(request);
+        break;
+      case 'yt_playlist_items_update':
+        result = await _ytPlaylistItemsUpdate(request);
+        break;
+      case 'yt_playlist_items_delete':
+        result = await _ytPlaylistItemsDelete(request);
+        break;
+      case 'yt_subscriptions_list':
+        result = await _ytSubscriptionsList(request);
+        break;
+      case 'yt_subscriptions_insert':
+        result = await _ytSubscriptionsInsert(request);
+        break;
+      case 'yt_subscriptions_delete':
+        result = await _ytSubscriptionsDelete(request);
+        break;
+      case 'yt_activities_list':
+        result = await _ytActivitiesList(request);
+        break;
+      case 'yt_video_categories_list':
+        result = await _ytVideoCategoriesList(request);
+        break;
+      case 'yt_captions_list':
+        result = await _ytCaptionsList(request);
+        break;
+      case 'yt_captions_insert':
+        result = await _ytCaptionsInsert(request);
+        break;
+      case 'yt_captions_update':
+        result = await _ytCaptionsUpdate(request);
+        break;
+      case 'yt_captions_delete':
+        result = await _ytCaptionsDelete(request);
+        break;
+      case 'yt_captions_download':
+        result = await _ytCaptionsDownload(request);
+        break;
+      case 'yt_thumbnails_set':
+        result = await _ytThumbnailsSet(request);
+        break;
+      case 'yt_watermarks_set':
+        result = await _ytWatermarksSet(request);
+        break;
+      case 'yt_watermarks_unset':
+        result = await _ytWatermarksUnset(request);
+        break;
+      case 'yt_channel_banners_insert':
+        result = await _ytChannelBannersInsert(request);
+        break;
+      case 'yt_channel_sections_list':
+        result = await _ytChannelSectionsList(request);
+        break;
+      case 'yt_channel_sections_insert':
+        result = await _ytChannelSectionsInsert(request);
+        break;
+      case 'yt_channel_sections_update':
+        result = await _ytChannelSectionsUpdate(request);
+        break;
+      case 'yt_channel_sections_delete':
+        result = await _ytChannelSectionsDelete(request);
+        break;
+      case 'yt_i18n_languages_list':
+        result = await _ytI18nLanguagesList(request);
+        break;
+      case 'yt_i18n_regions_list':
+        result = await _ytI18nRegionsList(request);
+        break;
+      case 'yt_playlist_images_list':
+        result = await _ytPlaylistImagesList(request);
+        break;
+      case 'yt_playlist_images_insert':
+        result = await _ytPlaylistImagesInsert(request);
+        break;
+      case 'yt_playlist_images_update':
+        result = await _ytPlaylistImagesUpdate(request);
+        break;
+      case 'yt_playlist_images_delete':
+        result = await _ytPlaylistImagesDelete(request);
+        break;
+      case 'yt_third_party_links_list':
+        result = await _ytThirdPartyLinksList(request);
+        break;
+      case 'yt_third_party_links_insert':
+        result = await _ytThirdPartyLinksInsert(request);
+        break;
+      case 'yt_third_party_links_update':
+        result = await _ytThirdPartyLinksUpdate(request);
+        break;
+      case 'yt_third_party_links_delete':
+        result = await _ytThirdPartyLinksDelete(request);
+        break;
+      case 'yt_broadcasts_list':
+        result = await _ytBroadcastsList(request);
+        break;
+      case 'yt_broadcasts_insert':
+        result = await _ytBroadcastsInsert(request);
+        break;
+      case 'yt_broadcasts_update':
+        result = await _ytBroadcastsUpdate(request);
+        break;
+      case 'yt_broadcasts_transition':
+        result = await _ytBroadcastsTransition(request);
+        break;
+      case 'yt_broadcasts_bind':
+        result = await _ytBroadcastsBind(request);
+        break;
+      case 'yt_broadcasts_delete':
+        result = await _ytBroadcastsDelete(request);
+        break;
+      case 'yt_broadcasts_cuepoint':
+        result = await _ytBroadcastsCuepoint(request);
+        break;
+      case 'yt_broadcasts_get_active':
+        result = await _ytBroadcastsGetActive(request);
+        break;
+      case 'yt_broadcasts_get_upcoming_and_active':
+        result = await _ytBroadcastsGetUpcomingAndActive(request);
+        break;
+      case 'yt_live_streams_list':
+        result = await _ytLiveStreamsList(request);
+        break;
+      case 'yt_live_streams_insert':
+        result = await _ytLiveStreamsInsert(request);
+        break;
+      case 'yt_live_streams_update':
+        result = await _ytLiveStreamsUpdate(request);
+        break;
+      case 'yt_live_streams_delete':
+        result = await _ytLiveStreamsDelete(request);
+        break;
+      case 'yt_live_chat_list':
+        result = await _ytLiveChatList(request);
+        break;
+      case 'yt_live_chat_insert':
+        result = await _ytLiveChatInsert(request);
+        break;
+      case 'yt_live_chat_delete':
+        result = await _ytLiveChatDelete(request);
+        break;
+      case 'yt_analytics_query':
+        result = await _ytAnalyticsQuery(request);
+        break;
+      case 'yt_analytics_groups_list':
+        result = await _ytAnalyticsGroupsList(request);
+        break;
+      case 'yt_analytics_groups_insert':
+        result = await _ytAnalyticsGroupsInsert(request);
+        break;
+      case 'yt_analytics_groups_update':
+        result = await _ytAnalyticsGroupsUpdate(request);
+        break;
+      case 'yt_analytics_groups_delete':
+        result = await _ytAnalyticsGroupsDelete(request);
+        break;
+      case 'yt_analytics_group_items_list':
+        result = await _ytAnalyticsGroupItemsList(request);
+        break;
+      case 'yt_analytics_group_items_insert':
+        result = await _ytAnalyticsGroupItemsInsert(request);
+        break;
+      case 'yt_analytics_group_items_delete':
+        result = await _ytAnalyticsGroupItemsDelete(request);
+        break;
+      default:
+        throw StateError('Unknown tool: $toolName');
+    }
+
+    final textContent = result.content.whereType<TextContent>().firstOrNull;
+    if (textContent != null) {
+      final text = textContent.text;
+      try {
+        return jsonDecode(text);
+      } catch (_) {
+        return text;
+      }
+    }
+    return result.content.map((c) => c.toString()).join('\n');
+  }
+
   String _serializeResult(dynamic result) {
     if (result == null) return 'null';
     try {
+      if (result is Map) return jsonEncode(result);
       if (result is List) {
         final items = result
             .map((e) {
               if (e == null) return null;
+              if (e is Map) return e;
               final toJson = e.toJson;
               if (toJson != null && toJson is Function) return toJson();
               return e.toString();

@@ -22,7 +22,18 @@ import 'package:yt/yt.dart';
 /// Callers rely on [bootstrapFromEnv] to initialize automatically from
 /// `YT_API_KEY` or `YT_OAUTH_TOKEN` environment variables, then use any
 /// of the grouped tools (`yt_search_list`, `yt_videos_list`, etc.).
-@Server(transport: McpTransport.stdio, toolPrefix: 'yt_', logErrors: true)
+///
+/// **Hybrid Tool Architecture:**
+/// When `codeMode: true`, the server generates only 2 tools (`search` and `execute`)
+/// for complex orchestration. However, core read/query tools use
+/// `@Tool(codeModeVisible: true)` to remain directly callable for natural
+/// language interactions (e.g., "what channels do I subscribe to?").
+@Server(
+  transport: McpTransport.stdio,
+  toolPrefix: 'yt_',
+  logErrors: true,
+  codeMode: true,
+)
 class YtMcpServer {
   /// Environment variable holding the YouTube API key.
   static const String envApiKey = 'YT_API_KEY';
@@ -83,31 +94,14 @@ class YtMcpServer {
       final clientSecretsFile = Platform.environment[envClientSecretsFile];
       final accessTokensFile = Platform.environment[envAccessTokensFile];
 
-      // Priority 1: API key (read-only)
-      if (apiKey != null && apiKey.isNotEmpty) {
-        _client = Yt.withApiKey(apiKey: apiKey);
-        return;
-      }
-
-      // Priority 2: Raw OAuth token
-      if (oAuthToken != null && oAuthToken.isNotEmpty) {
-        // Basic validation: OAuth tokens are typically long strings
-        if (oAuthToken.length < 10) {
-          _bootstrapError =
-              '$envOAuthToken appears to be invalid (too short, expected >= 10 characters).';
-          return;
-        }
-        _client = Yt.withOAuth();
-        return;
-      }
-
-      // Priority 3: File-based OAuth (client_secrets.json + access_tokens.json)
+      // Priority 1: File-based OAuth (client_secrets.json + access_tokens.json)
+      // Prefer OAuth over API key since it provides full access (read + write)
       if (clientSecretsFile != null && clientSecretsFile.isNotEmpty) {
         // Validate that the client secrets file exists
         final secretsFile = File(clientSecretsFile);
         if (!secretsFile.existsSync()) {
           _bootstrapError =
-              '$envClientSecretsFile points to "$clientSecretsFile" but the file does not exist.';
+              'OAuth client secrets file not found. Check that $envClientSecretsFile points to a valid path.';
           return;
         }
 
@@ -116,7 +110,7 @@ class YtMcpServer {
           final tokensFile = File(accessTokensFile);
           if (!tokensFile.existsSync()) {
             _bootstrapError =
-                '$envAccessTokensFile points to "$accessTokensFile" but the file does not exist. '
+                'OAuth access tokens file not found. Check that $envAccessTokensFile points to a valid path. '
                 'Run "yt authorize" to generate it, or delete the variable to trigger interactive OAuth flow.';
             return;
           }
@@ -129,14 +123,40 @@ class YtMcpServer {
         return;
       }
 
+      // Priority 2: Raw OAuth token
+      if (oAuthToken != null && oAuthToken.isNotEmpty) {
+        // Validate OAuth token format (Google tokens start with 'ya29.' or are JWT)
+        final tokenPattern = RegExp(r'^(ya29\.|eyJ)[A-Za-z0-9_.-]{20,}$');
+        if (!tokenPattern.hasMatch(oAuthToken)) {
+          _bootstrapError =
+              '$envOAuthToken appears to be invalid (expected Google OAuth token format starting with "ya29." or JWT).';
+          return;
+        }
+        _client = Yt.withOAuth();
+        return;
+      }
+
+      // Priority 3: API key (read-only)
+      // Fall back to API key if OAuth is not configured
+      if (apiKey != null && apiKey.isNotEmpty) {
+        _client = Yt.withApiKey(apiKey: apiKey);
+        return;
+      }
+
       // No credentials found
       _bootstrapError =
           'No YouTube credentials found. Set one of:\n'
-          '- $envApiKey (for read-only access)\n'
-          '- $envOAuthToken (for OAuth token)\n'
-          '- $envClientSecretsFile + $envAccessTokensFile (for file-based OAuth)';
+          '- $envClientSecretsFile + $envAccessTokensFile (for full OAuth access)\n'
+          '- $envOAuthToken (for raw OAuth token)\n'
+          '- $envApiKey (for read-only access)';
     } catch (e) {
-      _bootstrapError = e.toString();
+      // Log full error for debugging (only in debug mode)
+      if (debugMode) {
+        stderr.writeln('Bootstrap failed: $e');
+      }
+      // Store generic message for users to prevent information leakage
+      _bootstrapError =
+          'Failed to initialize YouTube credentials. Check environment variables.';
     }
   }
 
@@ -146,7 +166,10 @@ class YtMcpServer {
 
   @Tool(
     name: 'channels_list',
-    description: 'List YouTube channels by ID or username.',
+    description:
+        'List YouTube channels by ID or username. Use id for channel IDs, forUsername for usernames, or mine=true for your channel. Use part=snippet,statistics for full details.',
+    codeModeVisible: true,
+    annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
   )
   Future<Map<String, dynamic>> channelsList({
     @Parameter(description: 'Comma-separated channel property names')
@@ -193,7 +216,10 @@ class YtMcpServer {
 
   @Tool(
     name: 'search_list',
-    description: 'Search YouTube for videos, channels, and playlists.',
+    description:
+        'Search YouTube for videos, channels, and playlists. Use type parameter to filter by video, channel, or playlist. Set maxResults 1-50. Example: q=Dart programming, type=video, maxResults=10',
+    codeModeVisible: true,
+    annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
   )
   Future<Map<String, dynamic>> searchList({
     @Parameter(description: 'Search query term') required String q,
@@ -217,7 +243,13 @@ class YtMcpServer {
   // Videos
   // -----------------------------------------------------------------------
 
-  @Tool(name: 'videos_list', description: 'List YouTube videos by ID or chart.')
+  @Tool(
+    name: 'videos_list',
+    description:
+        'List YouTube videos by ID or get trending videos. Use id parameter for specific videos or chart=mostPopular for trending. Use part=snippet,statistics for full details.',
+    codeModeVisible: true,
+    annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
+  )
   Future<Map<String, dynamic>> videosList({
     @Parameter(description: 'Comma-separated video IDs') String? id,
     @Parameter(description: 'Chart type (mostPopular)') String? chart,
@@ -239,6 +271,13 @@ class YtMcpServer {
     name: 'videos_insert',
     description:
         'Upload a video to YouTube (requires OAuth). Provide the video file path.',
+    codeModeVisible: true,
+    annotations: ToolAnnotations(
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    ),
   )
   Future<Map<String, dynamic>> videosInsert({
     @Parameter(description: 'Video metadata as JSON (snippet, status, etc.)')
@@ -633,7 +672,10 @@ class YtMcpServer {
 
   @Tool(
     name: 'comment_threads_list',
-    description: 'List YouTube comment threads for a video.',
+    description:
+        'List comment threads for a video. Requires videoId parameter. Set maxResults 1-100. Use part=snippet,replies to include replies.',
+    codeModeVisible: true,
+    annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
   )
   Future<Map<String, dynamic>> commentThreadsList({
     @Parameter(description: 'Comma-separated comment thread property names')
@@ -853,7 +895,13 @@ class YtMcpServer {
   // PlaylistItems
   // -----------------------------------------------------------------------
 
-  @Tool(name: 'playlist_items_list', description: 'List items in a playlist.')
+  @Tool(
+    name: 'playlist_items_list',
+    description:
+        'List items in a playlist. Requires playlistId parameter. Standard playlists start with PL, channel uploads start with UU. Use maxResults 1-50.',
+    codeModeVisible: true,
+    annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
+  )
   Future<Map<String, dynamic>> playlistItemsList({
     @Parameter(description: 'Playlist ID') required String playlistId,
     @Parameter(description: 'Comma-separated property names')
@@ -951,7 +999,13 @@ class YtMcpServer {
   // Subscriptions
   // -----------------------------------------------------------------------
 
-  @Tool(name: 'subscriptions_list', description: 'List subscriptions.')
+  @Tool(
+    name: 'subscriptions_list',
+    description:
+        'List your YouTube subscriptions. Use mine=true for your subscriptions. Set maxResults 1-50. Use part=snippet for channel names or snippet,contentDetails for full details. Requires OAuth.',
+    codeModeVisible: true,
+    annotations: ToolAnnotations(readOnlyHint: true, openWorldHint: true),
+  )
   Future<Map<String, dynamic>> subscriptionsList({
     @Parameter(description: 'Comma-separated property names')
     String part = 'snippet,contentDetails',
@@ -990,7 +1044,15 @@ class YtMcpServer {
 
   @Tool(
     name: 'subscriptions_insert',
-    description: 'Subscribe to a channel (requires OAuth).',
+    description:
+        'Subscribe to a YouTube channel. Requires OAuth. Provide body JSON with snippet.resourceId.channelId. Idempotent - safe to call multiple times for same channel.',
+    codeModeVisible: true,
+    annotations: ToolAnnotations(
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    ),
   )
   Future<Map<String, dynamic>> subscriptionsInsert({
     @Parameter(

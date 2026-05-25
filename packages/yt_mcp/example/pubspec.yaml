@@ -1,0 +1,11 @@
+name: yt_mcp_example
+description: Example demonstrating yt_mcp MCP server usage.
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.8.0
+
+dependencies:
+  yt_mcp:
+    path: ..
