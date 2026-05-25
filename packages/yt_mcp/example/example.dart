@@ -44,13 +44,15 @@ void main(List<String> args) {
   print('Configuration:');
   print('  1. Create a .env file (see .env.example)');
   print('  2. Set YT_API_KEY for read-only access');
-  print('  3. OR set YT_CLIENT_SECRETS_FILE + YT_ACCESS_TOKENS_FILE for OAuth\n');
+  print(
+    '  3. OR set YT_CLIENT_SECRETS_FILE + YT_ACCESS_TOKENS_FILE for OAuth\n',
+  );
   print('Connect with MCP-compatible AI assistants:');
   print('  - Qoder');
   print('  - Claude Desktop');
   print('  - VS Code with MCP extension\n');
   print('See README.md for full documentation.');
-  
+
   // Exit with success
   exit(0);
 }
