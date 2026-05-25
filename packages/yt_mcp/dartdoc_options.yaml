@@ -1,0 +1,5 @@
+dartdoc:
+  # This package is a binary-only MCP server with no public library API.
+  # Ignore the warning about no documentable libraries.
+  ignore:
+    - no-documentable-libraries
